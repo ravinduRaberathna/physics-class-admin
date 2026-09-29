@@ -99,7 +99,6 @@ body {
   will-change: transform;
 }
 
-/* Ultra Modern Futuristic Bold Font Styling */
 .kinetic-item-styled {
   font-family: 'Syne', sans-serif;
   font-weight: 900;
@@ -126,6 +125,46 @@ body {
 .kinetic-stage-masked {
   mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 85%);
   -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 85%);
+}
+
+/* ==========================================================
+   HERO TEXT ENTRANCE ANIMATIONS (STAGGERED CHRONO LIFT)
+   ========================================================== */
+@keyframes heroEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+.animate-hero-badge {
+  animation: heroEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+
+.animate-hero-title {
+  animation: heroEntrance 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+.animate-hero-sub {
+  animation: heroEntrance 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both;
+}
+
+.animate-hero-desc {
+  animation: heroEntrance 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both;
+}
+
+.animate-hero-cta {
+  animation: heroEntrance 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.75s both;
+}
+
+.animate-hero-stats {
+  animation: heroEntrance 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.9s both;
 }
 
 /* ==========================================================

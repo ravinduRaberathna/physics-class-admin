@@ -191,29 +191,35 @@ const Home = () => {
                 </div>
               </div>
 
-              {/* Hero Foreground Content */}
+              {/* Hero Foreground Content with Staggered Entrance Animations */}
               <div className="relative z-10 max-w-4xl mx-auto text-center flex flex-col items-center justify-center">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md border border-indigo-400/40 text-cyan-300 text-xs font-mono tracking-widest uppercase mb-6 shadow-sm">
+                
+                {/* 1. Batch Badge */}
+                <div className="animate-hero-badge inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md border border-indigo-400/40 text-cyan-300 text-xs font-mono tracking-widest uppercase mb-6 shadow-sm">
                   <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
                   <span>A/L PHYSICS ACADEMY • {teacher?.name || 'MASTERCLASS'}</span>
                 </div>
 
-                <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-tight font-sans drop-shadow-lg">
+                {/* 2. Headline */}
+                <h1 className="animate-hero-title text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-tight font-sans drop-shadow-lg">
                   MASTER THE LAWS OF <br className="hidden sm:inline" />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-300 to-fuchsia-400">
                     THE PHYSICAL UNIVERSE
                   </span>
                 </h1>
 
-                <p className="font-mono text-xs sm:text-sm md:text-base text-indigo-200 mt-4 uppercase tracking-widest font-semibold max-w-2xl">
+                {/* 3. Stream Subtitle */}
+                <p className="animate-hero-sub font-mono text-xs sm:text-sm md:text-base text-indigo-200 mt-4 uppercase tracking-widest font-semibold max-w-2xl">
                   Comprehensive Theory • Systematic Revision • Analytical Paper Classes
                 </p>
 
-                <p className="text-xs sm:text-sm md:text-base text-slate-300 max-w-2xl mt-4 leading-relaxed font-sans font-normal">
+                {/* 4. Description */}
+                <p className="animate-hero-desc text-xs sm:text-sm md:text-base text-slate-300 max-w-2xl mt-4 leading-relaxed font-sans font-normal">
                   {teacher?.bio || 'Designed specifically for ambitious Sri Lankan students targeting Island Top Rankings. Transform mechanical memorization into sharp conceptual clarity.'}
                 </p>
 
-                <div className="flex flex-col sm:flex-row items-center gap-3.5 mt-8 w-full sm:w-auto">
+                {/* 5. CTA Buttons */}
+                <div className="animate-hero-cta flex flex-col sm:flex-row items-center gap-3.5 mt-8 w-full sm:w-auto">
                   <a href="#classes" className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-mono font-bold text-xs tracking-wider uppercase transition shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 border border-white/20">
                     <BookOpen size={16} />
                     <span>Explore Classes & Enroll</span>
@@ -225,7 +231,8 @@ const Home = () => {
                   </a>
                 </div>
 
-                <div className="grid grid-cols-3 gap-6 sm:gap-14 pt-8 mt-8 border-t border-slate-700/80 max-w-xl w-full">
+                {/* 6. Live Stat Numbers */}
+                <div className="animate-hero-stats grid grid-cols-3 gap-6 sm:gap-14 pt-8 mt-8 border-t border-slate-700/80 max-w-xl w-full">
                   <div>
                     <div className="text-xl sm:text-2xl font-mono font-bold text-cyan-400">98%</div>
                     <div className="text-[10px] sm:text-[11px] text-slate-300 uppercase font-mono mt-0.5 tracking-wider font-semibold">Pass Rate</div>
@@ -239,6 +246,7 @@ const Home = () => {
                     <div className="text-[10px] sm:text-[11px] text-slate-300 uppercase font-mono mt-0.5 tracking-wider font-semibold">Active Students</div>
                   </div>
                 </div>
+
               </div>
             </section>
           </RevealOnScroll>
@@ -317,7 +325,7 @@ const Home = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {classes.length === 0 ? (
                 <div className="col-span-2 blueprint-card p-14 text-center rounded-3xl text-slate-500 font-mono border border-dashed border-slate-300">
-                  දැනට පන්ති ලියාපදිංචි කර නොමැත. Admin Panel එකෙන් class එකක් ඇතුළත් කරන්න!
+                  Prastutaniki e classes register avvaledhu. Admin Panel nunchi add cheyyandi!
                 </div>
               ) : (
                 classes.map((cls, index) => (
@@ -364,7 +372,7 @@ const Home = () => {
                         </h4>
                         
                         <p className="text-xs sm:text-sm text-slate-600 mt-2.5 leading-relaxed font-sans line-clamp-3">
-                          {cls.description || 'සම්පූර්ණ සිද්ධාන්ත ආවරණය, සවිස්තර ප්‍රශ්න පත්‍ර සාකච්ඡාව සහ විශේෂ නිබන්ධන මාලාව.'}
+                          {cls.description || 'Sampoorna siddhantha vivarana, model paper analysis mariyu special tutorial discussions.'}
                         </p>
 
                         <div className="mt-6 space-y-2.5">
