@@ -98,7 +98,6 @@ const Home = () => {
     setActiveVenueIdx((prev) => (prev === 0 ? venuesList.length - 1 : prev - 1));
   };
 
-  // Next Venue Trigger: The Right Card slides into Front
   const handleNextVenue = () => {
     setActiveVenueIdx((prev) => (prev === venuesList.length - 1 ? 0 : prev + 1));
   };
@@ -173,11 +172,17 @@ const Home = () => {
 
         <Navbar teacherName={teacher?.name || 'A/L PHYSICS'} />
 
-        <main className="relative z-10 pt-24 px-3 sm:px-6 max-w-7xl mx-auto">
+        {/* CONTAINER WITH BREATHING MARGIN AROUND HERO */}
+        <main className="relative z-10 pt-20 sm:pt-24 px-3 sm:px-6 md:px-8 max-w-[1536px] mx-auto">
           
-          {/* HERO SECTION */}
+          {/* =========================================================
+              FULL-VIEWPORT HERO SECTION WITH CURVED EDGES & OUTER FRAME
+             ========================================================= */}
           <RevealOnScroll delay={100}>
-            <section id="hero" className="relative rounded-3xl hero-spectrum-card overflow-hidden min-h-[88vh] flex items-center justify-center p-6 sm:p-12 lg:p-16 my-4 shadow-2xl border border-indigo-500/30 text-white">
+            <section 
+              id="hero" 
+              className="relative rounded-[2.5rem] hero-spectrum-card overflow-hidden h-[calc(100vh-6rem)] min-h-[640px] max-h-[920px] flex items-center justify-center p-6 sm:p-10 lg:p-14 my-3 shadow-[0_25px_60px_-15px_rgba(99,102,241,0.25)] border border-indigo-500/30 text-white"
+            >
               
               {/* KINETIC STREAM */}
               <div 
@@ -263,9 +268,9 @@ const Home = () => {
                 </div>
               </div>
 
-              {/* Hero Foreground Content */}
-              <div className="relative z-10 max-w-4xl mx-auto text-center flex flex-col items-center justify-center">
-                <div className="animate-hero-badge inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md border border-indigo-400/40 text-cyan-300 text-xs font-mono tracking-widest uppercase mb-6 shadow-sm">
+              {/* Hero Foreground Content (Scaled perfectly inside the viewport) */}
+              <div className="relative z-10 max-w-4xl mx-auto text-center flex flex-col items-center justify-center my-auto">
+                <div className="animate-hero-badge inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md border border-indigo-400/40 text-cyan-300 text-xs font-mono tracking-widest uppercase mb-4 sm:mb-6 shadow-sm">
                   <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
                   <span>A/L PHYSICS ACADEMY • {teacher?.name || 'MASTERCLASS'}</span>
                 </div>
@@ -277,15 +282,15 @@ const Home = () => {
                   </span>
                 </h1>
 
-                <p className="animate-hero-sub font-mono text-xs sm:text-sm md:text-base text-indigo-200 mt-4 uppercase tracking-widest font-semibold max-w-2xl">
+                <p className="animate-hero-sub font-mono text-xs sm:text-sm md:text-base text-indigo-200 mt-3 sm:mt-4 uppercase tracking-widest font-semibold max-w-2xl">
                   Comprehensive Theory • Systematic Revision • Analytical Paper Classes
                 </p>
 
-                <p className="animate-hero-desc text-xs sm:text-sm md:text-base text-slate-300 max-w-2xl mt-4 leading-relaxed font-sans font-normal">
+                <p className="animate-hero-desc text-xs sm:text-sm md:text-base text-slate-300 max-w-2xl mt-3 sm:mt-4 leading-relaxed font-sans font-normal line-clamp-3 sm:line-clamp-none">
                   {teacher?.bio || 'Designed specifically for ambitious Sri Lankan students targeting Island Top Rankings. Transform mechanical memorization into sharp conceptual clarity.'}
                 </p>
 
-                <div className="animate-hero-cta flex flex-col sm:flex-row items-center gap-3.5 mt-8 w-full sm:w-auto">
+                <div className="animate-hero-cta flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mt-6 sm:mt-8 w-full sm:w-auto">
                   <a href="#classes" className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-mono font-bold text-xs tracking-wider uppercase transition shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 border border-white/20">
                     <BookOpen size={16} />
                     <span>Explore Classes & Enroll</span>
@@ -297,7 +302,7 @@ const Home = () => {
                   </a>
                 </div>
 
-                <div className="animate-hero-stats grid grid-cols-3 gap-6 sm:gap-14 pt-8 mt-8 border-t border-slate-700/80 max-w-xl w-full">
+                <div className="animate-hero-stats grid grid-cols-3 gap-6 sm:gap-14 pt-6 sm:pt-8 mt-6 sm:mt-8 border-t border-slate-700/80 max-w-xl w-full">
                   <div>
                     <div className="text-xl sm:text-2xl font-mono font-bold text-cyan-400">98%</div>
                     <div className="text-[10px] sm:text-[11px] text-slate-300 uppercase font-mono mt-0.5 tracking-wider font-semibold">Pass Rate</div>
@@ -325,10 +330,8 @@ const Home = () => {
               onMouseLeave={() => setIsPaused(false)}
               className="py-16 my-10 relative overflow-hidden rounded-3xl bg-[#090d16] border border-white/[0.08] shadow-2xl p-6 sm:p-12 text-slate-100"
             >
-              {/* Top ambient glow */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-indigo-600/15 blur-[100px] pointer-events-none"></div>
 
-              {/* Header with Navigation Controls */}
               <div className="relative z-10 flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
                 <div>
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-cyan-400 text-xs font-mono uppercase tracking-widest font-semibold mb-3">
@@ -367,7 +370,6 @@ const Home = () => {
                   {venuesList.map((venue, idx) => {
                     const total = venuesList.length;
                     
-                    // Positional distance relative to active center:
                     let diff = (idx - activeVenueIdx) % total;
                     if (diff < -Math.floor(total / 2)) diff += total;
                     if (diff > Math.floor(total / 2)) diff -= total;
@@ -376,32 +378,27 @@ const Home = () => {
                     const isRight = diff === 1;
                     const isLeft = diff === -1;
 
-                    // 3D positioning for smooth flight into center
                     let transform = '';
                     let zIndex = 10;
                     let opacity = 0;
                     let pointerEvents = 'none';
 
                     if (isCenter) {
-                      // Front Card: Center, scaled, forward
                       transform = 'translate3d(-50%, -50%, 80px) rotateY(0deg) scale(1)';
                       zIndex = 30;
                       opacity = 1;
                       pointerEvents = 'auto';
                     } else if (isRight) {
-                      // Right Card: Slanted and waiting to swoop to the front
                       transform = 'translate3d(15%, -50%, -140px) rotateY(-26deg) scale(0.84)';
                       zIndex = 20;
                       opacity = 0.55;
                       pointerEvents = 'auto';
                     } else if (isLeft) {
-                      // Left Card: Slanted in opposite direction
                       transform = 'translate3d(-115%, -50%, -140px) rotateY(26deg) scale(0.84)';
                       zIndex = 20;
                       opacity = 0.55;
                       pointerEvents = 'auto';
                     } else {
-                      // Other hidden cards orbiting behind
                       const offscreenX = diff > 0 ? '120%' : '-180%';
                       transform = `translate3d(${offscreenX}, -50%, -350px) rotateY(${diff > 0 ? -40 : 40}deg) scale(0.65)`;
                       zIndex = 5;
@@ -434,7 +431,6 @@ const Home = () => {
                         )}
 
                         <div>
-                          {/* Tags */}
                           <div className="flex items-center justify-between mb-5">
                             <span className={`px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-widest uppercase border ${venue.badge}`}>
                               {venue.tag}
@@ -445,7 +441,6 @@ const Home = () => {
                             </span>
                           </div>
 
-                          {/* Title */}
                           <h4 className={`font-black tracking-tight text-white transition-colors duration-500 ${
                             isCenter ? 'text-2xl sm:text-3xl' : 'text-lg text-slate-300'
                           }`}>
@@ -455,7 +450,6 @@ const Home = () => {
                             {venue.hall}
                           </p>
 
-                          {/* Timetable Box */}
                           <div className={`mt-6 p-4 rounded-2xl border flex items-center gap-3 font-mono text-xs transition-colors duration-500 ${
                             isCenter 
                               ? 'bg-white/[0.03] border-white/[0.08] text-cyan-200 font-medium' 
@@ -467,7 +461,6 @@ const Home = () => {
                             <span>{venue.time}</span>
                           </div>
 
-                          {/* Center Card Amenities */}
                           {isCenter && (
                             <div className="mt-6 space-y-2.5 border-t border-white/[0.06] pt-5">
                               <p className="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-semibold">
@@ -485,7 +478,6 @@ const Home = () => {
                           )}
                         </div>
 
-                        {/* Card Action */}
                         <div className="mt-8 pt-5 border-t border-white/[0.06] flex items-center justify-between">
                           <span className="text-[11px] font-mono text-slate-400">
                             Verified Seating
