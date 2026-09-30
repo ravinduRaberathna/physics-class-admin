@@ -72,9 +72,8 @@ const Home = () => {
   const [classes, setClasses] = useState([]);
   const [teacher, setTeacher] = useState(null);
 
-  // 3D Floating Swap Carousel State
+  // 3D Carousel Active Index
   const [activeVenueIdx, setActiveVenueIdx] = useState(0);
-  const [isSwapping, setIsSwapping] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const autoSlideTimerRef = useRef(null);
 
@@ -95,34 +94,22 @@ const Home = () => {
       .catch((err) => console.error(err));
   }, []);
 
-  const triggerSwapTo = (newIdx) => {
-    if (isSwapping) return;
-    setIsSwapping(true);
-    setActiveVenueIdx(newIdx);
-
-    // Swap float duration
-    setTimeout(() => {
-      setIsSwapping(false);
-    }, 700);
-  };
-
   const handlePrevVenue = () => {
-    const nextIdx = activeVenueIdx === 0 ? venuesList.length - 1 : activeVenueIdx - 1;
-    triggerSwapTo(nextIdx);
+    setActiveVenueIdx((prev) => (prev === 0 ? venuesList.length - 1 : prev - 1));
   };
 
+  // Next Venue Trigger: The Right Card slides into Front
   const handleNextVenue = () => {
-    const nextIdx = activeVenueIdx === venuesList.length - 1 ? 0 : activeVenueIdx + 1;
-    triggerSwapTo(nextIdx);
+    setActiveVenueIdx((prev) => (prev === venuesList.length - 1 ? 0 : prev + 1));
   };
 
-  // Auto-slide loop with floating trigger
+  // Auto-slide: Right card slides to center every 3.8s
   useEffect(() => {
     if (isPaused) return;
 
     autoSlideTimerRef.current = setInterval(() => {
       handleNextVenue();
-    }, 4200);
+    }, 3800);
 
     return () => {
       if (autoSlideTimerRef.current) clearInterval(autoSlideTimerRef.current);
@@ -171,7 +158,7 @@ const Home = () => {
       )}
 
       <div className="text-slate-900 font-sans antialiased overflow-x-hidden relative min-h-screen selection:bg-indigo-600 selection:text-white">
-        {/* Background Math Equations */}
+        {/* Subtle Math Formulas Background */}
         <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
           <div className="absolute top-28 right-10 font-mono text-[9.5rem] font-black text-indigo-900/[0.03] select-none leading-none rotate-12">
             Δx·Δp ≥ ℏ/2
@@ -192,7 +179,7 @@ const Home = () => {
           <RevealOnScroll delay={100}>
             <section id="hero" className="relative rounded-3xl hero-spectrum-card overflow-hidden min-h-[88vh] flex items-center justify-center p-6 sm:p-12 lg:p-16 my-4 shadow-2xl border border-indigo-500/30 text-white">
               
-              {/* ENDLESS KINETIC STREAM */}
+              {/* KINETIC STREAM */}
               <div 
                 className="absolute inset-[-80%_-50%] pointer-events-none select-none overflow-hidden flex justify-center items-center z-1 -rotate-12 origin-center kinetic-stage-masked" 
                 aria-hidden="true"
@@ -329,7 +316,7 @@ const Home = () => {
           </RevealOnScroll>
 
           {/* =========================================================
-              3D PERSPECTIVE VENUES (FLOAT-IN-AIR WHILE SWAPPING)
+              3D ORBITAL VENUES (RIGHT CARD SWOOPS DIRECTLY TO FRONT)
              ========================================================= */}
           <RevealOnScroll delay={150}>
             <section 
@@ -338,10 +325,10 @@ const Home = () => {
               onMouseLeave={() => setIsPaused(false)}
               className="py-16 my-10 relative overflow-hidden rounded-3xl bg-[#090d16] border border-white/[0.08] shadow-2xl p-6 sm:p-12 text-slate-100"
             >
-              {/* Background ambient aura */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-indigo-600/10 blur-[90px] pointer-events-none"></div>
+              {/* Top ambient glow */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-indigo-600/15 blur-[100px] pointer-events-none"></div>
 
-              {/* Header */}
+              {/* Header with Navigation Controls */}
               <div className="relative z-10 flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
                 <div>
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-cyan-400 text-xs font-mono uppercase tracking-widest font-semibold mb-3">
@@ -374,55 +361,76 @@ const Home = () => {
                 </div>
               </div>
 
-              {/* 3D CAROUSEL STAGE WITH REAL-TIME FLOAT TRANSITION */}
-              <div className="relative py-10 flex items-center justify-center min-h-[470px] [perspective:1500px]">
-                <div className="flex items-center justify-center gap-2 sm:gap-6 w-full max-w-6xl">
-                  {[-1, 0, 1].map((offset) => {
-                    const index = (activeVenueIdx + offset + venuesList.length) % venuesList.length;
-                    const venue = venuesList[index];
-                    const isCenter = offset === 0;
-                    const isLeft = offset === -1;
-                    const isRight = offset === 1;
+              {/* 3D CAROUSEL STAGE: RIGHT CARD ORBITS TO CENTER */}
+              <div className="relative py-8 flex items-center justify-center min-h-[490px] carousel-stage overflow-hidden sm:overflow-visible">
+                <div className="relative w-full max-w-5xl h-[420px] flex items-center justify-center">
+                  {venuesList.map((venue, idx) => {
+                    const total = venuesList.length;
+                    
+                    // Positional distance relative to active center:
+                    let diff = (idx - activeVenueIdx) % total;
+                    if (diff < -Math.floor(total / 2)) diff += total;
+                    if (diff > Math.floor(total / 2)) diff -= total;
 
-                    // Dynamic Transform when swapping: cards lift up in an arc!
-                    let transformStyle = '';
+                    const isCenter = diff === 0;
+                    const isRight = diff === 1;
+                    const isLeft = diff === -1;
+
+                    // 3D positioning for smooth flight into center
+                    let transform = '';
+                    let zIndex = 10;
+                    let opacity = 0;
+                    let pointerEvents = 'none';
+
                     if (isCenter) {
-                      // Center card floats up into the air when swapping, lands smoothly
-                      const floatY = isSwapping ? -22 : 0;
-                      const floatZ = isSwapping ? 60 : 20;
-                      transformStyle = `scale(1) translateZ(${floatZ}px) rotateY(0deg) translateY(${floatY}px)`;
-                    } else if (isLeft) {
-                      const floatY = isSwapping ? -10 : 0;
-                      transformStyle = `scale(0.85) translateZ(-140px) rotateY(26deg) translateX(36px) translateY(${floatY}px)`;
+                      // Front Card: Center, scaled, forward
+                      transform = 'translate3d(-50%, -50%, 80px) rotateY(0deg) scale(1)';
+                      zIndex = 30;
+                      opacity = 1;
+                      pointerEvents = 'auto';
                     } else if (isRight) {
-                      const floatY = isSwapping ? -10 : 0;
-                      transformStyle = `scale(0.85) translateZ(-140px) rotateY(-26deg) translateX(-36px) translateY(${floatY}px)`;
+                      // Right Card: Slanted and waiting to swoop to the front
+                      transform = 'translate3d(15%, -50%, -140px) rotateY(-26deg) scale(0.84)';
+                      zIndex = 20;
+                      opacity = 0.55;
+                      pointerEvents = 'auto';
+                    } else if (isLeft) {
+                      // Left Card: Slanted in opposite direction
+                      transform = 'translate3d(-115%, -50%, -140px) rotateY(26deg) scale(0.84)';
+                      zIndex = 20;
+                      opacity = 0.55;
+                      pointerEvents = 'auto';
+                    } else {
+                      // Other hidden cards orbiting behind
+                      const offscreenX = diff > 0 ? '120%' : '-180%';
+                      transform = `translate3d(${offscreenX}, -50%, -350px) rotateY(${diff > 0 ? -40 : 40}deg) scale(0.65)`;
+                      zIndex = 5;
+                      opacity = 0;
                     }
 
                     return (
                       <div
-                        key={venue.name + offset}
+                        key={venue.name}
                         onClick={() => {
-                          if (isLeft) handlePrevVenue();
                           if (isRight) handleNextVenue();
+                          if (isLeft) handlePrevVenue();
                         }}
                         style={{
-                          transform: transformStyle,
-                          transformStyle: 'preserve-3d',
+                          top: '50%',
+                          left: '50%',
+                          transform,
+                          zIndex,
+                          opacity,
+                          pointerEvents,
                         }}
-                        className={`card-float-transition cursor-pointer select-none rounded-3xl p-7 sm:p-8 flex flex-col justify-between shrink-0 relative ${
+                        className={`card-orbit-anim absolute w-[92%] sm:w-[480px] md:w-[500px] rounded-3xl p-7 sm:p-8 flex flex-col justify-between cursor-pointer select-none ${
                           isCenter
-                            ? `w-full sm:w-[490px] md:w-[510px] bg-[#101625]/95 border border-indigo-500/40 z-20 opacity-100 ring-1 ring-indigo-500/30 ${
-                                isSwapping ? 'floating-shadow-lift' : 'shadow-[0_20px_50px_-15px_rgba(99,102,241,0.25)]'
-                              }`
-                            : 'hidden md:flex md:w-[320px] bg-[#0c111d]/75 border border-white/[0.06] shadow-xl z-10 opacity-35 hover:opacity-70 blur-[1px]'
+                            ? 'bg-[#101625]/95 border border-indigo-500/40 shadow-[0_25px_60px_-12px_rgba(99,102,241,0.32)] ring-1 ring-indigo-500/30'
+                            : 'bg-[#0c111d]/85 border border-white/[0.06] shadow-xl hover:opacity-85'
                         }`}
                       >
-                        {/* Center Card Floating Glow Mesh */}
                         {isCenter && (
-                          <div className={`absolute -top-12 left-1/2 -translate-x-1/2 w-52 h-20 bg-indigo-500/25 blur-2xl pointer-events-none rounded-full transition-opacity duration-700 ${
-                            isSwapping ? 'opacity-100 scale-125' : 'opacity-60 scale-100'
-                          }`}></div>
+                          <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-20 bg-indigo-500/20 blur-2xl pointer-events-none rounded-full"></div>
                         )}
 
                         <div>
@@ -509,7 +517,7 @@ const Home = () => {
                 {venuesList.map((_, i) => (
                   <button
                     key={i}
-                    onClick={() => triggerSwapTo(i)}
+                    onClick={() => setActiveVenueIdx(i)}
                     className="relative h-1.5 rounded-full overflow-hidden transition-all duration-500 cursor-pointer bg-white/[0.1]"
                     style={{
                       width: activeVenueIdx === i ? '2.8rem' : '0.6rem'
