@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import API from '../../api/axiosInstance';
 import Navbar from '../../components/Navbar';
 import VirtualLab from '../../components/VirtualLab';
@@ -12,13 +12,71 @@ import {
   MessageSquare, 
   Send, 
   Calendar, 
-  MapPin 
+  MapPin,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Sparkle
 } from 'lucide-react';
+
+const venuesList = [
+  { 
+    name: 'Rotary Hall', 
+    loc: 'Nugegoda', 
+    hall: 'Main Auditorium (A/C)', 
+    time: 'Every Sunday • 08:00 AM - 01:30 PM', 
+    tag: 'Premier Hub', 
+    badge: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+    features: ['1200+ Seating Capacity', 'Live Overhead 4K Projection', 'Individual Acoustic Audio Desks']
+  },
+  { 
+    name: 'SASIP Institute', 
+    loc: 'Nawinna', 
+    hall: 'Auditorium Complex 02', 
+    time: 'Every Saturday • 01:30 PM - 06:30 PM', 
+    tag: 'Flagship Center', 
+    badge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+    features: ['Tiered Lecture Hall', 'Studio-Grade Acoustics', 'Tutorial Helpdesk Station']
+  },
+  { 
+    name: 'Sakya Higher Education', 
+    loc: 'Kohuwela', 
+    hall: 'Block B - Hall 04', 
+    time: 'Every Monday • 03:00 PM - 07:00 PM', 
+    tag: 'Theory Center', 
+    badge: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
+    features: ['Multi-Zone Climate Control', 'Interactive Screen System', 'Dedicated Vehicle Parking']
+  },
+  { 
+    name: 'Syzygy Institute', 
+    loc: 'Nugegoda', 
+    hall: 'Upper Deck Lecture Room', 
+    time: 'Every Wednesday • 02:30 PM - 06:00 PM', 
+    tag: 'Speed Revision', 
+    badge: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+    features: ['Paper Discussion Setup', 'Biometric Gate Access', 'High-Speed WiFi Study Lounge']
+  },
+  { 
+    name: 'Apex Academy', 
+    loc: 'Matara', 
+    hall: 'Central Hall A', 
+    time: 'Every Friday • 02:00 PM - 06:30 PM', 
+    tag: 'Southern Hub', 
+    badge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    features: ['Direct Highway Express Access', 'Full Acoustic Dispersion', 'On-Site Exam Hall']
+  },
+];
 
 const Home = () => {
   const [loadingComplete, setLoadingComplete] = useState(false);
   const [classes, setClasses] = useState([]);
   const [teacher, setTeacher] = useState(null);
+
+  // 3D Floating Swap Carousel State
+  const [activeVenueIdx, setActiveVenueIdx] = useState(0);
+  const [isSwapping, setIsSwapping] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const autoSlideTimerRef = useRef(null);
 
   const [studentName, setStudentName] = useState('');
   const [phone, setPhone] = useState('');
@@ -36,6 +94,40 @@ const Home = () => {
       .then((res) => setTeacher(res.data))
       .catch((err) => console.error(err));
   }, []);
+
+  const triggerSwapTo = (newIdx) => {
+    if (isSwapping) return;
+    setIsSwapping(true);
+    setActiveVenueIdx(newIdx);
+
+    // Swap float duration
+    setTimeout(() => {
+      setIsSwapping(false);
+    }, 700);
+  };
+
+  const handlePrevVenue = () => {
+    const nextIdx = activeVenueIdx === 0 ? venuesList.length - 1 : activeVenueIdx - 1;
+    triggerSwapTo(nextIdx);
+  };
+
+  const handleNextVenue = () => {
+    const nextIdx = activeVenueIdx === venuesList.length - 1 ? 0 : activeVenueIdx + 1;
+    triggerSwapTo(nextIdx);
+  };
+
+  // Auto-slide loop with floating trigger
+  useEffect(() => {
+    if (isPaused) return;
+
+    autoSlideTimerRef.current = setInterval(() => {
+      handleNextVenue();
+    }, 4200);
+
+    return () => {
+      if (autoSlideTimerRef.current) clearInterval(autoSlideTimerRef.current);
+    };
+  }, [isPaused, activeVenueIdx]);
 
   const handleEnrollSubmit = async (e) => {
     e.preventDefault();
@@ -74,7 +166,6 @@ const Home = () => {
 
   return (
     <>
-      {/* Intro Preloader Animation */}
       {!loadingComplete && (
         <PageLoader onComplete={() => setLoadingComplete(true)} />
       )}
@@ -97,18 +188,16 @@ const Home = () => {
 
         <main className="relative z-10 pt-24 px-3 sm:px-6 max-w-7xl mx-auto">
           
-          {/* HERO SECTION: PRESERVED DARK SPECTRUM & KINETIC CANVAS */}
+          {/* HERO SECTION */}
           <RevealOnScroll delay={100}>
             <section id="hero" className="relative rounded-3xl hero-spectrum-card overflow-hidden min-h-[88vh] flex items-center justify-center p-6 sm:p-12 lg:p-16 my-4 shadow-2xl border border-indigo-500/30 text-white">
               
-              {/* 100% ENDLESS SEAMLESS KINETIC DIAGONAL STREAM */}
+              {/* ENDLESS KINETIC STREAM */}
               <div 
                 className="absolute inset-[-80%_-50%] pointer-events-none select-none overflow-hidden flex justify-center items-center z-1 -rotate-12 origin-center kinetic-stage-masked" 
                 aria-hidden="true"
               >
                 <div className="flex gap-6 sm:gap-8 md:gap-10 w-[170%] justify-center">
-                  
-                  {/* LANE 1: Endless Downward Stream */}
                   <div className="flex flex-col shrink-0 overflow-hidden">
                     <div className="lane-down-fast">
                       <div className="flex flex-col">
@@ -128,7 +217,6 @@ const Home = () => {
                     </div>
                   </div>
 
-                  {/* LANE 2: Endless Upward Stream */}
                   <div className="flex flex-col shrink-0 overflow-hidden">
                     <div className="lane-up-normal">
                       <div className="flex flex-col">
@@ -148,7 +236,6 @@ const Home = () => {
                     </div>
                   </div>
 
-                  {/* LANE 3: Endless Downward Stream */}
                   <div className="flex flex-col shrink-0 overflow-hidden">
                     <div className="lane-down-slow">
                       <div className="flex flex-col">
@@ -168,7 +255,6 @@ const Home = () => {
                     </div>
                   </div>
 
-                  {/* LANE 4: Endless Upward Stream */}
                   <div className="hidden md:flex flex-col shrink-0 overflow-hidden">
                     <div className="lane-up-normal">
                       <div className="flex flex-col">
@@ -187,20 +273,16 @@ const Home = () => {
                       </div>
                     </div>
                   </div>
-
                 </div>
               </div>
 
-              {/* Hero Foreground Content with Staggered Entrance Animations */}
+              {/* Hero Foreground Content */}
               <div className="relative z-10 max-w-4xl mx-auto text-center flex flex-col items-center justify-center">
-                
-                {/* 1. Batch Badge */}
                 <div className="animate-hero-badge inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md border border-indigo-400/40 text-cyan-300 text-xs font-mono tracking-widest uppercase mb-6 shadow-sm">
                   <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
                   <span>A/L PHYSICS ACADEMY • {teacher?.name || 'MASTERCLASS'}</span>
                 </div>
 
-                {/* 2. Headline */}
                 <h1 className="animate-hero-title text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-tight font-sans drop-shadow-lg">
                   MASTER THE LAWS OF <br className="hidden sm:inline" />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-300 to-fuchsia-400">
@@ -208,17 +290,14 @@ const Home = () => {
                   </span>
                 </h1>
 
-                {/* 3. Stream Subtitle */}
                 <p className="animate-hero-sub font-mono text-xs sm:text-sm md:text-base text-indigo-200 mt-4 uppercase tracking-widest font-semibold max-w-2xl">
                   Comprehensive Theory • Systematic Revision • Analytical Paper Classes
                 </p>
 
-                {/* 4. Description */}
                 <p className="animate-hero-desc text-xs sm:text-sm md:text-base text-slate-300 max-w-2xl mt-4 leading-relaxed font-sans font-normal">
                   {teacher?.bio || 'Designed specifically for ambitious Sri Lankan students targeting Island Top Rankings. Transform mechanical memorization into sharp conceptual clarity.'}
                 </p>
 
-                {/* 5. CTA Buttons */}
                 <div className="animate-hero-cta flex flex-col sm:flex-row items-center gap-3.5 mt-8 w-full sm:w-auto">
                   <a href="#classes" className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-mono font-bold text-xs tracking-wider uppercase transition shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 border border-white/20">
                     <BookOpen size={16} />
@@ -231,7 +310,6 @@ const Home = () => {
                   </a>
                 </div>
 
-                {/* 6. Live Stat Numbers */}
                 <div className="animate-hero-stats grid grid-cols-3 gap-6 sm:gap-14 pt-8 mt-8 border-t border-slate-700/80 max-w-xl w-full">
                   <div>
                     <div className="text-xl sm:text-2xl font-mono font-bold text-cyan-400">98%</div>
@@ -246,55 +324,205 @@ const Home = () => {
                     <div className="text-[10px] sm:text-[11px] text-slate-300 uppercase font-mono mt-0.5 tracking-wider font-semibold">Active Students</div>
                   </div>
                 </div>
-
               </div>
             </section>
           </RevealOnScroll>
 
-          {/* VENUES INFINITE SLIDING MARQUEE */}
+          {/* =========================================================
+              3D PERSPECTIVE VENUES (FLOAT-IN-AIR WHILE SWAPPING)
+             ========================================================= */}
           <RevealOnScroll delay={150}>
-            <section id="venues" className="py-10 border-y border-slate-200 my-10 relative overflow-hidden blueprint-card rounded-2xl shadow-sm">
-              <div className="flex items-center justify-between mb-6 px-4">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-indigo-600 ring-4 ring-indigo-500/20"></div>
-                  <h3 className="text-xs sm:text-sm font-mono uppercase tracking-widest text-slate-900 font-bold">
-                    Physical Class Locations (Sri Lanka)
+            <section 
+              id="venues"
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
+              className="py-16 my-10 relative overflow-hidden rounded-3xl bg-[#090d16] border border-white/[0.08] shadow-2xl p-6 sm:p-12 text-slate-100"
+            >
+              {/* Background ambient aura */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-indigo-600/10 blur-[90px] pointer-events-none"></div>
+
+              {/* Header */}
+              <div className="relative z-10 flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
+                <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-cyan-400 text-xs font-mono uppercase tracking-widest font-semibold mb-3">
+                    <Sparkle size={12} className="animate-spin text-cyan-400" style={{ animationDuration: '6s' }} />
+                    Islandwide Physical Locations
+                  </div>
+                  <h3 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight font-sans">
+                    Lecture Theatres & Campus Hubs
                   </h3>
+                  <p className="text-xs sm:text-sm text-slate-400 font-mono mt-1.5">
+                    Tiered auditoriums with optical 4K multi-projection & individual exam stations.
+                  </p>
                 </div>
-                <span className="text-[11px] font-mono text-slate-500 hidden sm:inline">
-                  Rotary • Sakya • Sasip • Apex • Syzygy
-                </span>
+
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                  <button
+                    onClick={handlePrevVenue}
+                    className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-slate-300 hover:text-white hover:bg-white/[0.08] transition active:scale-95 cursor-pointer"
+                    aria-label="Previous Location"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                  <button
+                    onClick={handleNextVenue}
+                    className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-slate-300 hover:text-white hover:bg-white/[0.08] transition active:scale-95 cursor-pointer"
+                    aria-label="Next Location"
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
               </div>
 
-              <div className="relative w-full overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_96px,_black_calc(100%-96px),transparent_100%)]">
-                <div className="venue-track gap-4 py-2">
-                  {[
-                    { name: 'Rotary Hall', loc: 'Nugegoda', time: 'Every Sunday 8:00 AM - 1:30 PM' },
-                    { name: 'SASIP Institute', loc: 'Nawinna', time: 'Every Saturday 1:30 PM - 6:30 PM' },
-                    { name: 'Sakya Higher Education', loc: 'Kohuwela', time: 'Every Monday 3:00 PM - 7:00 PM' },
-                    { name: 'Syzygy Institute', loc: 'Nugegoda', time: 'Every Wednesday 2:30 PM - 6:00 PM' },
-                    { name: 'Apex Academy', loc: 'Matara', time: 'Every Friday 2:00 PM - 6:30 PM' },
-                    { name: 'Rotary Hall', loc: 'Nugegoda', time: 'Every Sunday 8:00 AM - 1:30 PM' },
-                    { name: 'SASIP Institute', loc: 'Nawinna', time: 'Every Saturday 1:30 PM - 6:30 PM' },
-                    { name: 'Sakya Higher Education', loc: 'Kohuwela', time: 'Every Monday 3:00 PM - 7:00 PM' },
-                    { name: 'Syzygy Institute', loc: 'Nugegoda', time: 'Every Wednesday 2:30 PM - 6:00 PM' },
-                    { name: 'Apex Academy', loc: 'Matara', time: 'Every Friday 2:00 PM - 6:30 PM' },
-                  ].map((v, i) => (
-                    <div key={i} className="w-[300px] sm:w-[340px] bg-white rounded-xl p-5 border border-slate-200 shadow-sm shrink-0 flex flex-col justify-between hover:border-indigo-500 transition-colors">
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-[10px] font-mono font-semibold px-2.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-100">Hub {i % 5 + 1}</span>
-                          <span className="text-xs text-indigo-600 font-mono font-semibold">{v.loc}</span>
+              {/* 3D CAROUSEL STAGE WITH REAL-TIME FLOAT TRANSITION */}
+              <div className="relative py-10 flex items-center justify-center min-h-[470px] [perspective:1500px]">
+                <div className="flex items-center justify-center gap-2 sm:gap-6 w-full max-w-6xl">
+                  {[-1, 0, 1].map((offset) => {
+                    const index = (activeVenueIdx + offset + venuesList.length) % venuesList.length;
+                    const venue = venuesList[index];
+                    const isCenter = offset === 0;
+                    const isLeft = offset === -1;
+                    const isRight = offset === 1;
+
+                    // Dynamic Transform when swapping: cards lift up in an arc!
+                    let transformStyle = '';
+                    if (isCenter) {
+                      // Center card floats up into the air when swapping, lands smoothly
+                      const floatY = isSwapping ? -22 : 0;
+                      const floatZ = isSwapping ? 60 : 20;
+                      transformStyle = `scale(1) translateZ(${floatZ}px) rotateY(0deg) translateY(${floatY}px)`;
+                    } else if (isLeft) {
+                      const floatY = isSwapping ? -10 : 0;
+                      transformStyle = `scale(0.85) translateZ(-140px) rotateY(26deg) translateX(36px) translateY(${floatY}px)`;
+                    } else if (isRight) {
+                      const floatY = isSwapping ? -10 : 0;
+                      transformStyle = `scale(0.85) translateZ(-140px) rotateY(-26deg) translateX(-36px) translateY(${floatY}px)`;
+                    }
+
+                    return (
+                      <div
+                        key={venue.name + offset}
+                        onClick={() => {
+                          if (isLeft) handlePrevVenue();
+                          if (isRight) handleNextVenue();
+                        }}
+                        style={{
+                          transform: transformStyle,
+                          transformStyle: 'preserve-3d',
+                        }}
+                        className={`card-float-transition cursor-pointer select-none rounded-3xl p-7 sm:p-8 flex flex-col justify-between shrink-0 relative ${
+                          isCenter
+                            ? `w-full sm:w-[490px] md:w-[510px] bg-[#101625]/95 border border-indigo-500/40 z-20 opacity-100 ring-1 ring-indigo-500/30 ${
+                                isSwapping ? 'floating-shadow-lift' : 'shadow-[0_20px_50px_-15px_rgba(99,102,241,0.25)]'
+                              }`
+                            : 'hidden md:flex md:w-[320px] bg-[#0c111d]/75 border border-white/[0.06] shadow-xl z-10 opacity-35 hover:opacity-70 blur-[1px]'
+                        }`}
+                      >
+                        {/* Center Card Floating Glow Mesh */}
+                        {isCenter && (
+                          <div className={`absolute -top-12 left-1/2 -translate-x-1/2 w-52 h-20 bg-indigo-500/25 blur-2xl pointer-events-none rounded-full transition-opacity duration-700 ${
+                            isSwapping ? 'opacity-100 scale-125' : 'opacity-60 scale-100'
+                          }`}></div>
+                        )}
+
+                        <div>
+                          {/* Tags */}
+                          <div className="flex items-center justify-between mb-5">
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-widest uppercase border ${venue.badge}`}>
+                              {venue.tag}
+                            </span>
+                            <span className="text-xs font-mono font-bold text-slate-300 flex items-center gap-1.5 bg-white/[0.04] px-3 py-1 rounded-full border border-white/[0.06]">
+                              <MapPin size={13} className="text-cyan-400" />
+                              {venue.loc}
+                            </span>
+                          </div>
+
+                          {/* Title */}
+                          <h4 className={`font-black tracking-tight text-white transition-colors duration-500 ${
+                            isCenter ? 'text-2xl sm:text-3xl' : 'text-lg text-slate-300'
+                          }`}>
+                            {venue.name}
+                          </h4>
+                          <p className="text-xs font-mono text-slate-400 mt-1">
+                            {venue.hall}
+                          </p>
+
+                          {/* Timetable Box */}
+                          <div className={`mt-6 p-4 rounded-2xl border flex items-center gap-3 font-mono text-xs transition-colors duration-500 ${
+                            isCenter 
+                              ? 'bg-white/[0.03] border-white/[0.08] text-cyan-200 font-medium' 
+                              : 'bg-white/[0.01] border-white/[0.04] text-slate-400'
+                          }`}>
+                            <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                              <Clock size={16} />
+                            </div>
+                            <span>{venue.time}</span>
+                          </div>
+
+                          {/* Center Card Amenities */}
+                          {isCenter && (
+                            <div className="mt-6 space-y-2.5 border-t border-white/[0.06] pt-5">
+                              <p className="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-semibold">
+                                Auditorium Specifications:
+                              </p>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono text-slate-300">
+                                {venue.features.map((feat, fIdx) => (
+                                  <div key={fIdx} className="flex items-center gap-2">
+                                    <CheckCircle2 size={13} className="text-emerald-400 shrink-0" />
+                                    <span>{feat}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        <h4 className="text-base font-bold text-slate-800">{v.name}</h4>
+
+                        {/* Card Action */}
+                        <div className="mt-8 pt-5 border-t border-white/[0.06] flex items-center justify-between">
+                          <span className="text-[11px] font-mono text-slate-400">
+                            Verified Seating
+                          </span>
+                          <a
+                            href="#register"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setMessage(`Joining ${venue.name} (${venue.loc}) Batch`);
+                            }}
+                            className={`px-5 py-2.5 rounded-xl text-xs font-mono font-bold tracking-wider uppercase transition flex items-center gap-1.5 ${
+                              isCenter
+                                ? 'bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white shadow-lg shadow-indigo-500/20 active:scale-95'
+                                : 'bg-white/[0.05] text-slate-300'
+                            }`}
+                          >
+                            <span>Reserve Seat</span>
+                            <span>→</span>
+                          </a>
+                        </div>
                       </div>
-                      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-mono">
-                        <span className="text-slate-600">{v.time}</span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
+
+              {/* Minimal Line Indicators */}
+              <div className="flex items-center justify-center gap-2 mt-8">
+                {venuesList.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => triggerSwapTo(i)}
+                    className="relative h-1.5 rounded-full overflow-hidden transition-all duration-500 cursor-pointer bg-white/[0.1]"
+                    style={{
+                      width: activeVenueIdx === i ? '2.8rem' : '0.6rem'
+                    }}
+                    aria-label={`Go to slide ${i + 1}`}
+                  >
+                    {activeVenueIdx === i && (
+                      <span className="absolute inset-0 bg-gradient-to-r from-indigo-400 to-cyan-400" />
+                    )}
+                  </button>
+                ))}
+              </div>
+
             </section>
           </RevealOnScroll>
 
@@ -325,7 +553,7 @@ const Home = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {classes.length === 0 ? (
                 <div className="col-span-2 blueprint-card p-14 text-center rounded-3xl text-slate-500 font-mono border border-dashed border-slate-300">
-                  Prastutaniki e classes register avvaledhu. Admin Panel nunchi add cheyyandi!
+                  දැනට පන්ති ලියාපදිංචි කර නොමැත. Admin Panel එකෙන් class එකක් ඇතුළත් කරන්න!
                 </div>
               ) : (
                 classes.map((cls, index) => (
@@ -372,7 +600,7 @@ const Home = () => {
                         </h4>
                         
                         <p className="text-xs sm:text-sm text-slate-600 mt-2.5 leading-relaxed font-sans line-clamp-3">
-                          {cls.description || 'Sampoorna siddhantha vivarana, model paper analysis mariyu special tutorial discussions.'}
+                          {cls.description || 'සම්පූර්ණ සිද්ධාන්ත ආවරණය, සවිස්තර ප්‍රශ්න පත්‍ර සාකච්ඡාව සහ විශේෂ නිබන්ධන මාලාව.'}
                         </p>
 
                         <div className="mt-6 space-y-2.5">
@@ -549,7 +777,7 @@ const Home = () => {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs tracking-wider uppercase transition font-mono shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 disabled:bg-slate-400"
+                      className="w-full py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs tracking-wider uppercase transition font-mono shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 disabled:bg-slate-400 cursor-pointer"
                     >
                       <Send size={14} />
                       <span>{isSubmitting ? 'Processing...' : 'Confirm Registration on WhatsApp'}</span>
