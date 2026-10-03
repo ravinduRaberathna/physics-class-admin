@@ -98,20 +98,20 @@ const Home = () => {
         <main className="relative z-10 pt-2 sm:pt-3 px-2 sm:px-4 md:px-6 max-w-[1536px] mx-auto">
           
           {/* =========================================================
-              HERO SECTION (STYLED COMPLETELY WITH POPPINS)
+              HERO SECTION (FLUID 100% MOBILE & TABLET OPTIMIZED)
              ========================================================= */}
           <RevealOnScroll delay={100}>
             <section 
               id="hero" 
-              className="relative rounded-[2.5rem] hero-spectrum-card overflow-hidden h-[calc(100vh-1rem)] min-h-[620px] max-h-[960px] flex items-center justify-center p-6 sm:p-10 lg:p-14 pt-20 sm:pt-24 shadow-[0_25px_60px_-15px_rgba(99,102,241,0.25)] border border-indigo-500/30 text-white font-['Poppins']"
+              className="relative rounded-3xl sm:rounded-[2.5rem] hero-spectrum-card overflow-hidden min-h-[90vh] md:h-[calc(100vh-1rem)] md:min-h-[640px] md:max-h-[960px] flex items-center justify-center px-4 py-20 sm:p-10 lg:p-14 shadow-[0_25px_60px_-15px_rgba(99,102,241,0.25)] border border-indigo-500/30 text-white font-['Poppins']"
             >
               
-              {/* Background Kinetic Stream */}
+              {/* Background Kinetic Stream (Safely Masked for Mobile) */}
               <div 
-                className="absolute inset-[-80%_-50%] pointer-events-none select-none overflow-hidden flex justify-center items-center z-1 -rotate-12 origin-center kinetic-stage-masked" 
+                className="absolute inset-[-60%_-30%] sm:inset-[-80%_-50%] pointer-events-none select-none overflow-hidden flex justify-center items-center z-1 -rotate-12 origin-center kinetic-stage-masked opacity-60 sm:opacity-100" 
                 aria-hidden="true"
               >
-                <div className="flex gap-6 sm:gap-8 md:gap-10 w-[170%] justify-center">
+                <div className="flex gap-4 sm:gap-8 md:gap-10 w-[200%] sm:w-[170%] justify-center">
                   <div className="flex flex-col shrink-0 overflow-hidden">
                     <div className="lane-down-fast">
                       <div className="flex flex-col">
@@ -168,39 +168,20 @@ const Home = () => {
                       </div>
                     </div>
                   </div>
-
-                  <div className="hidden md:flex flex-col shrink-0 overflow-hidden">
-                    <div className="lane-up-normal">
-                      <div className="flex flex-col">
-                        {patternA.map((t, idx) => (
-                          <span key={`l4-a-${idx}`} className={`kinetic-item-styled ${idx % 2 !== 0 ? 'kinetic-fill-glow' : 'kinetic-stroke-neon'}`}>
-                            {t}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="flex flex-col">
-                        {patternA.map((t, idx) => (
-                          <span key={`l4-b-${idx}`} className={`kinetic-item-styled ${idx % 2 !== 0 ? 'kinetic-fill-glow' : 'kinetic-stroke-neon'}`}>
-                            {t}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
 
-              {/* Foreground Hero Content */}
-              <div className="relative z-10 max-w-4xl mx-auto text-center flex flex-col items-center justify-center my-auto">
+              {/* Foreground Hero Content (Mobile-First Spacing) */}
+              <div className="relative z-10 max-w-4xl mx-auto text-center flex flex-col items-center justify-center my-auto w-full">
                 
                 {/* 1. Badge */}
-                <div className="animate-hero-badge inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md border border-indigo-400/40 text-cyan-300 text-xs font-medium tracking-wider uppercase mb-4 sm:mb-6 shadow-sm">
-                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-                  <span>A/L PHYSICS ACADEMY • {teacher?.name || 'MASTERCLASS'}</span>
+                <div className="animate-hero-badge inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md border border-indigo-400/40 text-cyan-300 text-[10px] sm:text-xs font-medium tracking-wider uppercase mb-3.5 sm:mb-6 shadow-sm max-w-full truncate">
+                  <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-cyan-400 animate-pulse shrink-0"></span>
+                  <span className="truncate">A/L PHYSICS ACADEMY • {teacher?.name || 'MASTERCLASS'}</span>
                 </div>
 
-                {/* 2. Headline */}
-                <h1 className="animate-hero-title text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-tight drop-shadow-lg">
+                {/* 2. Headline with Responsive Fluid Typography */}
+                <h1 className="animate-hero-title text-[1.85rem] xs:text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.18] sm:leading-tight drop-shadow-lg px-1">
                   MASTER THE LAWS OF <br className="hidden sm:inline" />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-300 to-fuchsia-400">
                     THE PHYSICAL UNIVERSE
@@ -208,41 +189,41 @@ const Home = () => {
                 </h1>
 
                 {/* 3. Subtitle */}
-                <p className="animate-hero-sub text-xs sm:text-sm md:text-base text-indigo-200 mt-3 sm:mt-4 uppercase tracking-widest font-semibold max-w-2xl">
-                  Comprehensive Theory • Systematic Revision • Analytical Paper Classes
+                <p className="animate-hero-sub text-[11px] sm:text-sm md:text-base text-indigo-200 mt-3 sm:mt-4 uppercase tracking-wider sm:tracking-widest font-semibold max-w-2xl px-2 leading-relaxed">
+                  Comprehensive Theory • Systematic Revision • Paper Classes
                 </p>
 
                 {/* 4. Description */}
-                <p className="animate-hero-desc text-xs sm:text-sm md:text-base text-slate-300 max-w-2xl mt-3 sm:mt-4 leading-relaxed font-normal line-clamp-3 sm:line-clamp-none">
+                <p className="animate-hero-desc text-xs sm:text-sm md:text-base text-slate-300 max-w-2xl mt-2.5 sm:mt-4 leading-relaxed font-normal px-2">
                   {teacher?.bio || 'Designed specifically for ambitious Sri Lankan students targeting Island Top Rankings. Transform mechanical memorization into sharp conceptual clarity.'}
                 </p>
 
-                {/* 5. CTA Buttons */}
-                <div className="animate-hero-cta flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mt-6 sm:mt-8 w-full sm:w-auto">
-                  <a href="#classes" className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-semibold text-xs tracking-wider uppercase transition shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 border border-white/20 active:scale-95">
-                    <BookOpen size={16} />
+                {/* 5. CTA Buttons (Full-width on mobile, auto on larger screens) */}
+                <div className="animate-hero-cta flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mt-6 sm:mt-8 w-full sm:w-auto px-2">
+                  <a href="#classes" className="w-full sm:w-auto px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-semibold text-xs tracking-wider uppercase transition shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 border border-white/20 active:scale-95">
+                    <BookOpen size={15} />
                     <span>Explore Classes & Enroll</span>
                   </a>
 
-                  <a href="#simulator" className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 backdrop-blur-md border border-slate-700 text-white font-semibold text-xs tracking-wider uppercase transition shadow-sm flex items-center justify-center gap-2 active:scale-95">
-                    <Sparkles size={16} className="text-cyan-400" />
+                  <a href="#simulator" className="w-full sm:w-auto px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 backdrop-blur-md border border-slate-700 text-white font-semibold text-xs tracking-wider uppercase transition shadow-sm flex items-center justify-center gap-2 active:scale-95">
+                    <Sparkles size={15} className="text-cyan-400" />
                     <span>Launch Virtual Lab</span>
                   </a>
                 </div>
 
-                {/* 6. Live Stats */}
-                <div className="animate-hero-stats grid grid-cols-3 gap-6 sm:gap-14 pt-6 sm:pt-8 mt-6 sm:mt-8 border-t border-slate-700/80 max-w-xl w-full">
-                  <div>
-                    <div className="text-xl sm:text-3xl font-extrabold text-cyan-400 tracking-tight">98%</div>
-                    <div className="text-[10px] sm:text-[11px] text-slate-300 uppercase mt-0.5 tracking-wider font-medium">Pass Rate</div>
+                {/* 6. Live Stats (Clean compact grid on mobile) */}
+                <div className="animate-hero-stats grid grid-cols-3 gap-3 sm:gap-14 pt-5 sm:pt-8 mt-6 sm:mt-8 border-t border-slate-700/80 max-w-xl w-full px-2">
+                  <div className="text-center">
+                    <div className="text-lg xs:text-xl sm:text-3xl font-extrabold text-cyan-400 tracking-tight">98%</div>
+                    <div className="text-[9px] sm:text-[11px] text-slate-300 uppercase mt-0.5 tracking-wide font-medium">Pass Rate</div>
                   </div>
-                  <div>
-                    <div className="text-xl sm:text-3xl font-extrabold text-white tracking-tight">24+</div>
-                    <div className="text-[10px] sm:text-[11px] text-slate-300 uppercase mt-0.5 tracking-wider font-medium">Island Top 50</div>
+                  <div className="text-center">
+                    <div className="text-lg xs:text-xl sm:text-3xl font-extrabold text-white tracking-tight">24+</div>
+                    <div className="text-[9px] sm:text-[11px] text-slate-300 uppercase mt-0.5 tracking-wide font-medium">Top 50</div>
                   </div>
-                  <div>
-                    <div className="text-xl sm:text-3xl font-extrabold text-pink-400 tracking-tight">1800+</div>
-                    <div className="text-[10px] sm:text-[11px] text-slate-300 uppercase mt-0.5 tracking-wider font-medium">Active Students</div>
+                  <div className="text-center">
+                    <div className="text-lg xs:text-xl sm:text-3xl font-extrabold text-pink-400 tracking-tight">1800+</div>
+                    <div className="text-[9px] sm:text-[11px] text-slate-300 uppercase mt-0.5 tracking-wide font-medium">Students</div>
                   </div>
                 </div>
 
@@ -343,7 +324,7 @@ const Home = () => {
                           </div>
 
                           {cls.locations?.length > 0 && (
-                            <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50/80 border border-slate-200/60 text-xs text-slate-700">
+                            <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50/80 border border-slate-200/60 text-xs font-mono text-slate-700">
                               <div className="p-1.5 rounded-lg bg-cyan-100/70 text-cyan-700 shrink-0 mt-0.5">
                                 <MapPin size={15} />
                               </div>
@@ -354,7 +335,7 @@ const Home = () => {
                           )}
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-5 pt-5 border-t border-slate-100 text-xs text-slate-600">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-5 pt-5 border-t border-slate-100 text-xs font-mono text-slate-600">
                           <div className="flex items-center gap-2">
                             <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                             <span>Monthly Tutorial Packs</span>
