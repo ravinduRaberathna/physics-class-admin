@@ -1,9 +1,10 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import API from '../../api/axiosInstance';
 import Navbar from '../../components/Navbar';
 import VirtualLab from '../../components/VirtualLab';
 import PageLoader from '../../components/PageLoader';
 import RevealOnScroll from '../../components/RevealOnScroll';
+import VenuesCarousel from '../../components/VenuesCarousel';
 import { 
   BookOpen, 
   Sparkles, 
@@ -12,70 +13,13 @@ import {
   MessageSquare, 
   Send, 
   Calendar, 
-  MapPin,
-  ChevronLeft,
-  ChevronRight,
-  Clock,
-  Sparkle
+  MapPin 
 } from 'lucide-react';
-
-const venuesList = [
-  { 
-    name: 'Rotary Hall', 
-    loc: 'Nugegoda', 
-    hall: 'Main Auditorium (A/C)', 
-    time: 'Every Sunday • 08:00 AM - 01:30 PM', 
-    tag: 'Premier Hub', 
-    badge: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
-    features: ['1200+ Seating Capacity', 'Live Overhead 4K Projection', 'Individual Acoustic Audio Desks']
-  },
-  { 
-    name: 'SASIP Institute', 
-    loc: 'Nawinna', 
-    hall: 'Auditorium Complex 02', 
-    time: 'Every Saturday • 01:30 PM - 06:30 PM', 
-    tag: 'Flagship Center', 
-    badge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
-    features: ['Tiered Lecture Hall', 'Studio-Grade Acoustics', 'Tutorial Helpdesk Station']
-  },
-  { 
-    name: 'Sakya Higher Education', 
-    loc: 'Kohuwela', 
-    hall: 'Block B - Hall 04', 
-    time: 'Every Monday • 03:00 PM - 07:00 PM', 
-    tag: 'Theory Center', 
-    badge: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
-    features: ['Multi-Zone Climate Control', 'Interactive Screen System', 'Dedicated Vehicle Parking']
-  },
-  { 
-    name: 'Syzygy Institute', 
-    loc: 'Nugegoda', 
-    hall: 'Upper Deck Lecture Room', 
-    time: 'Every Wednesday • 02:30 PM - 06:00 PM', 
-    tag: 'Speed Revision', 
-    badge: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
-    features: ['Paper Discussion Setup', 'Biometric Gate Access', 'High-Speed WiFi Study Lounge']
-  },
-  { 
-    name: 'Apex Academy', 
-    loc: 'Matara', 
-    hall: 'Central Hall A', 
-    time: 'Every Friday • 02:00 PM - 06:30 PM', 
-    tag: 'Southern Hub', 
-    badge: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-    features: ['Direct Highway Express Access', 'Full Acoustic Dispersion', 'On-Site Exam Hall']
-  },
-];
 
 const Home = () => {
   const [loadingComplete, setLoadingComplete] = useState(false);
   const [classes, setClasses] = useState([]);
   const [teacher, setTeacher] = useState(null);
-
-  // 3D Carousel Active Index
-  const [activeVenueIdx, setActiveVenueIdx] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const autoSlideTimerRef = useRef(null);
 
   const [studentName, setStudentName] = useState('');
   const [phone, setPhone] = useState('');
@@ -93,27 +37,6 @@ const Home = () => {
       .then((res) => setTeacher(res.data))
       .catch((err) => console.error(err));
   }, []);
-
-  const handlePrevVenue = () => {
-    setActiveVenueIdx((prev) => (prev === 0 ? venuesList.length - 1 : prev - 1));
-  };
-
-  const handleNextVenue = () => {
-    setActiveVenueIdx((prev) => (prev === venuesList.length - 1 ? 0 : prev + 1));
-  };
-
-  // Auto-slide: Right card slides to center every 3.8s
-  useEffect(() => {
-    if (isPaused) return;
-
-    autoSlideTimerRef.current = setInterval(() => {
-      handleNextVenue();
-    }, 3800);
-
-    return () => {
-      if (autoSlideTimerRef.current) clearInterval(autoSlideTimerRef.current);
-    };
-  }, [isPaused, activeVenueIdx]);
 
   const handleEnrollSubmit = async (e) => {
     e.preventDefault();
@@ -156,7 +79,7 @@ const Home = () => {
         <PageLoader onComplete={() => setLoadingComplete(true)} />
       )}
 
-      <div className="text-slate-900 font-sans antialiased overflow-x-hidden relative min-h-screen selection:bg-indigo-600 selection:text-white">
+      <div className="text-slate-900 font-['Poppins'] antialiased overflow-x-hidden relative min-h-screen selection:bg-indigo-600 selection:text-white">
         {/* Subtle Math Formulas Background */}
         <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
           <div className="absolute top-28 right-10 font-mono text-[9.5rem] font-black text-indigo-900/[0.03] select-none leading-none rotate-12">
@@ -172,19 +95,18 @@ const Home = () => {
 
         <Navbar teacherName={teacher?.name || 'A/L PHYSICS'} />
 
-        {/* CONTAINER WITH BREATHING MARGIN AROUND HERO */}
-        <main className="relative z-10 pt-20 sm:pt-24 px-3 sm:px-6 md:px-8 max-w-[1536px] mx-auto">
+        <main className="relative z-10 pt-2 sm:pt-3 px-2 sm:px-4 md:px-6 max-w-[1536px] mx-auto">
           
           {/* =========================================================
-              FULL-VIEWPORT HERO SECTION WITH CURVED EDGES & OUTER FRAME
+              HERO SECTION (STYLED COMPLETELY WITH POPPINS)
              ========================================================= */}
           <RevealOnScroll delay={100}>
             <section 
               id="hero" 
-              className="relative rounded-[2.5rem] hero-spectrum-card overflow-hidden h-[calc(100vh-6rem)] min-h-[640px] max-h-[920px] flex items-center justify-center p-6 sm:p-10 lg:p-14 my-3 shadow-[0_25px_60px_-15px_rgba(99,102,241,0.25)] border border-indigo-500/30 text-white"
+              className="relative rounded-[2.5rem] hero-spectrum-card overflow-hidden h-[calc(100vh-1rem)] min-h-[620px] max-h-[960px] flex items-center justify-center p-6 sm:p-10 lg:p-14 pt-20 sm:pt-24 shadow-[0_25px_60px_-15px_rgba(99,102,241,0.25)] border border-indigo-500/30 text-white font-['Poppins']"
             >
               
-              {/* KINETIC STREAM */}
+              {/* Background Kinetic Stream */}
               <div 
                 className="absolute inset-[-80%_-50%] pointer-events-none select-none overflow-hidden flex justify-center items-center z-1 -rotate-12 origin-center kinetic-stage-masked" 
                 aria-hidden="true"
@@ -268,262 +190,69 @@ const Home = () => {
                 </div>
               </div>
 
-              {/* Hero Foreground Content (Scaled perfectly inside the viewport) */}
+              {/* Foreground Hero Content */}
               <div className="relative z-10 max-w-4xl mx-auto text-center flex flex-col items-center justify-center my-auto">
-                <div className="animate-hero-badge inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md border border-indigo-400/40 text-cyan-300 text-xs font-mono tracking-widest uppercase mb-4 sm:mb-6 shadow-sm">
+                
+                {/* 1. Badge */}
+                <div className="animate-hero-badge inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md border border-indigo-400/40 text-cyan-300 text-xs font-medium tracking-wider uppercase mb-4 sm:mb-6 shadow-sm">
                   <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
                   <span>A/L PHYSICS ACADEMY • {teacher?.name || 'MASTERCLASS'}</span>
                 </div>
 
-                <h1 className="animate-hero-title text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-tight font-sans drop-shadow-lg">
+                {/* 2. Headline */}
+                <h1 className="animate-hero-title text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-tight drop-shadow-lg">
                   MASTER THE LAWS OF <br className="hidden sm:inline" />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-300 to-fuchsia-400">
                     THE PHYSICAL UNIVERSE
                   </span>
                 </h1>
 
-                <p className="animate-hero-sub font-mono text-xs sm:text-sm md:text-base text-indigo-200 mt-3 sm:mt-4 uppercase tracking-widest font-semibold max-w-2xl">
+                {/* 3. Subtitle */}
+                <p className="animate-hero-sub text-xs sm:text-sm md:text-base text-indigo-200 mt-3 sm:mt-4 uppercase tracking-widest font-semibold max-w-2xl">
                   Comprehensive Theory • Systematic Revision • Analytical Paper Classes
                 </p>
 
-                <p className="animate-hero-desc text-xs sm:text-sm md:text-base text-slate-300 max-w-2xl mt-3 sm:mt-4 leading-relaxed font-sans font-normal line-clamp-3 sm:line-clamp-none">
+                {/* 4. Description */}
+                <p className="animate-hero-desc text-xs sm:text-sm md:text-base text-slate-300 max-w-2xl mt-3 sm:mt-4 leading-relaxed font-normal line-clamp-3 sm:line-clamp-none">
                   {teacher?.bio || 'Designed specifically for ambitious Sri Lankan students targeting Island Top Rankings. Transform mechanical memorization into sharp conceptual clarity.'}
                 </p>
 
+                {/* 5. CTA Buttons */}
                 <div className="animate-hero-cta flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mt-6 sm:mt-8 w-full sm:w-auto">
-                  <a href="#classes" className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-mono font-bold text-xs tracking-wider uppercase transition shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 border border-white/20">
+                  <a href="#classes" className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-semibold text-xs tracking-wider uppercase transition shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 border border-white/20 active:scale-95">
                     <BookOpen size={16} />
                     <span>Explore Classes & Enroll</span>
                   </a>
 
-                  <a href="#simulator" className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 backdrop-blur-md border border-slate-700 text-white font-mono font-bold text-xs tracking-wider uppercase transition shadow-sm flex items-center justify-center gap-2">
+                  <a href="#simulator" className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 backdrop-blur-md border border-slate-700 text-white font-semibold text-xs tracking-wider uppercase transition shadow-sm flex items-center justify-center gap-2 active:scale-95">
                     <Sparkles size={16} className="text-cyan-400" />
                     <span>Launch Virtual Lab</span>
                   </a>
                 </div>
 
+                {/* 6. Live Stats */}
                 <div className="animate-hero-stats grid grid-cols-3 gap-6 sm:gap-14 pt-6 sm:pt-8 mt-6 sm:mt-8 border-t border-slate-700/80 max-w-xl w-full">
                   <div>
-                    <div className="text-xl sm:text-2xl font-mono font-bold text-cyan-400">98%</div>
-                    <div className="text-[10px] sm:text-[11px] text-slate-300 uppercase font-mono mt-0.5 tracking-wider font-semibold">Pass Rate</div>
+                    <div className="text-xl sm:text-3xl font-extrabold text-cyan-400 tracking-tight">98%</div>
+                    <div className="text-[10px] sm:text-[11px] text-slate-300 uppercase mt-0.5 tracking-wider font-medium">Pass Rate</div>
                   </div>
                   <div>
-                    <div className="text-xl sm:text-2xl font-mono font-bold text-white">24+</div>
-                    <div className="text-[10px] sm:text-[11px] text-slate-300 uppercase font-mono mt-0.5 tracking-wider font-semibold">Island Top 50</div>
+                    <div className="text-xl sm:text-3xl font-extrabold text-white tracking-tight">24+</div>
+                    <div className="text-[10px] sm:text-[11px] text-slate-300 uppercase mt-0.5 tracking-wider font-medium">Island Top 50</div>
                   </div>
                   <div>
-                    <div className="text-xl sm:text-2xl font-mono font-bold text-pink-400">1800+</div>
-                    <div className="text-[10px] sm:text-[11px] text-slate-300 uppercase font-mono mt-0.5 tracking-wider font-semibold">Active Students</div>
+                    <div className="text-xl sm:text-3xl font-extrabold text-pink-400 tracking-tight">1800+</div>
+                    <div className="text-[10px] sm:text-[11px] text-slate-300 uppercase mt-0.5 tracking-wider font-medium">Active Students</div>
                   </div>
                 </div>
+
               </div>
             </section>
           </RevealOnScroll>
 
-          {/* =========================================================
-              3D ORBITAL VENUES (RIGHT CARD SWOOPS DIRECTLY TO FRONT)
-             ========================================================= */}
+          {/* VENUES CAROUSEL */}
           <RevealOnScroll delay={150}>
-            <section 
-              id="venues"
-              onMouseEnter={() => setIsPaused(true)}
-              onMouseLeave={() => setIsPaused(false)}
-              className="py-16 my-10 relative overflow-hidden rounded-3xl bg-[#090d16] border border-white/[0.08] shadow-2xl p-6 sm:p-12 text-slate-100"
-            >
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-indigo-600/15 blur-[100px] pointer-events-none"></div>
-
-              <div className="relative z-10 flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
-                <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-cyan-400 text-xs font-mono uppercase tracking-widest font-semibold mb-3">
-                    <Sparkle size={12} className="animate-spin text-cyan-400" style={{ animationDuration: '6s' }} />
-                    Islandwide Physical Locations
-                  </div>
-                  <h3 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight font-sans">
-                    Lecture Theatres & Campus Hubs
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-400 font-mono mt-1.5">
-                    Tiered auditoriums with optical 4K multi-projection & individual exam stations.
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2 self-start sm:self-auto">
-                  <button
-                    onClick={handlePrevVenue}
-                    className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-slate-300 hover:text-white hover:bg-white/[0.08] transition active:scale-95 cursor-pointer"
-                    aria-label="Previous Location"
-                  >
-                    <ChevronLeft size={18} />
-                  </button>
-                  <button
-                    onClick={handleNextVenue}
-                    className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-slate-300 hover:text-white hover:bg-white/[0.08] transition active:scale-95 cursor-pointer"
-                    aria-label="Next Location"
-                  >
-                    <ChevronRight size={18} />
-                  </button>
-                </div>
-              </div>
-
-              {/* 3D CAROUSEL STAGE: RIGHT CARD ORBITS TO CENTER */}
-              <div className="relative py-8 flex items-center justify-center min-h-[490px] carousel-stage overflow-hidden sm:overflow-visible">
-                <div className="relative w-full max-w-5xl h-[420px] flex items-center justify-center">
-                  {venuesList.map((venue, idx) => {
-                    const total = venuesList.length;
-                    
-                    let diff = (idx - activeVenueIdx) % total;
-                    if (diff < -Math.floor(total / 2)) diff += total;
-                    if (diff > Math.floor(total / 2)) diff -= total;
-
-                    const isCenter = diff === 0;
-                    const isRight = diff === 1;
-                    const isLeft = diff === -1;
-
-                    let transform = '';
-                    let zIndex = 10;
-                    let opacity = 0;
-                    let pointerEvents = 'none';
-
-                    if (isCenter) {
-                      transform = 'translate3d(-50%, -50%, 80px) rotateY(0deg) scale(1)';
-                      zIndex = 30;
-                      opacity = 1;
-                      pointerEvents = 'auto';
-                    } else if (isRight) {
-                      transform = 'translate3d(15%, -50%, -140px) rotateY(-26deg) scale(0.84)';
-                      zIndex = 20;
-                      opacity = 0.55;
-                      pointerEvents = 'auto';
-                    } else if (isLeft) {
-                      transform = 'translate3d(-115%, -50%, -140px) rotateY(26deg) scale(0.84)';
-                      zIndex = 20;
-                      opacity = 0.55;
-                      pointerEvents = 'auto';
-                    } else {
-                      const offscreenX = diff > 0 ? '120%' : '-180%';
-                      transform = `translate3d(${offscreenX}, -50%, -350px) rotateY(${diff > 0 ? -40 : 40}deg) scale(0.65)`;
-                      zIndex = 5;
-                      opacity = 0;
-                    }
-
-                    return (
-                      <div
-                        key={venue.name}
-                        onClick={() => {
-                          if (isRight) handleNextVenue();
-                          if (isLeft) handlePrevVenue();
-                        }}
-                        style={{
-                          top: '50%',
-                          left: '50%',
-                          transform,
-                          zIndex,
-                          opacity,
-                          pointerEvents,
-                        }}
-                        className={`card-orbit-anim absolute w-[92%] sm:w-[480px] md:w-[500px] rounded-3xl p-7 sm:p-8 flex flex-col justify-between cursor-pointer select-none ${
-                          isCenter
-                            ? 'bg-[#101625]/95 border border-indigo-500/40 shadow-[0_25px_60px_-12px_rgba(99,102,241,0.32)] ring-1 ring-indigo-500/30'
-                            : 'bg-[#0c111d]/85 border border-white/[0.06] shadow-xl hover:opacity-85'
-                        }`}
-                      >
-                        {isCenter && (
-                          <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-20 bg-indigo-500/20 blur-2xl pointer-events-none rounded-full"></div>
-                        )}
-
-                        <div>
-                          <div className="flex items-center justify-between mb-5">
-                            <span className={`px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-widest uppercase border ${venue.badge}`}>
-                              {venue.tag}
-                            </span>
-                            <span className="text-xs font-mono font-bold text-slate-300 flex items-center gap-1.5 bg-white/[0.04] px-3 py-1 rounded-full border border-white/[0.06]">
-                              <MapPin size={13} className="text-cyan-400" />
-                              {venue.loc}
-                            </span>
-                          </div>
-
-                          <h4 className={`font-black tracking-tight text-white transition-colors duration-500 ${
-                            isCenter ? 'text-2xl sm:text-3xl' : 'text-lg text-slate-300'
-                          }`}>
-                            {venue.name}
-                          </h4>
-                          <p className="text-xs font-mono text-slate-400 mt-1">
-                            {venue.hall}
-                          </p>
-
-                          <div className={`mt-6 p-4 rounded-2xl border flex items-center gap-3 font-mono text-xs transition-colors duration-500 ${
-                            isCenter 
-                              ? 'bg-white/[0.03] border-white/[0.08] text-cyan-200 font-medium' 
-                              : 'bg-white/[0.01] border-white/[0.04] text-slate-400'
-                          }`}>
-                            <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                              <Clock size={16} />
-                            </div>
-                            <span>{venue.time}</span>
-                          </div>
-
-                          {isCenter && (
-                            <div className="mt-6 space-y-2.5 border-t border-white/[0.06] pt-5">
-                              <p className="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-semibold">
-                                Auditorium Specifications:
-                              </p>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono text-slate-300">
-                                {venue.features.map((feat, fIdx) => (
-                                  <div key={fIdx} className="flex items-center gap-2">
-                                    <CheckCircle2 size={13} className="text-emerald-400 shrink-0" />
-                                    <span>{feat}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="mt-8 pt-5 border-t border-white/[0.06] flex items-center justify-between">
-                          <span className="text-[11px] font-mono text-slate-400">
-                            Verified Seating
-                          </span>
-                          <a
-                            href="#register"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setMessage(`Joining ${venue.name} (${venue.loc}) Batch`);
-                            }}
-                            className={`px-5 py-2.5 rounded-xl text-xs font-mono font-bold tracking-wider uppercase transition flex items-center gap-1.5 ${
-                              isCenter
-                                ? 'bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white shadow-lg shadow-indigo-500/20 active:scale-95'
-                                : 'bg-white/[0.05] text-slate-300'
-                            }`}
-                          >
-                            <span>Reserve Seat</span>
-                            <span>→</span>
-                          </a>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Minimal Line Indicators */}
-              <div className="flex items-center justify-center gap-2 mt-8">
-                {venuesList.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveVenueIdx(i)}
-                    className="relative h-1.5 rounded-full overflow-hidden transition-all duration-500 cursor-pointer bg-white/[0.1]"
-                    style={{
-                      width: activeVenueIdx === i ? '2.8rem' : '0.6rem'
-                    }}
-                    aria-label={`Go to slide ${i + 1}`}
-                  >
-                    {activeVenueIdx === i && (
-                      <span className="absolute inset-0 bg-gradient-to-r from-indigo-400 to-cyan-400" />
-                    )}
-                  </button>
-                ))}
-              </div>
-
-            </section>
+            <VenuesCarousel onSelectVenue={(venueText) => setMessage(venueText)} />
           </RevealOnScroll>
 
           {/* DYNAMIC CLASS PROGRAMS */}
@@ -531,19 +260,19 @@ const Home = () => {
             <RevealOnScroll delay={100}>
               <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
                 <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200/80 text-indigo-600 text-xs font-mono uppercase tracking-widest font-semibold mb-3">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200/80 text-indigo-600 text-xs uppercase tracking-widest font-semibold mb-3">
                     <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse"></span>
                     Official Curriculum
                   </div>
-                  <h3 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-sans">
+                  <h3 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
                     Academic Batches & Programs
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-500 mt-2 max-w-2xl font-mono">
+                  <p className="text-xs sm:text-sm text-slate-500 mt-2 max-w-2xl">
                     Systematically engineered for Island Rank targets with complete syllabus coverage and model paper speed drills.
                   </p>
                 </div>
 
-                <div className="text-xs font-mono text-slate-500 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-xs flex items-center gap-2">
+                <div className="text-xs text-slate-500 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-xs flex items-center gap-2 font-medium">
                   <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                   {classes.length} Active Streams Running
                 </div>
@@ -552,7 +281,7 @@ const Home = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {classes.length === 0 ? (
-                <div className="col-span-2 blueprint-card p-14 text-center rounded-3xl text-slate-500 font-mono border border-dashed border-slate-300">
+                <div className="col-span-2 blueprint-card p-14 text-center rounded-3xl text-slate-500 border border-dashed border-slate-300">
                   දැනට පන්ති ලියාපදිංචි කර නොමැත. Admin Panel එකෙන් class එකක් ඇතුළත් කරන්න!
                 </div>
               ) : (
@@ -564,15 +293,15 @@ const Home = () => {
                       <div className="p-7 sm:p-8 flex-1">
                         <div className="flex flex-wrap items-center justify-between gap-2.5 mb-5">
                           <div className="flex items-center gap-2">
-                            <span className="px-3 py-1 rounded-lg bg-slate-900 text-white font-mono text-xs font-bold tracking-wider uppercase shadow-xs">
+                            <span className="px-3 py-1 rounded-lg bg-slate-900 text-white text-xs font-bold tracking-wider uppercase shadow-xs">
                               {cls.batchYear} A/L
                             </span>
-                            <span className="px-3 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200/60 font-mono text-xs font-semibold uppercase">
+                            <span className="px-3 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200/60 text-xs font-semibold uppercase">
                               {cls.type}
                             </span>
                           </div>
 
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold ${
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
                             cls.deliveryMethod === 'Online' 
                               ? 'bg-cyan-50 text-cyan-700 border border-cyan-200' 
                               : cls.deliveryMethod === 'Hybrid'
@@ -599,12 +328,12 @@ const Home = () => {
                           {cls.title}
                         </h4>
                         
-                        <p className="text-xs sm:text-sm text-slate-600 mt-2.5 leading-relaxed font-sans line-clamp-3">
+                        <p className="text-xs sm:text-sm text-slate-600 mt-2.5 leading-relaxed line-clamp-3">
                           {cls.description || 'සම්පූර්ණ සිද්ධාන්ත ආවරණය, සවිස්තර ප්‍රශ්න පත්‍ර සාකච්ඡාව සහ විශේෂ නිබන්ධන මාලාව.'}
                         </p>
 
                         <div className="mt-6 space-y-2.5">
-                          <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50/80 border border-slate-200/60 text-xs font-mono text-slate-700">
+                          <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50/80 border border-slate-200/60 text-xs text-slate-700">
                             <div className="p-1.5 rounded-lg bg-indigo-100/70 text-indigo-600 shrink-0">
                               <Calendar size={15} />
                             </div>
@@ -614,7 +343,7 @@ const Home = () => {
                           </div>
 
                           {cls.locations?.length > 0 && (
-                            <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50/80 border border-slate-200/60 text-xs font-mono text-slate-700">
+                            <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50/80 border border-slate-200/60 text-xs text-slate-700">
                               <div className="p-1.5 rounded-lg bg-cyan-100/70 text-cyan-700 shrink-0 mt-0.5">
                                 <MapPin size={15} />
                               </div>
@@ -625,7 +354,7 @@ const Home = () => {
                           )}
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-5 pt-5 border-t border-slate-100 text-xs font-mono text-slate-600">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-5 pt-5 border-t border-slate-100 text-xs text-slate-600">
                           <div className="flex items-center gap-2">
                             <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                             <span>Monthly Tutorial Packs</span>
@@ -639,8 +368,8 @@ const Home = () => {
 
                       <div className="px-7 sm:px-8 py-4 bg-slate-50/90 border-t border-slate-200/80 flex items-center justify-between mt-auto">
                         <div>
-                          <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block font-semibold">Monthly Tuition Fee</span>
-                          <span className="text-xl font-mono font-extrabold text-slate-900 tracking-tight">
+                          <span className="text-[10px] uppercase tracking-wider text-slate-400 block font-semibold">Monthly Tuition Fee</span>
+                          <span className="text-xl font-extrabold text-slate-900 tracking-tight">
                             {cls.monthlyFee ? `Rs. ${cls.monthlyFee.toLocaleString()}` : 'Free Access'}
                           </span>
                         </div>
@@ -648,7 +377,7 @@ const Home = () => {
                         <a
                           href="#register"
                           onClick={() => setSelectedClassId(cls._id)}
-                          className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-mono font-bold uppercase tracking-wider transition shadow-md shadow-indigo-600/20 active:scale-95 flex items-center gap-1.5 border border-indigo-400/30"
+                          className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold uppercase tracking-wider transition shadow-md shadow-indigo-600/20 active:scale-95 flex items-center gap-1.5 border border-indigo-400/30"
                         >
                           <span>Enroll Class</span>
                           <span className="text-indigo-200">→</span>
@@ -661,7 +390,7 @@ const Home = () => {
             </div>
           </section>
 
-          {/* VIRTUAL LAB SIMULATOR */}
+          {/* VIRTUAL LAB */}
           <RevealOnScroll delay={150}>
             <VirtualLab />
           </RevealOnScroll>
@@ -670,7 +399,7 @@ const Home = () => {
           <section id="modules" className="py-14 max-w-7xl mx-auto">
             <RevealOnScroll delay={100}>
               <div className="mb-10 text-center sm:text-left">
-                <span className="text-xs font-mono font-semibold text-indigo-600 uppercase tracking-widest">Syllabus Scope</span>
+                <span className="text-xs font-semibold text-indigo-600 uppercase tracking-widest">Syllabus Scope</span>
                 <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">Official 8 Units of A/L Physics</h3>
               </div>
             </RevealOnScroll>
@@ -688,7 +417,7 @@ const Home = () => {
               ].map((u, i) => (
                 <RevealOnScroll key={u.id} delay={i * 80}>
                   <div className="blueprint-card p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-400 transition bg-white h-full flex flex-col justify-start">
-                    <div className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center font-mono text-xs font-bold text-indigo-600 mb-3">
+                    <div className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center text-xs font-bold text-indigo-600 mb-3">
                       {u.id}
                     </div>
                     <h4 className="text-sm font-bold text-slate-900 mb-1">{u.title}</h4>
@@ -705,12 +434,12 @@ const Home = () => {
               <div className="blueprint-card rounded-2xl p-8 sm:p-10 border border-slate-200 shadow-lg bg-white">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                   <div>
-                    <span className="text-xs font-mono font-semibold text-indigo-600 uppercase tracking-widest">Admissions</span>
+                    <span className="text-xs font-semibold text-indigo-600 uppercase tracking-widest">Admissions</span>
                     <h3 className="text-2xl font-extrabold text-slate-900 mt-1">Direct WhatsApp Enrollment</h3>
                     <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
                       Register now for online portal access, LMS credentials, and physical classroom verification cards.
                     </p>
-                    <div className="mt-6 space-y-3 font-mono text-xs text-slate-700">
+                    <div className="mt-6 space-y-3 text-xs text-slate-700">
                       <div className="flex items-center gap-2">
                         <PhoneCall size={16} className="text-indigo-600" />
                         <span>Direct Hotline: {teacher?.contactInfo?.phone || '+94 77 123 4567'}</span>
@@ -724,7 +453,7 @@ const Home = () => {
 
                   <form onSubmit={handleEnrollSubmit} className="space-y-3.5 bg-slate-50 p-6 rounded-xl border border-slate-200">
                     <div>
-                      <label className="block text-[11px] font-mono text-slate-700 mb-1 font-semibold">Student Full Name</label>
+                      <label className="block text-[11px] text-slate-700 mb-1 font-semibold">Student Full Name</label>
                       <input
                         type="text"
                         required
@@ -736,7 +465,7 @@ const Home = () => {
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-mono text-slate-700 mb-1 font-semibold">WhatsApp Mobile Number</label>
+                      <label className="block text-[11px] text-slate-700 mb-1 font-semibold">WhatsApp Mobile Number</label>
                       <input
                         type="tel"
                         required
@@ -748,7 +477,7 @@ const Home = () => {
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-mono text-slate-700 mb-1 font-semibold">Select Class Batch</label>
+                      <label className="block text-[11px] text-slate-700 mb-1 font-semibold">Select Class Batch</label>
                       <select
                         value={selectedClassId}
                         onChange={(e) => setSelectedClassId(e.target.value)}
@@ -764,7 +493,7 @@ const Home = () => {
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-mono text-slate-700 mb-1 font-semibold">Message / Preferred Venue</label>
+                      <label className="block text-[11px] text-slate-700 mb-1 font-semibold">Message / Preferred Venue</label>
                       <input
                         type="text"
                         value={message}
@@ -777,14 +506,14 @@ const Home = () => {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs tracking-wider uppercase transition font-mono shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 disabled:bg-slate-400 cursor-pointer"
+                      className="w-full py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs tracking-wider uppercase transition shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 disabled:bg-slate-400 cursor-pointer"
                     >
                       <Send size={14} />
                       <span>{isSubmitting ? 'Processing...' : 'Confirm Registration on WhatsApp'}</span>
                     </button>
 
                     {feedback && (
-                      <p className="text-[11px] text-center text-emerald-600 font-mono animate-pulse">
+                      <p className="text-[11px] text-center text-emerald-600 animate-pulse font-medium">
                         Saved! Redirecting to WhatsApp...
                       </p>
                     )}
@@ -796,7 +525,7 @@ const Home = () => {
         </main>
 
         {/* FOOTER */}
-        <footer className="border-t border-slate-200 bg-white py-8 px-4 text-center font-mono text-xs text-slate-500">
+        <footer className="border-t border-slate-200 bg-white py-8 px-4 text-center text-xs text-slate-500 font-['Poppins']">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <span className="font-bold text-slate-900">{teacher?.name || 'A/L PHYSICS MASTERCLASS'}</span> • Sri Lanka Advanced Level
