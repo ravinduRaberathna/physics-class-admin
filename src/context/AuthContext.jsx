@@ -5,6 +5,9 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('adminDarkMode') === 'true';
+  });
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -14,6 +17,14 @@ export const AuthProvider = ({ children }) => {
     }
     setLoading(false);
   }, []);
+
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => {
+      const next = !prev;
+      localStorage.setItem('adminDarkMode', String(next));
+      return next;
+    });
+  };
 
   const login = (data) => {
     localStorage.setItem('adminToken', data.token);
@@ -28,7 +39,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ admin, login, logout, loading }}>
+    <AuthContext.Provider value={{ admin, login, logout, loading, darkMode, toggleDarkMode }}>
       {children}
     </AuthContext.Provider>
   );

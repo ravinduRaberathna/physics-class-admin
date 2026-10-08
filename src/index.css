@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Poppins:wght@400;500;600;700;800&family=Syne:wght@700;800;900&display=swap');
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ==========================================================
    PUBLIC SITE: CLEAN MODERN LIGHT CANVAS WITH INDIGO GRID
    ========================================================= */
@@ -18,7 +20,7 @@ body {
 }
 
 /* ==========================================================
-   FORM INPUT STYLING (ADMIN & LIGHT THEME)
+   FORM INPUT STYLING (ADMIN LIGHT & DARK THEME)
    ========================================================== */
 .admin-input {
   background-color: #f8fafc !important;
@@ -41,6 +43,77 @@ body {
 
 .admin-input::placeholder {
   color: #94a3b8 !important;
+}
+
+/* Dark Mode Overrides for Admin Panel (.admin-dark) */
+.admin-dark .admin-input {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+.admin-dark .admin-input:hover {
+  background-color: #131c31 !important;
+  border-color: #475569 !important;
+}
+
+.admin-dark .admin-input:focus {
+  background-color: #0f172a !important;
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.22) !important;
+}
+
+.admin-dark .admin-input::placeholder {
+  color: #64748b !important;
+}
+
+/* Automatic surface, border & text adaptation inside .admin-dark */
+.admin-dark .bg-white,
+.admin-dark .bg-white\/95 {
+  background-color: #0d1326 !important;
+  border-color: rgba(148, 163, 184, 0.14) !important;
+}
+
+.admin-dark .bg-slate-50,
+.admin-dark .bg-slate-50\/90 {
+  background-color: #11182d !important;
+  border-color: rgba(148, 163, 184, 0.12) !important;
+}
+
+.admin-dark .bg-slate-100,
+.admin-dark .bg-slate-100\/80 {
+  background-color: #1e293b !important;
+  color: #cbd5e1 !important;
+  border-color: rgba(148, 163, 184, 0.16) !important;
+}
+
+.admin-dark .text-slate-900,
+.admin-dark .text-slate-800 {
+  color: #f8fafc !important;
+}
+
+.admin-dark .text-slate-700,
+.admin-dark .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+.admin-dark .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+.admin-dark .border-slate-200,
+.admin-dark .border-slate-200\/80,
+.admin-dark .border-slate-200\/90,
+.admin-dark .border-slate-100 {
+  border-color: rgba(148, 163, 184, 0.14) !important;
+}
+
+.admin-dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(148, 163, 184, 0.1) !important;
+}
+
+.admin-dark tr.hover\:bg-indigo-50\/30:hover {
+  background-color: rgba(99, 102, 241, 0.08) !important;
 }
 
 #register input, #register select {

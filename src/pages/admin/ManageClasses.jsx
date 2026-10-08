@@ -1,12 +1,28 @@
 import { useEffect, useState } from 'react';
 import API from '../../api/axiosInstance';
-import { Plus, Edit3, Trash2, X, Calendar, MapPin, BookOpen, Sparkles } from 'lucide-react';
+import {
+  Plus,
+  Edit3,
+  Trash2,
+  X,
+  Calendar,
+  MapPin,
+  BookOpen,
+  Sparkles,
+  Search,
+  Layers,
+  Clock,
+  CheckCircle2,
+  EyeOff,
+} from 'lucide-react';
 
 const ManageClasses = ({ embedded = false }) => {
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState('All');
 
   const initialFormState = {
     title: '',
@@ -110,24 +126,34 @@ const ManageClasses = ({ embedded = false }) => {
     }
   };
 
+  const filteredClasses = classes.filter((cls) => {
+    const matchesType = typeFilter === 'All' || cls.type === typeFilter;
+    const matchesSearch =
+      !searchQuery.trim() ||
+      cls.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      String(cls.batchYear).includes(searchQuery) ||
+      cls.locations?.join(' ').toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesType && matchesSearch;
+  });
+
   return (
     <div className={`${embedded ? '' : 'p-6 sm:p-8 lg:p-10 max-w-7xl mx-auto'} space-y-6 font-['Poppins']`}>
       {/* Header Card */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(15,23,42,0.04)]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#0d1326] p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-[0_8px_30px_rgb(15,23,42,0.04)]">
         <div className="flex items-start sm:items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 shrink-0">
             <BookOpen size={22} />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                 Class Batches Directory
               </h1>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-200/80">
-                {classes.length} Total
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-200/80 dark:bg-indigo-500/15 dark:text-indigo-300 dark:border-indigo-500/30">
+                {classes.length} Batches
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Configure batch details, timetables, fees, and live website visibility
             </p>
           </div>
@@ -146,125 +172,210 @@ const ManageClasses = ({ embedded = false }) => {
         </button>
       </div>
 
-      {/* Modern Light Table Container */}
-      <div className="rounded-3xl bg-white border border-slate-200/80 shadow-[0_8px_30px_rgb(15,23,42,0.04)] overflow-hidden">
+      {/* Ultra-Modern Table Card with Search & Filter Toolbar */}
+      <div className="rounded-3xl bg-white dark:bg-[#0d1326] border border-slate-200/80 dark:border-slate-800/80 shadow-[0_12px_35px_rgb(15,23,42,0.05)] overflow-hidden">
+        
+        {/* Interactive Table Toolbar */}
+        <div className="p-4 sm:px-6 sm:py-4 border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-900/50 flex flex-col md:flex-row md:items-center justify-between gap-3.5">
+          {/* Search Input */}
+          <div className="relative w-full md:w-72">
+            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search batch title, year or venue..."
+              className="admin-input w-full pl-9 pr-4 py-2 rounded-xl border text-xs"
+            />
+          </div>
+
+          {/* Filter Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
+            {['All', 'Theory', 'Revision', 'Paper'].map((type) => {
+              const active = typeFilter === type;
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setTypeFilter(type)}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                    active
+                      ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-500/30'
+                      : 'bg-white dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700 hover:border-indigo-300'
+                  }`}
+                >
+                  {type === 'All' ? 'All Streams' : type}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {loading ? (
-          <div className="p-14 text-center text-xs font-medium text-slate-500">
+          <div className="p-16 text-center text-xs font-medium text-slate-500 dark:text-slate-400">
             Loading physics batches...
           </div>
-        ) : classes.length === 0 ? (
-          <div className="p-14 text-center space-y-2">
-            <p className="text-sm font-bold text-slate-700">No classes registered yet</p>
-            <p className="text-xs text-slate-500">Click "Create Class Batch" above to publish your first A/L batch.</p>
+        ) : filteredClasses.length === 0 ? (
+          <div className="p-16 text-center space-y-2">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-500 flex items-center justify-center mx-auto mb-2">
+              <Layers size={22} />
+            </div>
+            <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
+              No matching classes found
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Try clearing your search filter or click "Create Class Batch" to add a new stream.
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
-              <thead className="bg-slate-50/90 border-b border-slate-200/80 text-slate-500 text-[11px] uppercase tracking-wider font-bold">
-                <tr>
-                  <th className="p-4 pl-6">Batch / Stream</th>
-                  <th className="p-4">Type</th>
-                  <th className="p-4">Delivery & Venue</th>
-                  <th className="p-4">Schedule</th>
-                  <th className="p-4">Monthly Fee</th>
-                  <th className="p-4">Live Status</th>
-                  <th className="p-4 pr-6 text-right">Actions</th>
+              <thead>
+                <tr className="bg-slate-50/90 dark:bg-slate-900/80 border-b border-slate-200/80 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider font-extrabold">
+                  <th className="py-4 pl-6 pr-3 w-12">#</th>
+                  <th className="py-4 px-4">Batch & Academic Stream</th>
+                  <th className="py-4 px-4">Program Type</th>
+                  <th className="py-4 px-4">Mode & Venues</th>
+                  <th className="py-4 px-4">Weekly Timetable</th>
+                  <th className="py-4 px-4">Monthly Fee</th>
+                  <th className="py-4 px-4">Visibility</th>
+                  <th className="py-4 pl-4 pr-6 text-right">Manage</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                {classes.map((cls) => (
-                  <tr key={cls._id} className="hover:bg-indigo-50/30 transition-colors">
-                    <td className="p-4 pl-6">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
+                {filteredClasses.map((cls, index) => (
+                  <tr
+                    key={cls._id}
+                    className="group/row relative hover:bg-indigo-50/40 dark:hover:bg-indigo-500/[0.06] transition-all duration-200"
+                  >
+                    {/* Index Number */}
+                    <td className="py-4 pl-6 pr-3 font-mono text-[11px] font-bold text-slate-400 dark:text-slate-500">
+                      {String(index + 1).padStart(2, '0')}
+                    </td>
+
+                    {/* Batch Thumbnail & Title */}
+                    <td className="py-4 px-4">
                       <div className="flex items-center gap-3.5">
                         {cls.image ? (
                           <img
                             src={cls.image}
                             alt={cls.title}
-                            className="w-11 h-11 rounded-xl object-cover border border-slate-200 shrink-0 hidden sm:block"
+                            className="w-12 h-12 rounded-2xl object-cover border border-slate-200 dark:border-slate-700 shadow-2xs shrink-0 group-hover/row:scale-105 transition-transform"
                           />
                         ) : (
-                          <div className="w-11 h-11 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs shrink-0 hidden sm:flex">
-                            {cls.batchYear ? String(cls.batchYear).slice(-2) : 'AL'}
+                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500/15 to-cyan-500/15 border border-indigo-200/80 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-300 flex flex-col items-center justify-center font-extrabold text-[11px] shrink-0">
+                            <span>{cls.batchYear ? String(cls.batchYear).slice(-2) : 'AL'}</span>
+                            <span className="text-[8px] uppercase tracking-wider opacity-75">Batch</span>
                           </div>
                         )}
-                        <div>
-                          <div className="font-bold text-slate-900 text-sm">{cls.title}</div>
-                          <div className="text-[11px] font-semibold text-indigo-600 mt-0.5">
-                            {cls.batchYear} A/L Cohort
+                        <div className="min-w-0">
+                          <div className="font-extrabold text-slate-900 dark:text-white text-sm group-hover/row:text-indigo-600 dark:group-hover/row:text-indigo-400 transition-colors truncate">
+                            {cls.title}
+                          </div>
+                          <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 mt-0.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                            <span>{cls.batchYear} A/L Cohort</span>
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="p-4">
+
+                    {/* Program Type Badge */}
+                    <td className="py-4 px-4">
                       <span
-                        className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border ${
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[11px] font-bold border ${
                           cls.type === 'Revision'
-                            ? 'bg-violet-50 text-violet-700 border-violet-200'
+                            ? 'bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-500/15 dark:text-violet-300 dark:border-violet-500/30'
                             : cls.type === 'Paper'
-                            ? 'bg-amber-50 text-amber-700 border-amber-200'
-                            : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                            ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30'
+                            : 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-500/15 dark:text-indigo-300 dark:border-indigo-500/30'
                         }`}
                       >
                         {cls.type}
                       </span>
                     </td>
-                    <td className="p-4">
-                      <div className="font-semibold text-slate-700">{cls.deliveryMethod}</div>
+
+                    {/* Delivery & Venues */}
+                    <td className="py-4 px-4">
+                      <span
+                        className={`inline-block px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider mb-1 ${
+                          cls.deliveryMethod === 'Online'
+                            ? 'bg-cyan-50 text-cyan-700 dark:bg-cyan-500/15 dark:text-cyan-300'
+                            : cls.deliveryMethod === 'Hybrid'
+                            ? 'bg-purple-50 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300'
+                            : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                        }`}
+                      >
+                        {cls.deliveryMethod}
+                      </span>
                       {cls.locations?.length > 0 && (
-                        <div className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5 max-w-[180px] truncate">
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 max-w-[190px] truncate">
                           <MapPin size={11} className="text-indigo-500 shrink-0" />
                           <span className="truncate">{cls.locations.join(', ')}</span>
                         </div>
                       )}
                     </td>
-                    <td className="p-4 text-slate-600 font-medium">
+
+                    {/* Schedule */}
+                    <td className="py-4 px-4">
                       {cls.schedule?.[0] ? (
-                        <div className="flex items-center gap-1.5">
-                          <Calendar size={13} className="text-indigo-500 shrink-0" />
-                          <span>
-                            {cls.schedule[0].day} ({cls.schedule[0].startTime} - {cls.schedule[0].endTime})
+                        <div className="inline-flex flex-col gap-0.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/70 dark:border-slate-700/70">
+                          <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 text-[11px]">
+                            <Calendar size={12} className="text-indigo-500 shrink-0" />
+                            {cls.schedule[0].day}
+                          </span>
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                            <Clock size={10} />
+                            {cls.schedule[0].startTime} - {cls.schedule[0].endTime}
                           </span>
                         </div>
                       ) : (
-                        '-'
+                        <span className="text-slate-400">-</span>
                       )}
                     </td>
-                    <td className="p-4">
-                      <span className="px-2.5 py-1 rounded-lg bg-cyan-50/80 text-cyan-800 border border-cyan-200/70 font-bold text-xs">
+
+                    {/* Monthly Fee */}
+                    <td className="py-4 px-4">
+                      <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-cyan-50/90 text-cyan-800 border border-cyan-200/80 dark:bg-cyan-500/15 dark:text-cyan-300 dark:border-cyan-500/30 font-extrabold text-xs">
                         {cls.monthlyFee ? `Rs. ${cls.monthlyFee.toLocaleString()}` : 'Free'}
                       </span>
                     </td>
-                    <td className="p-4">
+
+                    {/* Status Pill */}
+                    <td className="py-4 px-4">
                       <span
-                        className={`px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1.5 w-fit ${
+                        className={`px-3 py-1.5 rounded-full text-[11px] font-bold inline-flex items-center gap-1.5 w-fit border ${
                           cls.isActive
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : 'bg-rose-50 text-rose-700 border border-rose-200'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30'
+                            : 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/30'
                         }`}
                       >
-                        <span
-                          className={`w-1.5 h-1.5 rounded-full ${
-                            cls.isActive ? 'bg-emerald-500' : 'bg-rose-500'
-                          }`}
-                        ></span>
-                        {cls.isActive ? 'Active' : 'Hidden'}
+                        {cls.isActive ? (
+                          <CheckCircle2 size={12} className="text-emerald-500" />
+                        ) : (
+                          <EyeOff size={12} className="text-rose-500" />
+                        )}
+                        {cls.isActive ? 'Published' : 'Hidden'}
                       </span>
                     </td>
-                    <td className="p-4 pr-6 text-right">
-                      <div className="flex items-center justify-end gap-2">
+
+                    {/* Actions Capsule */}
+                    <td className="py-4 pl-4 pr-6 text-right">
+                      <div className="inline-flex items-center gap-1.5 p-1 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80">
                         <button
                           onClick={() => handleEdit(cls)}
-                          className="p-2 text-slate-600 hover:text-indigo-600 bg-slate-100/80 hover:bg-indigo-50 border border-slate-200/80 hover:border-indigo-200 rounded-xl transition cursor-pointer"
-                          title="Edit"
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-white dark:hover:bg-slate-700 rounded-xl font-semibold text-[11px] transition cursor-pointer"
+                          title="Edit Batch"
                         >
-                          <Edit3 size={15} />
+                          <Edit3 size={13} />
+                          <span className="hidden xl:inline">Edit</span>
                         </button>
                         <button
                           onClick={() => handleDelete(cls._id)}
-                          className="p-2 text-rose-600 hover:text-white bg-rose-50 hover:bg-rose-600 border border-rose-200/80 hover:border-rose-600 rounded-xl transition cursor-pointer"
-                          title="Delete"
+                          className="p-1.5 text-rose-600 dark:text-rose-400 hover:text-white hover:bg-rose-600 dark:hover:bg-rose-600 rounded-xl transition cursor-pointer"
+                          title="Delete Batch"
                         >
-                          <Trash2 size={15} />
+                          <Trash2 size={14} />
                         </button>
                       </div>
                     </td>
@@ -274,29 +385,38 @@ const ManageClasses = ({ embedded = false }) => {
             </table>
           </div>
         )}
+
+        {/* Table Footer Summary */}
+        <div className="px-6 py-3.5 bg-slate-50/70 dark:bg-slate-900/60 border-t border-slate-200/70 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+          <span>
+            Showing <strong className="text-slate-800 dark:text-slate-200">{filteredClasses.length}</strong> of{' '}
+            <strong className="text-slate-800 dark:text-slate-200">{classes.length}</strong> registered batches
+          </span>
+          <span>Live Sync Enabled</span>
+        </div>
       </div>
 
-      {/* Modern Light Modal */}
+      {/* Modern Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto p-6 sm:p-8">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-200/80 mb-6">
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#0d1326] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto p-6 sm:p-8">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200/80 dark:border-slate-800 mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-100 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-300 flex items-center justify-center">
                   <Sparkles size={18} />
                 </div>
                 <div>
-                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
+                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">
                     {editingId ? 'Edit Batch Details' : 'Create New Class Batch'}
                   </h2>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Parameters will reflect instantly on the public website
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition cursor-pointer"
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
               >
                 <X size={18} />
               </button>
@@ -305,7 +425,9 @@ const ManageClasses = ({ embedded = false }) => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Class Title</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Class Title
+                  </label>
                   <input
                     type="text"
                     required
@@ -317,7 +439,9 @@ const ManageClasses = ({ embedded = false }) => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Batch Year</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Batch Year
+                  </label>
                   <input
                     type="number"
                     required
@@ -328,7 +452,9 @@ const ManageClasses = ({ embedded = false }) => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Class Type</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Class Type
+                  </label>
                   <select
                     value={formData.type}
                     onChange={(e) => setFormData({ ...formData, type: e.target.value })}
@@ -341,7 +467,9 @@ const ManageClasses = ({ embedded = false }) => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Delivery Method</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Delivery Method
+                  </label>
                   <select
                     value={formData.deliveryMethod}
                     onChange={(e) => setFormData({ ...formData, deliveryMethod: e.target.value })}
@@ -355,7 +483,9 @@ const ManageClasses = ({ embedded = false }) => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Poster / Thumbnail URL</label>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Poster / Thumbnail URL
+                </label>
                 <input
                   type="text"
                   value={formData.image}
@@ -366,7 +496,7 @@ const ManageClasses = ({ embedded = false }) => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                   Locations (කොමා වලින් වෙන් කරන්න)
                 </label>
                 <input
@@ -380,7 +510,9 @@ const ManageClasses = ({ embedded = false }) => {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Day</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Day
+                  </label>
                   <input
                     type="text"
                     required
@@ -391,7 +523,9 @@ const ManageClasses = ({ embedded = false }) => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Start Time</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Start Time
+                  </label>
                   <input
                     type="text"
                     required
@@ -402,7 +536,9 @@ const ManageClasses = ({ embedded = false }) => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">End Time</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    End Time
+                  </label>
                   <input
                     type="text"
                     required
@@ -416,7 +552,9 @@ const ManageClasses = ({ embedded = false }) => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Monthly Fee (LKR)</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Monthly Fee (LKR)
+                  </label>
                   <input
                     type="number"
                     value={formData.monthlyFee}
@@ -428,7 +566,7 @@ const ManageClasses = ({ embedded = false }) => {
 
                 <label
                   htmlFor="modalActive"
-                  className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-indigo-50/70 border border-indigo-200/70 cursor-pointer select-none"
+                  className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-indigo-50/70 dark:bg-indigo-500/10 border border-indigo-200/70 dark:border-indigo-500/30 cursor-pointer select-none"
                 >
                   <input
                     type="checkbox"
@@ -437,14 +575,14 @@ const ManageClasses = ({ embedded = false }) => {
                     onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
                     className="w-4 h-4 accent-indigo-600 rounded cursor-pointer"
                   />
-                  <span className="text-xs font-bold text-indigo-900">
+                  <span className="text-xs font-bold text-indigo-900 dark:text-indigo-200">
                     Publish Live on Website
                   </span>
                 </label>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                   Syllabus Overview / Notes
                 </label>
                 <textarea
@@ -456,11 +594,11 @@ const ManageClasses = ({ embedded = false }) => {
                 ></textarea>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-200/80">
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-200/80 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 transition cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition cursor-pointer"
                 >
                   Cancel
                 </button>

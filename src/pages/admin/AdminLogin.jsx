@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Atom, Lock, Mail, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Atom, Lock, Mail, ArrowRight, ShieldCheck, Sun, Moon } from 'lucide-react';
 import API from '../../api/axiosInstance';
 import { useAuth } from '../../context/AuthContext';
 
@@ -10,7 +10,7 @@ const AdminLogin = () => {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const { login } = useAuth();
+  const { login, darkMode, toggleDarkMode } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -30,7 +30,25 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 font-['Poppins'] relative overflow-hidden">
+    <div
+      className={`min-h-screen flex items-center justify-center p-4 font-['Poppins'] relative overflow-hidden transition-colors duration-300 ${
+        darkMode ? 'dark admin-dark bg-[#070a14] text-slate-100' : ''
+      }`}
+    >
+      {/* Top-Right Theme Toggle */}
+      <button
+        type="button"
+        onClick={toggleDarkMode}
+        className={`fixed top-5 right-5 z-30 inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-bold transition cursor-pointer shadow-sm ${
+          darkMode
+            ? 'bg-slate-900 border-slate-800 text-amber-400 hover:bg-slate-800'
+            : 'bg-white border-slate-200 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600'
+        }`}
+      >
+        {darkMode ? <Sun size={15} /> : <Moon size={15} />}
+        <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
+      </button>
+
       {/* Subtle Ambient Glows */}
       <div
         className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none"

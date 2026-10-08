@@ -7,7 +7,9 @@ import {
   Sparkles, 
   Layers, 
   ArrowUpRight,
-  CheckCircle2
+  CheckCircle2,
+  Sun,
+  Moon
 } from 'lucide-react';
 import API from '../../api/axiosInstance';
 import { useAuth } from '../../context/AuthContext';
@@ -17,7 +19,7 @@ import ViewInquiries from './ViewInquiries';
 import EditTeacher from './EditTeacher';
 
 const AdminDashboard = () => {
-  const { admin } = useAuth();
+  const { admin, darkMode, toggleDarkMode } = useAuth();
   const [activeTab, setActiveTab] = useState('classes');
   const [stats, setStats] = useState({
     totalClasses: 0,
@@ -65,7 +67,7 @@ const AdminDashboard = () => {
   return (
     <div className="p-6 sm:p-8 lg:p-10 max-w-7xl mx-auto space-y-8 font-['Poppins'] text-slate-800">
       
-      {/* Top Light Welcome Hero Banner */}
+      {/* Top Welcome Hero Banner */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 p-6 sm:p-8 text-white shadow-[0_20px_50px_-15px_rgba(99,102,241,0.35)]">
         <div
           className="absolute -right-12 -top-12 w-64 h-64 rounded-full bg-white/10 blur-2xl pointer-events-none"
@@ -90,7 +92,16 @@ const AdminDashboard = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-3 self-start md:self-auto">
+          <div className="flex flex-wrap items-center gap-3 self-start md:self-auto">
+            <button
+              type="button"
+              onClick={toggleDarkMode}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/30 text-white text-xs font-bold shadow-sm transition cursor-pointer active:scale-95"
+            >
+              {darkMode ? <Sun size={15} className="text-amber-300" /> : <Moon size={15} />}
+              <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
+            </button>
+
             <a
               href="/"
               target="_blank"
