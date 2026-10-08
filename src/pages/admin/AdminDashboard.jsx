@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { 
   BookOpen, 
   MessageSquareQuote, 
+  FileText,
   Inbox, 
   UserSquare2, 
   Sparkles, 
@@ -15,6 +16,7 @@ import API from '../../api/axiosInstance';
 import { useAuth } from '../../context/AuthContext';
 import ManageClasses from './ManageClasses';
 import ManageFeedback from './ManageFeedback';
+import ManageBlogs from './ManageBlogs';
 import ViewInquiries from './ViewInquiries';
 import EditTeacher from './EditTeacher';
 
@@ -25,6 +27,7 @@ const AdminDashboard = () => {
     totalClasses: 0,
     activeClasses: 0,
     totalFeedbacks: 0,
+    totalBlogs: 0,
     totalInquiries: 0,
     pendingInquiries: 0,
   });
@@ -32,20 +35,23 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchDashboardStats = async () => {
       try {
-        const [classesRes, feedbackRes, inquiriesRes] = await Promise.allSettled([
+        const [classesRes, feedbackRes, blogsRes, inquiriesRes] = await Promise.allSettled([
           API.get('/classes/admin/all'),
           API.get('/feedback'),
+          API.get('/blogs'),
           API.get('/inquiries'),
         ]);
 
         const classesData = classesRes.status === 'fulfilled' && Array.isArray(classesRes.value.data) ? classesRes.value.data : [];
         const feedbackData = feedbackRes.status === 'fulfilled' && Array.isArray(feedbackRes.value.data) ? feedbackRes.value.data : [];
+        const blogsData = blogsRes.status === 'fulfilled' && Array.isArray(blogsRes.value.data) ? blogsRes.value.data : [];
         const inquiriesData = inquiriesRes.status === 'fulfilled' && Array.isArray(inquiriesRes.value.data) ? inquiriesRes.value.data : [];
 
         setStats({
           totalClasses: classesData.length,
           activeClasses: classesData.filter((c) => c.isActive).length,
           totalFeedbacks: feedbackData.length,
+          totalBlogs: blogsData.length,
           totalInquiries: inquiriesData.length,
           pendingInquiries: inquiriesData.filter((i) => i.status === 'Pending').length,
         });
@@ -60,6 +66,7 @@ const AdminDashboard = () => {
   const tabs = [
     { id: 'classes', label: 'Manage Classes', icon: BookOpen, count: stats.totalClasses },
     { id: 'feedbacks', label: 'Student Feedbacks', icon: MessageSquareQuote, count: stats.totalFeedbacks },
+    { id: 'blogs', label: 'Blog & Articles', icon: FileText, count: stats.totalBlogs },
     { id: 'inquiries', label: 'Student Inquiries', icon: Inbox, count: stats.totalInquiries },
     { id: 'profile', label: 'Lecturer Profile', icon: UserSquare2 },
   ];
@@ -219,6 +226,7 @@ const AdminDashboard = () => {
       <div>
         {activeTab === 'classes' && <ManageClasses embedded />}
         {activeTab === 'feedbacks' && <ManageFeedback embedded />}
+        {activeTab === 'blogs' && <ManageBlogs embedded />}
         {activeTab === 'inquiries' && <ViewInquiries embedded />}
         {activeTab === 'profile' && <EditTeacher embedded />}
       </div>

@@ -17,6 +17,7 @@ const Navbar = ({ teacherName = 'A/L PHYSICS' }) => {
   const navLinks = [
     { name: 'Lecturer', href: '#lecturer' },
     { name: 'Batches', href: '#classes' },
+    { name: 'Blog', href: '#blogs' },
     { name: 'Centres', href: '#venues' },
     { name: 'Virtual Lab', href: '#simulator' },
     { name: 'Syllabus', href: '#modules' },

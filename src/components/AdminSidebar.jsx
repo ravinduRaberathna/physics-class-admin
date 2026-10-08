@@ -6,6 +6,7 @@ import {
   MessageSquareQuote,
   UserSquare2, 
   Inbox, 
+  FileText,
   LogOut, 
   Atom, 
   ArrowUpRight,
@@ -27,6 +28,7 @@ const AdminSidebar = () => {
     { label: 'Control Center', path: '/admin', icon: LayoutGrid, badge: 'Hub' },
     { label: 'Batches & Classes', path: '/admin/classes', icon: Layers },
     { label: 'Student Feedbacks', path: '/admin/feedback', icon: MessageSquareQuote },
+    { label: 'Blog & Articles', path: '/admin/blogs', icon: FileText },
     { label: 'Student Inquiries', path: '/admin/inquiries', icon: Inbox },
     { label: 'Lecturer Profile', path: '/admin/profile', icon: UserSquare2 },
   ];

@@ -7,6 +7,7 @@ import RevealOnScroll from '../../components/RevealOnScroll';
 import VenuesCarousel from '../../components/VenuesCarousel';
 import ClassesSection from '../../components/ClassesSection';
 import TestimonialsSection from '../../components/TestimonialsSection';
+import BlogSection from '../../components/BlogSection';
 import TeacherProfileSection from '../../components/TeacherProfileSection';
 import { 
   BookOpen, 
@@ -242,6 +243,9 @@ const Home = () => {
 
           {/* TESTIMONIALS SECTION */}
           <TestimonialsSection />
+
+          {/* BLOG POSTS & ARTICLES SECTION */}
+          <BlogSection />
 
           {/* VIRTUAL LAB */}
          {/* <RevealOnScroll delay={150}>

@@ -8,6 +8,7 @@ import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageClasses from './pages/admin/ManageClasses';
 import ManageFeedback from './pages/admin/ManageFeedback';
+import ManageBlogs from './pages/admin/ManageBlogs';
 import EditTeacher from './pages/admin/EditTeacher';
 import ViewInquiries from './pages/admin/ViewInquiries';
 
@@ -34,6 +35,7 @@ const AdminShell = () => {
           <Route path="/" element={<AdminDashboard />} />
           <Route path="/classes" element={<ManageClasses />} />
           <Route path="/feedback" element={<ManageFeedback />} />
+          <Route path="/blogs" element={<ManageBlogs />} />
           <Route path="/profile" element={<EditTeacher />} />
           <Route path="/inquiries" element={<ViewInquiries />} />
         </Routes>
