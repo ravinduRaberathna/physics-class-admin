@@ -7,18 +7,21 @@ import RevealOnScroll from '../../components/RevealOnScroll';
 import VenuesCarousel from '../../components/VenuesCarousel';
 import ClassesSection from '../../components/ClassesSection';
 import TestimonialsSection from '../../components/TestimonialsSection';
+import TeacherProfileSection from '../../components/TeacherProfileSection';
 import { 
   BookOpen, 
   Sparkles, 
   PhoneCall, 
   MessageSquare, 
-  Send 
+  Send,
+  UserSquare2
 } from 'lucide-react';
 
 const Home = () => {
   const [loadingComplete, setLoadingComplete] = useState(false);
   const [classes, setClasses] = useState([]);
   const [teacher, setTeacher] = useState(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const [studentName, setStudentName] = useState('');
   const [phone, setPhone] = useState('');
@@ -217,6 +220,14 @@ const Home = () => {
               </div>
             </section>
           </RevealOnScroll>
+
+          {/* TEACHER / LECTURER PROFILE SECTION & MODAL */}
+          <TeacherProfileSection
+            teacher={teacher}
+            isModalOpen={isProfileModalOpen}
+            onCloseModal={() => setIsProfileModalOpen(false)}
+            onOpenModal={() => setIsProfileModalOpen(true)}
+          />
 
           {/* VENUES CAROUSEL */}
          {/* <RevealOnScroll delay={150}>

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import API from '../../api/axiosInstance';
+import { UserSquare2, PhoneCall, Share2, Save, Sparkles } from 'lucide-react';
 
-const EditTeacher = () => {
+const EditTeacher = ({ embedded = false }) => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -76,144 +77,201 @@ const EditTeacher = () => {
     }
   };
 
-  if (loading) return <div className="p-8 text-center text-slate-500">Loading profile data...</div>;
+  if (loading) {
+    return (
+      <div className="p-14 text-center text-xs font-medium text-slate-500 font-['Poppins']">
+        Loading lecturer profile data...
+      </div>
+    );
+  }
 
   return (
-    <div className="p-8 max-w-4xl">
-      <h1 className="text-2xl font-bold text-slate-800 mb-1">Teacher Profile Settings</h1>
-      <p className="text-sm text-slate-500 mb-6">Update lecturer bio, social links and contact details</p>
+    <div className={`${embedded ? '' : 'p-6 sm:p-8 lg:p-10 max-w-5xl mx-auto'} space-y-6 font-['Poppins']`}>
+      {/* Header Card */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgb(15,23,42,0.04)]">
+        <div className="flex items-start sm:items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 shrink-0">
+            <UserSquare2 size={22} />
+          </div>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">
+              Lecturer Profile & Contact Settings
+            </h1>
+            <p className="text-xs text-slate-500 mt-1">
+              Update lecturer biography, official hotline numbers, and social media channels
+            </p>
+          </div>
+        </div>
+      </div>
 
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200 space-y-6">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-6 sm:p-8 rounded-3xl shadow-[0_8px_30px_rgb(15,23,42,0.04)] border border-slate-200/80 space-y-8"
+      >
+        {/* General Info */}
         <div>
-          <h2 className="text-base font-bold text-slate-800 mb-3">General Information</h2>
+          <div className="flex items-center gap-2.5 mb-4 pb-3 border-b border-slate-100">
+            <div className="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center">
+              <Sparkles size={15} />
+            </div>
+            <h2 className="text-sm sm:text-base font-extrabold text-slate-900">
+              General Biography
+            </h2>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Full Name</label>
               <input
                 type="text"
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Eng. Nivantha Silva"
-                className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                className="admin-input w-full px-3.5 py-2.5 border rounded-xl text-xs"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Designation / Title</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                Designation / Academic Title
+              </label>
               <input
                 type="text"
                 required
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="B.Sc. Eng (Hons) Moratuwa, Physics Lecturer"
-                className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                className="admin-input w-full px-3.5 py-2.5 border rounded-xl text-xs"
               />
             </div>
           </div>
 
           <div className="mt-4">
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Profile Photo URL</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+              Profile Photo URL
+            </label>
             <input
               type="text"
               value={formData.profileImage}
               onChange={(e) => setFormData({ ...formData, profileImage: e.target.value })}
               placeholder="https://example.com/photo.jpg"
-              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"
+              className="admin-input w-full px-3.5 py-2.5 border rounded-xl text-xs"
             />
           </div>
 
           <div className="mt-4">
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Biography / About</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+              Biography / About Lecturer
+            </label>
             <textarea
               rows="4"
               required
               value={formData.bio}
               onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
               placeholder="වසර ගණනාවක A/L භෞතික විද්‍යා ඉගැන්වීමේ පළපුරුද්ද..."
-              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"
+              className="admin-input w-full px-3.5 py-2.5 border rounded-xl text-xs"
             ></textarea>
           </div>
         </div>
 
-        <div className="pt-4 border-t border-slate-100">
-          <h2 className="text-base font-bold text-slate-800 mb-3">Contact Information</h2>
+        {/* Contact Info */}
+        <div>
+          <div className="flex items-center gap-2.5 mb-4 pb-3 border-b border-slate-100">
+            <div className="w-8 h-8 rounded-xl bg-cyan-50 border border-cyan-100 text-cyan-600 flex items-center justify-center">
+              <PhoneCall size={15} />
+            </div>
+            <h2 className="text-sm sm:text-base font-extrabold text-slate-900">
+              Official Contact Information
+            </h2>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Phone</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Hotline Phone</label>
               <input
                 type="text"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="0771234567"
-                className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                className="admin-input w-full px-3.5 py-2.5 border rounded-xl text-xs"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">WhatsApp</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">WhatsApp Number</label>
               <input
                 type="text"
                 value={formData.whatsapp}
                 onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                placeholder="0771234567"
-                className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                placeholder="94771234567"
+                className="admin-input w-full px-3.5 py-2.5 border rounded-xl text-xs"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Email</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Official Email</label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="sir@physics.com"
-                className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                className="admin-input w-full px-3.5 py-2.5 border rounded-xl text-xs"
               />
             </div>
           </div>
         </div>
 
-        <div className="pt-4 border-t border-slate-100">
-          <h2 className="text-base font-bold text-slate-800 mb-3">Social Media Links</h2>
+        {/* Social Media */}
+        <div>
+          <div className="flex items-center gap-2.5 mb-4 pb-3 border-b border-slate-100">
+            <div className="w-8 h-8 rounded-xl bg-violet-50 border border-violet-100 text-violet-600 flex items-center justify-center">
+              <Share2 size={15} />
+            </div>
+            <h2 className="text-sm sm:text-base font-extrabold text-slate-900">
+              Social Media Channels
+            </h2>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">YouTube URL</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">YouTube URL</label>
               <input
                 type="text"
                 value={formData.youtube}
                 onChange={(e) => setFormData({ ...formData, youtube: e.target.value })}
                 placeholder="https://youtube.com/@channel"
-                className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                className="admin-input w-full px-3.5 py-2.5 border rounded-xl text-xs"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Facebook URL</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Facebook URL</label>
               <input
                 type="text"
                 value={formData.facebook}
                 onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
                 placeholder="https://facebook.com/page"
-                className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                className="admin-input w-full px-3.5 py-2.5 border rounded-xl text-xs"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Telegram URL</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Telegram URL</label>
               <input
                 type="text"
                 value={formData.telegram}
                 onChange={(e) => setFormData({ ...formData, telegram: e.target.value })}
                 placeholder="https://t.me/group"
-                className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                className="admin-input w-full px-3.5 py-2.5 border rounded-xl text-xs"
               />
             </div>
           </div>
         </div>
 
-        <div className="pt-4 flex justify-end">
+        <div className="pt-4 border-t border-slate-100 flex justify-end">
           <button
             type="submit"
             disabled={submitting}
-            className="px-6 py-2.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-sm font-medium transition disabled:bg-sky-400"
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white rounded-2xl text-xs font-bold tracking-wide transition shadow-lg shadow-indigo-500/25 disabled:opacity-60 cursor-pointer active:scale-95"
           >
-            {submitting ? 'Saving Profile...' : 'Save Profile Details'}
+            <Save size={15} />
+            <span>{submitting ? 'Saving Profile...' : 'Save Profile Details'}</span>
           </button>
         </div>
       </form>

@@ -1,5 +1,5 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Poppins:wght@400;500;600;700;800&family=Syne:wght@700;800;900&display=swap');
+@import "tailwindcss";
 
 /* ==========================================================
    PUBLIC SITE: CLEAN MODERN LIGHT CANVAS WITH INDIGO GRID
@@ -21,18 +21,26 @@ body {
    FORM INPUT STYLING (ADMIN & LIGHT THEME)
    ========================================================== */
 .admin-input {
-  background-color: #0f172a !important;
-  color: #f8fafc !important;
-  border-color: #334155 !important;
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+  transition: all 0.2s ease;
+}
+
+.admin-input:hover {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
 }
 
 .admin-input:focus {
+  background-color: #ffffff !important;
   border-color: #6366f1 !important;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12) !important;
   outline: none;
 }
 
 .admin-input::placeholder {
-  color: #64748b !important;
+  color: #94a3b8 !important;
 }
 
 #register input, #register select {
