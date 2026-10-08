@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   EyeOff,
 } from 'lucide-react';
+import ImageUploadField from '../../components/ImageUploadField';
 
 const ManageFeedback = ({ embedded = false }) => {
   const [feedbacks, setFeedbacks] = useState([]);
@@ -168,15 +169,11 @@ const ManageFeedback = ({ embedded = false }) => {
           </div>
 
           <div>
-            <label className="text-xs text-slate-700 dark:text-slate-300 block mb-1.5 font-semibold">
-              Avatar Image URL (Optional)
-            </label>
-            <input
-              type="url"
+            <ImageUploadField
+              label="Avatar Image (Optional - Uploads to Cloudinary)"
               value={formData.avatar}
-              onChange={(e) => setFormData({ ...formData, avatar: e.target.value })}
-              placeholder="https://images.unsplash.com/..."
-              className="admin-input w-full px-3.5 py-2.5 rounded-xl text-xs border"
+              onChange={(url) => setFormData({ ...formData, avatar: url })}
+              placeholder="Upload photo or paste URL..."
             />
           </div>
 

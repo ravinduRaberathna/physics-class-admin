@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import API from '../../api/axiosInstance';
 import { UserSquare2, PhoneCall, Share2, Save, Sparkles } from 'lucide-react';
+import ImageUploadField from '../../components/ImageUploadField';
 
 const EditTeacher = ({ embedded = false }) => {
   const [loading, setLoading] = useState(true);
@@ -147,15 +148,11 @@ const EditTeacher = ({ embedded = false }) => {
           </div>
 
           <div className="mt-4">
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Profile Photo URL
-            </label>
-            <input
-              type="text"
+            <ImageUploadField
+              label="Profile Photo (Uploads to Cloudinary)"
               value={formData.profileImage}
-              onChange={(e) => setFormData({ ...formData, profileImage: e.target.value })}
-              placeholder="https://example.com/photo.jpg"
-              className="admin-input w-full px-3.5 py-2.5 border rounded-xl text-xs"
+              onChange={(url) => setFormData({ ...formData, profileImage: url })}
+              placeholder="Upload photo or paste URL..."
             />
           </div>
 

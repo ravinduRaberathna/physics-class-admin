@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   EyeOff,
 } from 'lucide-react';
+import ImageUploadField from '../../components/ImageUploadField';
 
 const ManageClasses = ({ embedded = false }) => {
   const [classes, setClasses] = useState([]);
@@ -482,18 +483,12 @@ const ManageClasses = ({ embedded = false }) => {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Poster / Thumbnail URL
-                </label>
-                <input
-                  type="text"
-                  value={formData.image}
-                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  placeholder="https://images.unsplash.com/..."
-                  className="admin-input w-full px-3.5 py-2.5 rounded-xl border text-xs"
-                />
-              </div>
+              <ImageUploadField
+                label="Poster / Thumbnail Image (Uploads to Cloudinary)"
+                value={formData.image}
+                onChange={(url) => setFormData({ ...formData, image: url })}
+                placeholder="Upload image or paste URL..."
+              />
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
