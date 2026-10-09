@@ -299,42 +299,9 @@ const Home = () => {
           <BlogSection />
 
           {/* VIRTUAL LAB */}
-         {/* <RevealOnScroll delay={150}>
+          {/* <RevealOnScroll delay={150}>
             <VirtualLab />
-          </RevealOnScroll>
-
-          {/* OFFICIAL 8 UNITS */}
-          <section id="modules" className="py-8 sm:py-10 max-w-7xl mx-auto px-3 sm:px-6">
-            <RevealOnScroll delay={100}>
-              <div className="mb-10 sm:mb-12 text-center sm:text-left">
-                <span className="text-xs font-semibold text-indigo-600 uppercase tracking-widest">Syllabus Scope</span>
-                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 mt-1">Official 8 Units of A/L Physics</h3>
-              </div>
-            </RevealOnScroll>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                { id: '01', title: 'Measurement', desc: 'Dimensions, Vernier Caliper, Micrometer Screw Gauge, Errors & Uncertainties.' },
-                { id: '02', title: 'Mechanics', desc: "Kinematics, Newton's Laws, Work, Energy, Circular Motion, Gravitation & Fluids." },
-                { id: '03', title: 'Oscillations & Waves', desc: 'Simple Harmonic Motion, Wave Superposition, Doppler Effect, Resonance.' },
-                { id: '04', title: 'Thermal Physics', desc: 'Temperature Scales, Thermal Expansion, Heat Capacity, Ideal Gases & Laws.' },
-                { id: '05', title: 'Fields (Electro & Grav)', desc: "Coulomb's Law, Field Intensity, Electric Potential, Capacitance & Gauss." },
-                { id: '06', title: 'Current Electricity', desc: "Ohm's Law, Kirchhoff's Rules, Potentiometer Balancing, Internal Resistance." },
-                { id: '07', title: 'Electromagnetism & AC', desc: "Biot-Savart Law, Faraday's & Lenz's Induction, Mutual Inductance & AC." },
-                { id: '08', title: 'Modern & Electronics', desc: 'Semiconductors, Diodes, Transistors, Op-Amps, Photoelectric Effect.' },
-              ].map((u, i) => (
-                <RevealOnScroll key={u.id} delay={i * 80}>
-                  <div className="blueprint-card p-5 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-400 transition bg-white h-full flex flex-col justify-start">
-                    <div className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center text-xs font-bold text-indigo-600 mb-3">
-                      {u.id}
-                    </div>
-                    <h4 className="text-sm font-bold text-slate-900 mb-1">{u.title}</h4>
-                    <p className="text-xs text-slate-600">{u.desc}</p>
-                  </div>
-                </RevealOnScroll>
-              ))}
-            </div>
-          </section>
+          </RevealOnScroll> */}
 
           {/* ENROLLMENT & WHATSAPP FORM */}
           <RevealOnScroll delay={150}>
