@@ -10,11 +10,11 @@ const ClassesSection = ({ classes = [], onSelectClass }) => {
   };
 
   return (
-    <section id="classes" className="py-20 max-w-7xl mx-auto px-3 sm:px-6 font-['Poppins']">
+    <section id="classes" className="pt-8 sm:pt-10 pb-16 sm:pb-20 max-w-7xl mx-auto px-3 sm:px-6 font-['Poppins']">
       
       {/* SECTION HEADER */}
       <RevealOnScroll delay={100}>
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 sm:mb-12 gap-6">
           <div>
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-200/80 text-indigo-700 text-xs uppercase tracking-widest font-semibold mb-3 shadow-2xs">
               <span className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>

@@ -44,7 +44,7 @@ const BlogSection = () => {
   return (
     <section
       id="blogs"
-      className="py-24 my-10 relative overflow-hidden font-['Poppins'] selection:bg-indigo-600 selection:text-white rounded-[3rem] border border-slate-200/80 bg-gradient-to-b from-white via-indigo-50/25 to-slate-50/70"
+      className="py-16 sm:py-20 mt-16 sm:mt-20 mb-0 relative overflow-hidden font-['Poppins'] selection:bg-indigo-600 selection:text-white rounded-[3rem] border border-slate-200/80 bg-gradient-to-b from-white via-indigo-50/25 to-slate-50/70"
     >
       {/* Subtle Background Grid & Ambient Glow */}
       <div
@@ -62,7 +62,7 @@ const BlogSection = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8">
         {/* Section Header */}
         <RevealOnScroll delay={100}>
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 sm:mb-12 gap-6">
             <div>
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-indigo-200/80 text-indigo-700 text-xs uppercase tracking-widest font-semibold mb-3 shadow-xs">
                 <Sparkles size={14} className="text-indigo-600" />

@@ -57,7 +57,7 @@ const TeacherProfileSection = ({ teacher, isModalOpen, onCloseModal, onOpenModal
          ===================================================================== */}
       <section
         id="lecturer"
-        className="relative py-20 sm:py-28 max-w-7xl mx-auto px-4 sm:px-8 font-['Poppins'] overflow-hidden"
+        className="relative pt-16 sm:pt-20 pb-8 sm:pb-10 max-w-7xl mx-auto px-4 sm:px-8 font-['Poppins'] overflow-hidden"
       >
         {/* Top-Center Hand-Drawn Loop Arrow SVG (Pointing to Teacher Portrait) */}
         <svg

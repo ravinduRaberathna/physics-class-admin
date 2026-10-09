@@ -253,9 +253,9 @@ const Home = () => {
           </RevealOnScroll>
 
           {/* OFFICIAL 8 UNITS */}
-          <section id="modules" className="py-14 max-w-7xl mx-auto">
+          <section id="modules" className="pt-16 sm:pt-20 pb-8 sm:pb-10 max-w-7xl mx-auto px-3 sm:px-6">
             <RevealOnScroll delay={100}>
-              <div className="mb-10 text-center sm:text-left">
+              <div className="mb-10 sm:mb-12 text-center sm:text-left">
                 <span className="text-xs font-semibold text-indigo-600 uppercase tracking-widest">Syllabus Scope</span>
                 <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 mt-1">Official 8 Units of A/L Physics</h3>
               </div>
@@ -287,7 +287,7 @@ const Home = () => {
 
           {/* ENROLLMENT & WHATSAPP FORM */}
           <RevealOnScroll delay={150}>
-            <section id="register" className="py-14 max-w-4xl mx-auto">
+            <section id="register" className="pt-8 sm:pt-10 pb-16 sm:pb-20 max-w-4xl mx-auto">
               <div className="blueprint-card rounded-2xl p-8 sm:p-10 border border-slate-200 shadow-lg bg-white">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                   <div>
