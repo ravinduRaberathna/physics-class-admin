@@ -4,6 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminSidebar from './components/AdminSidebar';
 
 import Home from './pages/public/Home';
+import BlogDetails from './pages/public/BlogDetails';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageClasses from './pages/admin/ManageClasses';
@@ -50,6 +51,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/blog/:id" element={<BlogDetails />} />
           <Route path="/admin/login" element={<AdminLogin />} />
 
           <Route

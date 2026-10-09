@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import API from '../../api/axiosInstance';
 import ImageUploadField from '../../components/ImageUploadField';
+import AdminPagination from '../../components/AdminPagination';
 import {
   Plus,
   Edit3,
@@ -16,6 +17,8 @@ import {
   Calendar,
 } from 'lucide-react';
 
+const ITEMS_PER_PAGE = 5;
+
 const ManageBlogs = ({ embedded = false }) => {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,6 +26,7 @@ const ManageBlogs = ({ embedded = false }) => {
   const [editingId, setEditingId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
+  const [currentPage, setCurrentPage] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const initialFormState = {
@@ -123,6 +127,13 @@ const ManageBlogs = ({ embedded = false }) => {
       blog.category?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filteredBlogs.length / ITEMS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedBlogs = filteredBlogs.slice(
+    (safePage - 1) * ITEMS_PER_PAGE,
+    safePage * ITEMS_PER_PAGE
+  );
 
   return (
     <div className={`${embedded ? '' : 'p-6 sm:p-8 lg:p-10 max-w-7xl mx-auto'} space-y-6 font-['Poppins']`}>
@@ -226,13 +237,13 @@ const ManageBlogs = ({ embedded = false }) => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
-                {filteredBlogs.map((blog, index) => (
+                {paginatedBlogs.map((blog, index) => (
                   <tr
                     key={blog._id}
                     className="group/row hover:bg-indigo-50/40 dark:hover:bg-indigo-500/[0.06] transition-all duration-200"
                   >
                     <td className="py-4 pl-6 pr-3 font-mono text-[11px] font-bold text-slate-400 dark:text-slate-500">
-                      {String(index + 1).padStart(2, '0')}
+                      {String((safePage - 1) * ITEMS_PER_PAGE + index + 1).padStart(2, '0')}
                     </td>
 
                     <td className="py-4 px-4 max-w-md">
@@ -328,6 +339,14 @@ const ManageBlogs = ({ embedded = false }) => {
             </table>
           </div>
         )}
+
+        <AdminPagination
+          currentPage={safePage}
+          totalItems={filteredBlogs.length}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={setCurrentPage}
+          itemLabel="blog posts"
+        />
       </div>
 
       {/* Create / Edit Blog Modal */}

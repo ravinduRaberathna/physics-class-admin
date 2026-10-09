@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import API from '../../api/axiosInstance';
+import AdminPagination from '../../components/AdminPagination';
 import {
   Trash2,
   CheckCircle2,
@@ -10,11 +11,14 @@ import {
   Search,
 } from 'lucide-react';
 
+const ITEMS_PER_PAGE = 5;
+
 const ViewInquiries = ({ embedded = false }) => {
   const [inquiries, setInquiries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fetchInquiries = async () => {
     try {
@@ -69,6 +73,13 @@ const ViewInquiries = ({ embedded = false }) => {
       inq.message?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesStatus && matchesSearch;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filteredInquiries.length / ITEMS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedInquiries = filteredInquiries.slice(
+    (safePage - 1) * ITEMS_PER_PAGE,
+    safePage * ITEMS_PER_PAGE
+  );
 
   return (
     <div className={`${embedded ? '' : 'p-6 sm:p-8 lg:p-10 max-w-7xl mx-auto'} space-y-6 font-['Poppins']`}>
@@ -164,7 +175,7 @@ const ViewInquiries = ({ embedded = false }) => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
-                {filteredInquiries.map((inq, index) => {
+                {paginatedInquiries.map((inq, index) => {
                   const cleanPhone = (inq.phone || '').replace(/[^0-9]/g, '');
                   const wpPhone = cleanPhone.startsWith('0')
                     ? `94${cleanPhone.slice(1)}`
@@ -176,7 +187,7 @@ const ViewInquiries = ({ embedded = false }) => {
                       className="group/row hover:bg-indigo-50/40 dark:hover:bg-indigo-500/[0.06] transition-all duration-200"
                     >
                       <td className="py-4 pl-6 pr-3 font-mono text-[11px] font-bold text-slate-400 dark:text-slate-500">
-                        {String(index + 1).padStart(2, '0')}
+                        {String((safePage - 1) * ITEMS_PER_PAGE + index + 1).padStart(2, '0')}
                       </td>
 
                       <td className="py-4 px-4">
@@ -276,14 +287,13 @@ const ViewInquiries = ({ embedded = false }) => {
           </div>
         )}
 
-        {/* Table Footer */}
-        <div className="px-6 py-3.5 bg-slate-50/70 dark:bg-slate-900/60 border-t border-slate-200/70 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-          <span>
-            Showing <strong className="text-slate-800 dark:text-slate-200">{filteredInquiries.length}</strong> of{' '}
-            <strong className="text-slate-800 dark:text-slate-200">{inquiries.length}</strong> student inquiries
-          </span>
-          <span>Click status pill to mark as Contacted</span>
-        </div>
+        <AdminPagination
+          currentPage={safePage}
+          totalItems={filteredInquiries.length}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={setCurrentPage}
+          itemLabel="student inquiries"
+        />
       </div>
     </div>
   );

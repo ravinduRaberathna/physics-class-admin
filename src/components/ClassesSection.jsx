@@ -10,7 +10,7 @@ const ClassesSection = ({ classes = [], onSelectClass }) => {
   };
 
   return (
-    <section id="classes" className="pt-8 sm:pt-10 pb-16 sm:pb-20 max-w-7xl mx-auto px-3 sm:px-6 font-['Poppins']">
+    <section id="classes" className="py-8 sm:py-10 max-w-7xl mx-auto px-3 sm:px-6 font-['Poppins']">
       
       {/* SECTION HEADER */}
       <RevealOnScroll delay={100}>
@@ -144,9 +144,11 @@ const ClassesSection = ({ classes = [], onSelectClass }) => {
                   {/* BOTTOM ROW: BOLD PRICE ON LEFT & DARK CHARCOAL PILL BUTTON ON RIGHT */}
                   <div className="px-2.5 pt-5 pb-1.5 flex items-center justify-between gap-3">
                     <div>
-                      <span className="text-lg sm:text-xl font-extrabold text-[#1e293b] tracking-tight">
-                        {cls.monthlyFee ? `Rs. ${cls.monthlyFee.toLocaleString()}` : 'Free'}
-                      </span>
+                      {cls.monthlyFee > 0 && (
+                        <span className="text-lg sm:text-xl font-extrabold text-[#1e293b] tracking-tight">
+                          Rs. {cls.monthlyFee.toLocaleString()}
+                        </span>
+                      )}
                     </div>
 
                     <a

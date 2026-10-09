@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import API from '../api/axiosInstance';
 import RevealOnScroll from './RevealOnScroll';
 import {
@@ -6,7 +7,6 @@ import {
   Clock,
   Calendar,
   ArrowUpRight,
-  X,
   Sparkles,
   Tag,
   User,
@@ -15,7 +15,7 @@ import {
 const BlogSection = () => {
   const [blogs, setBlogs] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [activeBlog, setActiveBlog] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     API.get('/blogs/public')
@@ -44,22 +44,9 @@ const BlogSection = () => {
   return (
     <section
       id="blogs"
-      className="py-16 sm:py-20 mt-16 sm:mt-20 mb-0 relative overflow-hidden font-['Poppins'] selection:bg-indigo-600 selection:text-white rounded-[3rem] border border-slate-200/80 bg-gradient-to-b from-white via-indigo-50/25 to-slate-50/70"
+      className="py-8 sm:py-10 max-w-7xl mx-auto px-3 sm:px-6 relative font-['Poppins'] selection:bg-indigo-600 selection:text-white"
     >
-      {/* Subtle Background Grid & Ambient Glow */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-35 [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(99, 102, 241, 0.08) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(99, 102, 241, 0.08) 1px, transparent 1px)
-          `,
-          backgroundSize: '40px 40px',
-        }}
-        aria-hidden="true"
-      />
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8">
+      <div className="relative z-10">
         {/* Section Header */}
         <RevealOnScroll delay={100}>
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 sm:mb-12 gap-6">
@@ -105,7 +92,7 @@ const BlogSection = () => {
           {filteredBlogs.map((blog, idx) => (
             <RevealOnScroll key={blog._id} delay={idx * 90}>
               <article
-                onClick={() => setActiveBlog(blog)}
+                onClick={() => navigate(`/blog/${blog._id}`)}
                 className="group rounded-[2rem] bg-white border border-slate-200/90 hover:border-indigo-400/80 overflow-hidden shadow-[0_10px_35px_-10px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_50px_-12px_rgba(99,102,241,0.18)] transition-all duration-500 flex flex-col h-full cursor-pointer"
               >
                 {/* Cover Image */}
@@ -179,93 +166,8 @@ const BlogSection = () => {
           ))}
         </div>
       </div>
-
-      {/* Full Blog Reader Modal */}
-      {activeBlog && (
-        <div
-          className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-4"
-          onClick={() => setActiveBlog(null)}
-        >
-          <div
-            className="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Cover Image in Modal */}
-            {activeBlog.image && (
-              <div className="relative h-64 sm:h-80 w-full bg-slate-900">
-                <img
-                  src={activeBlog.image}
-                  alt={activeBlog.title}
-                  className="w-full h-full object-cover"
-                />
-                <button
-                  onClick={() => setActiveBlog(null)}
-                  className="absolute top-4 right-4 w-10 h-10 rounded-full bg-slate-900/75 hover:bg-slate-900 text-white flex items-center justify-center transition cursor-pointer"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-            )}
-
-            <div className="p-6 sm:p-8">
-              {!activeBlog.image && (
-                <div className="flex justify-end mb-2">
-                  <button
-                    onClick={() => setActiveBlog(null)}
-                    className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition cursor-pointer"
-                  >
-                    <X size={18} />
-                  </button>
-                </div>
-              )}
-
-              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-3">
-                <span className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 font-bold border border-indigo-200/80">
-                  {activeBlog.category || 'Physics Article'}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Calendar size={13} className="text-indigo-500" />
-                  {formatDate(activeBlog.createdAt)}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock size={13} className="text-cyan-600" />
-                  {activeBlog.readTime || '3 min read'}
-                </span>
-                <span className="flex items-center gap-1">
-                  <User size={13} className="text-indigo-500" />
-                  {activeBlog.author || 'Lecturer'}
-                </span>
-              </div>
-
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 leading-snug">
-                {activeBlog.title}
-              </h2>
-
-              {activeBlog.summary && (
-                <p className="mt-3 text-xs sm:text-sm font-semibold text-indigo-900/80 bg-indigo-50/70 p-4 rounded-2xl border border-indigo-100">
-                  {activeBlog.summary}
-                </p>
-              )}
-
-              <div className="mt-6 text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line space-y-4">
-                {activeBlog.content}
-              </div>
-
-              <div className="mt-8 pt-5 border-t border-slate-100 flex justify-end">
-                <button
-                  onClick={() => setActiveBlog(null)}
-                  className="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold transition cursor-pointer"
-                >
-                  Close Article
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 };
 
 export default BlogSection;
-

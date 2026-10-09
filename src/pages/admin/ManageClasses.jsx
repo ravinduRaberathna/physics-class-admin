@@ -16,6 +16,9 @@ import {
   EyeOff,
 } from 'lucide-react';
 import ImageUploadField from '../../components/ImageUploadField';
+import AdminPagination from '../../components/AdminPagination';
+
+const ITEMS_PER_PAGE = 5;
 
 const ManageClasses = ({ embedded = false }) => {
   const [classes, setClasses] = useState([]);
@@ -24,6 +27,7 @@ const ManageClasses = ({ embedded = false }) => {
   const [editingId, setEditingId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState('All');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const initialFormState = {
     title: '',
@@ -137,6 +141,13 @@ const ManageClasses = ({ embedded = false }) => {
     return matchesType && matchesSearch;
   });
 
+  const totalPages = Math.max(1, Math.ceil(filteredClasses.length / ITEMS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedClasses = filteredClasses.slice(
+    (safePage - 1) * ITEMS_PER_PAGE,
+    safePage * ITEMS_PER_PAGE
+  );
+
   return (
     <div className={`${embedded ? '' : 'p-6 sm:p-8 lg:p-10 max-w-7xl mx-auto'} space-y-6 font-['Poppins']`}>
       {/* Header Card */}
@@ -244,14 +255,14 @@ const ManageClasses = ({ embedded = false }) => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
-                {filteredClasses.map((cls, index) => (
+                {paginatedClasses.map((cls, index) => (
                   <tr
                     key={cls._id}
                     className="group/row relative hover:bg-indigo-50/40 dark:hover:bg-indigo-500/[0.06] transition-all duration-200"
                   >
                     {/* Index Number */}
                     <td className="py-4 pl-6 pr-3 font-mono text-[11px] font-bold text-slate-400 dark:text-slate-500">
-                      {String(index + 1).padStart(2, '0')}
+                      {String((safePage - 1) * ITEMS_PER_PAGE + index + 1).padStart(2, '0')}
                     </td>
 
                     {/* Batch Thumbnail & Title */}
@@ -337,9 +348,13 @@ const ManageClasses = ({ embedded = false }) => {
 
                     {/* Monthly Fee */}
                     <td className="py-4 px-4">
-                      <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-cyan-50/90 text-cyan-800 border border-cyan-200/80 dark:bg-cyan-500/15 dark:text-cyan-300 dark:border-cyan-500/30 font-extrabold text-xs">
-                        {cls.monthlyFee ? `Rs. ${cls.monthlyFee.toLocaleString()}` : 'Free'}
-                      </span>
+                      {cls.monthlyFee > 0 ? (
+                        <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-cyan-50/90 text-cyan-800 border border-cyan-200/80 dark:bg-cyan-500/15 dark:text-cyan-300 dark:border-cyan-500/30 font-extrabold text-xs">
+                          Rs. {cls.monthlyFee.toLocaleString()}
+                        </span>
+                      ) : (
+                        <span className="text-slate-400">-</span>
+                      )}
                     </td>
 
                     {/* Status Pill */}
@@ -387,14 +402,13 @@ const ManageClasses = ({ embedded = false }) => {
           </div>
         )}
 
-        {/* Table Footer Summary */}
-        <div className="px-6 py-3.5 bg-slate-50/70 dark:bg-slate-900/60 border-t border-slate-200/70 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-          <span>
-            Showing <strong className="text-slate-800 dark:text-slate-200">{filteredClasses.length}</strong> of{' '}
-            <strong className="text-slate-800 dark:text-slate-200">{classes.length}</strong> registered batches
-          </span>
-          <span>Live Sync Enabled</span>
-        </div>
+        <AdminPagination
+          currentPage={safePage}
+          totalItems={filteredClasses.length}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={setCurrentPage}
+          itemLabel="registered batches"
+        />
       </div>
 
       {/* Modern Modal */}

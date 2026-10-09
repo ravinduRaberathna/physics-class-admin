@@ -253,7 +253,7 @@ const Home = () => {
           </RevealOnScroll>
 
           {/* OFFICIAL 8 UNITS */}
-          <section id="modules" className="pt-16 sm:pt-20 pb-8 sm:pb-10 max-w-7xl mx-auto px-3 sm:px-6">
+          <section id="modules" className="py-8 sm:py-10 max-w-7xl mx-auto px-3 sm:px-6">
             <RevealOnScroll delay={100}>
               <div className="mb-10 sm:mb-12 text-center sm:text-left">
                 <span className="text-xs font-semibold text-indigo-600 uppercase tracking-widest">Syllabus Scope</span>

@@ -73,49 +73,9 @@ const TestimonialsSection = () => {
       id="testimonials" 
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      className="py-16 sm:py-20 my-0 relative overflow-hidden font-['Poppins'] selection:bg-indigo-600 selection:text-white rounded-[3rem] border border-slate-200/80 bg-gradient-to-b from-slate-50/70 via-indigo-50/20 to-slate-50/60"
+      className="py-8 sm:py-10 max-w-7xl mx-auto px-3 sm:px-6 relative font-['Poppins'] selection:bg-indigo-600 selection:text-white"
     >
-      {/* ========================================================
-          BACKGROUND LAYER: GRID, AURORA GLOWS & WATERMARKS
-         ======================================================== */}
-      
-      {/* 1. Precision Blueprint Grid Lines */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-40 [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(99, 102, 241, 0.08) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(99, 102, 241, 0.08) 1px, transparent 1px)
-          `,
-          backgroundSize: '40px 40px',
-        }}
-        aria-hidden="true"
-      />
-
-      {/* 2. Top-Left Cyan/Indigo Ambient Glow */}
-      <div 
-        className="absolute -top-24 -left-20 w-[30rem] h-[30rem] bg-gradient-to-br from-cyan-400/15 via-indigo-500/10 to-transparent blur-[110px] pointer-events-none rounded-full"
-        aria-hidden="true"
-      />
-
-      {/* 3. Bottom-Right Violet/Fuchsia Ambient Glow */}
-      <div 
-        className="absolute -bottom-24 -right-20 w-[32rem] h-[32rem] bg-gradient-to-tl from-purple-500/15 via-pink-400/10 to-transparent blur-[120px] pointer-events-none rounded-full"
-        aria-hidden="true"
-      />
-
-      {/* 4. Subtle Floating Physics Watermark Formulas */}
-      <div className="absolute top-12 right-16 font-mono text-[7rem] font-black text-indigo-900/[0.03] select-none pointer-events-none leading-none rotate-6" aria-hidden="true">
-        Ψ(x,t)
-      </div>
-      <div className="absolute bottom-8 left-12 font-mono text-[8rem] font-black text-indigo-900/[0.03] select-none pointer-events-none leading-none -rotate-12" aria-hidden="true">
-        ∮B·dl
-      </div>
-
-      {/* ========================================================
-          MAIN CONTENT CONTAINER
-         ======================================================== */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8">
+      <div className="relative z-10">
         
         {/* SECTION HEADER & NAVIGATION */}
         <RevealOnScroll delay={100}>
