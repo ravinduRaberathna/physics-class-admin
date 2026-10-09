@@ -3,7 +3,6 @@ import {
   BookOpen, 
   MessageSquareQuote, 
   FileText,
-  Inbox, 
   UserSquare2, 
   Sparkles, 
   Layers, 
@@ -17,7 +16,6 @@ import { useAuth } from '../../context/AuthContext';
 import ManageClasses from './ManageClasses';
 import ManageFeedback from './ManageFeedback';
 import ManageBlogs from './ManageBlogs';
-import ViewInquiries from './ViewInquiries';
 import EditTeacher from './EditTeacher';
 
 const AdminDashboard = () => {
@@ -28,32 +26,26 @@ const AdminDashboard = () => {
     activeClasses: 0,
     totalFeedbacks: 0,
     totalBlogs: 0,
-    totalInquiries: 0,
-    pendingInquiries: 0,
   });
 
   useEffect(() => {
     const fetchDashboardStats = async () => {
       try {
-        const [classesRes, feedbackRes, blogsRes, inquiriesRes] = await Promise.allSettled([
+        const [classesRes, feedbackRes, blogsRes] = await Promise.allSettled([
           API.get('/classes/admin/all'),
           API.get('/feedback'),
           API.get('/blogs'),
-          API.get('/inquiries'),
         ]);
 
         const classesData = classesRes.status === 'fulfilled' && Array.isArray(classesRes.value.data) ? classesRes.value.data : [];
         const feedbackData = feedbackRes.status === 'fulfilled' && Array.isArray(feedbackRes.value.data) ? feedbackRes.value.data : [];
         const blogsData = blogsRes.status === 'fulfilled' && Array.isArray(blogsRes.value.data) ? blogsRes.value.data : [];
-        const inquiriesData = inquiriesRes.status === 'fulfilled' && Array.isArray(inquiriesRes.value.data) ? inquiriesRes.value.data : [];
 
         setStats({
           totalClasses: classesData.length,
           activeClasses: classesData.filter((c) => c.isActive).length,
           totalFeedbacks: feedbackData.length,
           totalBlogs: blogsData.length,
-          totalInquiries: inquiriesData.length,
-          pendingInquiries: inquiriesData.filter((i) => i.status === 'Pending').length,
         });
       } catch (err) {
         console.log('Dashboard stats fetch skipped:', err);
@@ -67,7 +59,6 @@ const AdminDashboard = () => {
     { id: 'classes', label: 'Manage Classes', icon: BookOpen, count: stats.totalClasses },
     { id: 'feedbacks', label: 'Student Feedbacks', icon: MessageSquareQuote, count: stats.totalFeedbacks },
     { id: 'blogs', label: 'Blog & Articles', icon: FileText, count: stats.totalBlogs },
-    { id: 'inquiries', label: 'Student Inquiries', icon: Inbox, count: stats.totalInquiries },
     { id: 'profile', label: 'Lecturer Profile', icon: UserSquare2 },
   ];
 
@@ -95,7 +86,7 @@ const AdminDashboard = () => {
               Welcome back, {admin?.name || 'Administrator'} 👋
             </h1>
             <p className="text-xs sm:text-sm text-indigo-100 mt-1.5 max-w-xl">
-              Manage A/L Physics batches, student testimonials, enrollment inquiries, and lecturer profile settings from one clean workspace.
+              Manage A/L Physics batches, student testimonials, blog articles, and lecturer profile settings from one clean workspace.
             </p>
           </div>
 
@@ -157,19 +148,19 @@ const AdminDashboard = () => {
         </button>
 
         <button
-          onClick={() => setActiveTab('inquiries')}
+          onClick={() => setActiveTab('blogs')}
           className="text-left bg-white p-5 rounded-3xl border border-slate-200/80 hover:border-amber-300 shadow-[0_8px_30px_rgb(15,23,42,0.04)] transition group cursor-pointer"
         >
           <div className="flex items-center justify-between mb-3">
             <div className="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors">
-              <Inbox size={18} />
+              <FileText size={18} />
             </div>
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-              {stats.pendingInquiries} Pending
+              Articles
             </span>
           </div>
-          <div className="text-2xl font-extrabold text-slate-900">{stats.totalInquiries}</div>
-          <div className="text-xs font-medium text-slate-500 mt-0.5">Student Inquiries</div>
+          <div className="text-2xl font-extrabold text-slate-900">{stats.totalBlogs}</div>
+          <div className="text-xs font-medium text-slate-500 mt-0.5">Blog & Articles</div>
         </button>
 
         <button
@@ -227,7 +218,6 @@ const AdminDashboard = () => {
         {activeTab === 'classes' && <ManageClasses embedded />}
         {activeTab === 'feedbacks' && <ManageFeedback embedded />}
         {activeTab === 'blogs' && <ManageBlogs embedded />}
-        {activeTab === 'inquiries' && <ViewInquiries embedded />}
         {activeTab === 'profile' && <EditTeacher embedded />}
       </div>
 
