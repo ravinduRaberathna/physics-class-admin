@@ -2,11 +2,49 @@ import { useState } from 'react';
 import { Calendar, MapPin, Radio, BookOpen, Heart, ArrowUpRight } from 'lucide-react';
 import RevealOnScroll from './RevealOnScroll';
 
-const ClassesSection = ({ classes = [], onSelectClass }) => {
+const formatWhatsAppNumber = (raw) => {
+  const digits = String(raw || '').replace(/[^0-9]/g, '');
+  if (!digits) return '94771234567';
+  return digits.startsWith('0') ? `94${digits.slice(1)}` : digits;
+};
+
+const ClassesSection = ({ classes = [], onSelectClass, whatsappNumber }) => {
   const [likedIds, setLikedIds] = useState({});
 
   const toggleLike = (id) => {
     setLikedIds((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const wpNumber = formatWhatsAppNumber(
+    whatsappNumber || import.meta.env.VITE_WHATSAPP_NUMBER || '94771234567'
+  );
+
+  const buildClassWhatsAppUrl = (cls) => {
+    const scheduleStr = cls.schedule?.[0]
+      ? `${cls.schedule[0].day} (${cls.schedule[0].startTime} - ${cls.schedule[0].endTime})`
+      : 'Weekly Session';
+    const locationsStr = cls.locations?.length > 0 ? cls.locations.join(', ') : '';
+    const feeStr = cls.monthlyFee > 0 ? `Rs. ${cls.monthlyFee.toLocaleString()}` : '';
+
+    const lines = [
+      'Hello Sir, I would like to join or get more information about the following A/L Physics class:',
+      '',
+      `*Class:* ${cls.title}`,
+      `*Batch & Stream:* ${cls.batchYear} A/L (${cls.type})`,
+      `*Mode:* ${cls.deliveryMethod || 'Physical'}`,
+      `*Schedule:* ${scheduleStr}`,
+    ];
+
+    if (locationsStr) {
+      lines.push(`*Venues:* ${locationsStr}`);
+    }
+    if (feeStr) {
+      lines.push(`*Monthly Fee:* ${feeStr}`);
+    }
+
+    lines.push('', 'Could you please share the enrollment details? Thank you!');
+
+    return `https://wa.me/${wpNumber}?text=${encodeURIComponent(lines.join('\n'))}`;
   };
 
   return (
@@ -152,7 +190,9 @@ const ClassesSection = ({ classes = [], onSelectClass }) => {
                     </div>
 
                     <a
-                      href="#register"
+                      href={buildClassWhatsAppUrl(cls)}
+                      target="_blank"
+                      rel="noreferrer"
                       onClick={() => onSelectClass && onSelectClass(cls._id)}
                       className="px-6 py-2.5 rounded-full bg-[#22252a] hover:bg-[#111315] text-white text-xs sm:text-sm font-medium tracking-wide transition-all duration-300 shadow-md active:scale-95 inline-flex items-center gap-1.5"
                     >

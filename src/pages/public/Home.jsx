@@ -41,9 +41,55 @@ const Home = () => {
       .catch((err) => console.error(err));
   }, []);
 
+  const formatWhatsAppNumber = (raw) => {
+    const digits = String(raw || '').replace(/[^0-9]/g, '');
+    if (!digits) return '94771234567';
+    return digits.startsWith('0') ? `94${digits.slice(1)}` : digits;
+  };
+
   const handleEnrollSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    const chosenClass = classes.find((c) => c._id === selectedClassId);
+    const wpNumber = formatWhatsAppNumber(
+      teacher?.contactInfo?.whatsapp || import.meta.env.VITE_WHATSAPP_NUMBER || '94771234567'
+    );
+
+    const lines = [
+      'Hello Sir, I would like to join or get more information about A/L Physics classes:',
+      '',
+      `*Student Name:* ${studentName}`,
+      `*WhatsApp Number:* ${phone}`,
+    ];
+
+    if (chosenClass) {
+      const scheduleStr = chosenClass.schedule?.[0]
+        ? `${chosenClass.schedule[0].day} (${chosenClass.schedule[0].startTime} - ${chosenClass.schedule[0].endTime})`
+        : 'Weekly Session';
+      lines.push(
+        `*Selected Class:* ${chosenClass.title}`,
+        `*Batch & Stream:* ${chosenClass.batchYear} A/L (${chosenClass.type})`,
+        `*Mode:* ${chosenClass.deliveryMethod || 'Physical'}`,
+        `*Schedule:* ${scheduleStr}`
+      );
+      if (chosenClass.locations?.length > 0) {
+        lines.push(`*Venues:* ${chosenClass.locations.join(', ')}`);
+      }
+      if (chosenClass.monthlyFee > 0) {
+        lines.push(`*Monthly Fee:* Rs. ${chosenClass.monthlyFee.toLocaleString()}`);
+      }
+    } else {
+      lines.push('*Selected Class:* General Physics Inquiry');
+    }
+
+    if (message?.trim()) {
+      lines.push(`*Preferred Venue / Note:* ${message.trim()}`);
+    }
+
+    lines.push('', 'Could you please share the registration details? Thank you!');
+
+    const wpUrl = `https://wa.me/${wpNumber}?text=${encodeURIComponent(lines.join('\n'))}`;
 
     try {
       await API.post('/inquiries', {
@@ -52,26 +98,13 @@ const Home = () => {
         classInterested: selectedClassId || undefined,
         message,
       });
-
-      setFeedback(true);
-
-      const chosenClass = classes.find((c) => c._id === selectedClassId);
-      const classTitle = chosenClass ? chosenClass.title : 'General Inquiry';
-      const wpNumber = teacher?.contactInfo?.whatsapp || '94771234567';
-
-      const wpText = encodeURIComponent(
-        `Hi Sir, I would like to enroll for A/L Physics.\nName: ${studentName}\nPhone: ${phone}\nClass: ${classTitle}\nMessage: ${message || 'No additional note'}`
-      );
-
-      setTimeout(() => {
-        window.open(`https://wa.me/${wpNumber}?text=${wpText}`, '_blank');
-        setIsSubmitting(false);
-      }, 400);
     } catch (err) {
-      console.error(err);
-      alert('Failed to submit enrollment');
-      setIsSubmitting(false);
+      console.error('Inquiry save error:', err);
     }
+
+    setFeedback(true);
+    window.open(wpUrl, '_blank');
+    setIsSubmitting(false);
   };
 
   const patternA = ['PHYSICS', 'PHYSICS', 'PHYSICS', 'PHYSICS', 'PHYSICS', 'PHYSICS'];
@@ -238,6 +271,7 @@ const Home = () => {
           {/* ACADEMIC BATCHES & PROGRAMS SECTION */}
           <ClassesSection 
             classes={classes} 
+            whatsappNumber={teacher?.contactInfo?.whatsapp}
             onSelectClass={(classId) => setSelectedClassId(classId)} 
           />
 

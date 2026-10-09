@@ -10,11 +10,19 @@ import {
   Sparkles,
   Tag,
   User,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
+
+const POSTS_PER_PAGE = 3;
 
 const BlogSection = () => {
   const [blogs, setBlogs] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [currentPage, setCurrentPage] = useState(() => {
+    const saved = Number(sessionStorage.getItem('blogSectionPage'));
+    return saved > 0 ? saved : 1;
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,6 +30,24 @@ const BlogSection = () => {
       .then((res) => setBlogs(res.data))
       .catch((err) => console.log('Blogs load error:', err));
   }, []);
+
+  useEffect(() => {
+    if (blogs.length > 0) {
+      const shouldScrollToBlogs =
+        sessionStorage.getItem('returnToSection') === 'blogs' ||
+        window.location.hash === '#blogs';
+
+      if (shouldScrollToBlogs) {
+        sessionStorage.removeItem('returnToSection');
+        setTimeout(() => {
+          const el = document.getElementById('blogs');
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
+      }
+    }
+  }, [blogs]);
 
   if (blogs.length === 0) return null;
 
@@ -31,6 +57,18 @@ const BlogSection = () => {
     selectedCategory === 'All'
       ? blogs
       : blogs.filter((b) => b.category === selectedCategory);
+
+  const totalPages = Math.max(1, Math.ceil(filteredBlogs.length / POSTS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedBlogs = filteredBlogs.slice(
+    (safePage - 1) * POSTS_PER_PAGE,
+    safePage * POSTS_PER_PAGE
+  );
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    sessionStorage.setItem('blogSectionPage', String(newPage));
+  };
 
   const formatDate = (dateStr) => {
     if (!dateStr) return 'Recent';
@@ -71,7 +109,10 @@ const BlogSection = () => {
                   return (
                     <button
                       key={cat}
-                      onClick={() => setSelectedCategory(cat)}
+                      onClick={() => {
+                        setSelectedCategory(cat);
+                        handlePageChange(1);
+                      }}
                       className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                         active
                           ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-md shadow-indigo-500/25'
@@ -87,12 +128,16 @@ const BlogSection = () => {
           </div>
         </RevealOnScroll>
 
-        {/* Blog Cards Grid */}
+        {/* Blog Cards Grid (3 Posts per page) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredBlogs.map((blog, idx) => (
+          {paginatedBlogs.map((blog, idx) => (
             <RevealOnScroll key={blog._id} delay={idx * 90}>
               <article
-                onClick={() => navigate(`/blog/${blog._id}`)}
+                onClick={() => {
+                  sessionStorage.setItem('returnToSection', 'blogs');
+                  sessionStorage.setItem('blogSectionPage', String(safePage));
+                  navigate(`/blog/${blog._id}`);
+                }}
                 className="group rounded-[2rem] bg-white border border-slate-200/90 hover:border-indigo-400/80 overflow-hidden shadow-[0_10px_35px_-10px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_50px_-12px_rgba(99,102,241,0.18)] transition-all duration-500 flex flex-col h-full cursor-pointer"
               >
                 {/* Cover Image */}
@@ -165,6 +210,62 @@ const BlogSection = () => {
             </RevealOnScroll>
           ))}
         </div>
+
+        {/* Pagination Bar (Shown when there are more than 3 posts) */}
+        {totalPages > 1 && (
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
+            <span className="text-xs text-slate-500 font-medium">
+              Showing{' '}
+              <strong className="text-slate-800">
+                {(safePage - 1) * POSTS_PER_PAGE + 1}–
+                {Math.min(safePage * POSTS_PER_PAGE, filteredBlogs.length)}
+              </strong>{' '}
+              of <strong className="text-slate-800">{filteredBlogs.length}</strong> articles
+            </span>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={safePage <= 1}
+                onClick={() => handlePageChange(safePage - 1)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-white border border-slate-200/90 text-slate-700 hover:border-indigo-400 hover:text-indigo-600 disabled:opacity-40 disabled:pointer-events-none text-xs font-bold transition shadow-2xs cursor-pointer active:scale-95"
+              >
+                <ChevronLeft size={15} />
+                <span>Previous</span>
+              </button>
+
+              <div className="flex items-center gap-1.5">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                  const active = page === safePage;
+                  return (
+                    <button
+                      key={page}
+                      type="button"
+                      onClick={() => handlePageChange(page)}
+                      className={`w-9 h-9 rounded-2xl text-xs font-bold transition cursor-pointer flex items-center justify-center ${
+                        active
+                          ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-md shadow-indigo-500/25'
+                          : 'bg-white border border-slate-200/90 text-slate-600 hover:border-indigo-300 hover:text-indigo-600'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                disabled={safePage >= totalPages}
+                onClick={() => handlePageChange(safePage + 1)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-white border border-slate-200/90 text-slate-700 hover:border-indigo-400 hover:text-indigo-600 disabled:opacity-40 disabled:pointer-events-none text-xs font-bold transition shadow-2xs cursor-pointer active:scale-95"
+              >
+                <span>Next</span>
+                <ChevronRight size={15} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
