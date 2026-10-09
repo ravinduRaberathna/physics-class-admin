@@ -23,6 +23,7 @@ const Home = () => {
   const [classes, setClasses] = useState([]);
   const [teacher, setTeacher] = useState(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [showWhatsAppFloat, setShowWhatsAppFloat] = useState(false);
 
   const [studentName, setStudentName] = useState('');
   const [phone, setPhone] = useState('');
@@ -30,6 +31,22 @@ const Home = () => {
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const heroEl = document.getElementById('hero');
+      if (heroEl) {
+        const rect = heroEl.getBoundingClientRect();
+        setShowWhatsAppFloat(rect.bottom < window.innerHeight * 0.75);
+      } else {
+        setShowWhatsAppFloat(window.scrollY > 250);
+      }
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     API.get('/classes')
@@ -426,6 +443,38 @@ const Home = () => {
             </div>
           </div>
         </footer>
+
+        {/* FLOATING WHATSAPP BUTTON (APPEARS WHEN SCROLLING PAST HERO) */}
+        <a
+          href={`https://wa.me/${formatWhatsAppNumber(
+            teacher?.contactInfo?.whatsapp || import.meta.env.VITE_WHATSAPP_NUMBER || '94771234567'
+          )}?text=${encodeURIComponent(
+            'Hello Sir, could I please get more details about the A/L Physics classes?'
+          )}`}
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Chat on WhatsApp"
+          className={`fixed bottom-6 right-6 z-50 group flex items-center gap-2.5 transition-all duration-500 ${
+            showWhatsAppFloat
+              ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto'
+              : 'opacity-0 translate-y-6 scale-75 pointer-events-none'
+          }`}
+        >
+          <span className="hidden sm:inline-block px-3.5 py-2 rounded-full bg-slate-900/90 backdrop-blur-md text-white text-xs font-semibold shadow-lg opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 pointer-events-none">
+            Get Class Details
+          </span>
+          <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-[#25D366] hover:bg-[#1ebe5d] text-white shadow-[0_10px_28px_rgba(37,211,102,0.45)] hover:scale-110 active:scale-95 transition-all duration-300">
+            <span className="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-25 pointer-events-none"></span>
+            <svg
+              viewBox="0 0 32 32"
+              fill="currentColor"
+              className="w-7 h-7 relative z-10"
+              aria-hidden="true"
+            >
+              <path d="M16.004 3.2c-7.068 0-12.8 5.732-12.8 12.8 0 2.258.59 4.462 1.71 6.404L3.2 28.8l6.564-1.722a12.74 12.74 0 0 0 6.24 1.622h.005c7.068 0 12.8-5.732 12.8-12.8 0-3.42-1.332-6.636-3.75-9.054A12.714 12.714 0 0 0 16.004 3.2zm0 23.344h-.004a10.59 10.59 0 0 1-5.402-1.48l-.388-.23-4.018 1.054 1.072-3.918-.252-.402a10.582 10.582 0 0 1-1.628-5.648c0-5.852 4.764-10.616 10.62-10.616 2.836 0 5.502 1.104 7.506 3.11a10.55 10.55 0 0 1 3.11 7.51c0 5.856-4.764 10.62-10.616 10.62zm5.826-7.952c-.318-.16-1.888-.932-2.18-1.038-.292-.106-.504-.16-.716.16-.212.318-.824 1.038-1.01 1.25-.186.212-.372.238-.69.08-.318-.16-1.346-.496-2.564-1.582-.948-.846-1.588-1.89-1.774-2.208-.186-.318-.02-.49.14-.65.144-.142.318-.372.478-.558.16-.186.212-.318.318-.53.106-.212.054-.398-.026-.558-.08-.16-.716-1.726-.982-2.364-.258-.62-.522-.536-.716-.546l-.61-.01c-.212 0-.558.08-.85.398-.292.318-1.116 1.09-1.116 2.658 0 1.568 1.142 3.084 1.302 3.296.16.212 2.248 3.432 5.446 4.812.76.328 1.354.524 1.816.672.764.242 1.46.208 2.01.126.614-.092 1.888-.772 2.154-1.518.266-.744.266-1.382.186-1.518-.08-.132-.292-.212-.61-.372z" />
+            </svg>
+          </div>
+        </a>
       </div>
     </>
   );
