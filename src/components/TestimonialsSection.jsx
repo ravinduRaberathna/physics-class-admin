@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import API from '../api/axiosInstance';
 import RevealOnScroll from './RevealOnScroll';
-import { optimizeImage } from '../utils/imageOptimizer';
 import { 
   Star, 
   Award, 
@@ -141,7 +140,7 @@ const TestimonialsSection = () => {
                       <div className="flex items-center gap-3 min-w-0">
                         {fb.avatar ? (
                           <img 
-                            src={optimizeImage(fb.avatar, 150)} 
+                            src={fb.avatar} 
                             alt={fb.studentName} 
                             loading="lazy"
                             decoding="async"

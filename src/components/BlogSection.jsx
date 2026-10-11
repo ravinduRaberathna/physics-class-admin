@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axiosInstance';
 import RevealOnScroll from './RevealOnScroll';
-import { optimizeImage } from '../utils/imageOptimizer';
 import {
   FileText,
   Clock,
@@ -145,7 +144,7 @@ const BlogSection = () => {
                 <div className="relative h-52 overflow-hidden bg-gradient-to-tr from-indigo-950 via-indigo-900 to-cyan-900">
                   {blog.image ? (
                     <img
-                      src={optimizeImage(blog.image, 800)}
+                      src={blog.image}
                       alt={blog.title}
                       loading="lazy"
                       decoding="async"

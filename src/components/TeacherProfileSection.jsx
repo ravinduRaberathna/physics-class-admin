@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import RevealOnScroll from './RevealOnScroll';
-import { optimizeImage } from '../utils/imageOptimizer';
 import {
   GraduationCap,
   PhoneCall,
@@ -188,7 +187,7 @@ const TeacherProfileSection = ({ teacher, isModalOpen, onCloseModal, onOpenModal
 
                   {profileImage ? (
                     <img
-                      src={optimizeImage(profileImage, 800)}
+                      src={profileImage}
                       alt={name}
                       loading="lazy"
                       decoding="async"
@@ -325,7 +324,7 @@ const TeacherProfileSection = ({ teacher, isModalOpen, onCloseModal, onOpenModal
                   <div className="w-full h-full rounded-full overflow-hidden bg-gradient-to-tr from-[#7e22ce] to-indigo-600 flex items-center justify-center">
                     {profileImage ? (
                       <img
-                        src={optimizeImage(profileImage, 400)}
+                        src={profileImage}
                         alt={name}
                         loading="lazy"
                         decoding="async"

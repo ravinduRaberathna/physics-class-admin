@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Calendar, MapPin, Radio, BookOpen, Heart, ArrowUpRight } from 'lucide-react';
 import RevealOnScroll from './RevealOnScroll';
-import { optimizeImage } from '../utils/imageOptimizer';
 
 const formatWhatsAppNumber = (raw) => {
   const digits = String(raw || '').replace(/[^0-9]/g, '');
@@ -93,7 +92,7 @@ const ClassesSection = ({ classes = [], onSelectClass, whatsappNumber }) => {
                     <div className="relative h-56 sm:h-60 w-full rounded-[1.65rem] overflow-hidden bg-gradient-to-b from-[#0b101b] via-[#1e293b] to-[#cbd5e1] shrink-0">
                       {cls.image ? (
                         <img
-                          src={optimizeImage(cls.image, 800)}
+                          src={cls.image}
                           alt={cls.title}
                           loading="lazy"
                           decoding="async"
