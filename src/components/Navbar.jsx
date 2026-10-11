@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Atom, Menu, X, ArrowRight, Sparkles, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = ({ teacherName = 'A/L PHYSICS' }) => {
   const { darkMode, toggleDarkMode } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -17,11 +20,32 @@ const Navbar = ({ teacherName = 'A/L PHYSICS' }) => {
   }, []);
 
   const navLinks = [
-    { name: 'Lecturer', href: '#lecturer' },
-    { name: 'Batches', href: '#classes' },
-    { name: 'Blog', href: '#blogs' },
-    { name: 'Contact', href: '#register' },
+    { name: 'Lecturer', href: '/#lecturer', id: 'lecturer' },
+    { name: 'Batches', href: '/#classes', id: 'classes' },
+    { name: 'Blog', href: '/#blogs', id: 'blogs' },
+    { name: 'Contact', href: '/#register', id: 'register' },
   ];
+
+  const handleNavClick = (e, targetId) => {
+    e.preventDefault();
+    setMobileMenuOpen(false);
+
+    if (location.pathname === '/') {
+      if (targetId === 'hero') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.history.pushState(null, '', '/');
+      } else {
+        const el = document.getElementById(targetId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+          window.history.pushState(null, '', `/#${targetId}`);
+        }
+      }
+    } else {
+      sessionStorage.setItem('scrollToHash', targetId);
+      navigate(`/#${targetId}`);
+    }
+  };
 
   return (
     <header className="fixed top-3 sm:top-5 left-0 right-0 z-50 flex justify-center px-4 sm:px-6 pointer-events-none font-['Poppins']">
@@ -37,7 +61,8 @@ const Navbar = ({ teacherName = 'A/L PHYSICS' }) => {
           
           {/* Logo & Academy Title */}
           <a
-            href="#hero"
+            href="/#hero"
+            onClick={(e) => handleNavClick(e, 'hero')}
             className="flex items-center gap-3 group select-none cursor-pointer"
           >
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 p-[1.2px] shadow-[0_0_15px_rgba(99,102,241,0.4)]">
@@ -62,6 +87,7 @@ const Navbar = ({ teacherName = 'A/L PHYSICS' }) => {
               <a
                 key={link.name}
                 href={link.href}
+                onClick={(e) => handleNavClick(e, link.id)}
                 className="text-[13px] font-medium text-slate-300 hover:text-cyan-300 transition-colors duration-200 relative group py-1"
               >
                 <span>{link.name}</span>
@@ -93,7 +119,8 @@ const Navbar = ({ teacherName = 'A/L PHYSICS' }) => {
             </button>
 
             <a
-              href="#register"
+              href="/#register"
+              onClick={(e) => handleNavClick(e, 'register')}
               className="hidden sm:inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white text-xs font-semibold tracking-wider uppercase transition-all duration-300 shadow-md shadow-indigo-500/25 border border-white/20 active:scale-95"
             >
               <span>Enroll</span>
@@ -118,7 +145,7 @@ const Navbar = ({ teacherName = 'A/L PHYSICS' }) => {
               <a
                 key={link.name}
                 href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={(e) => handleNavClick(e, link.id)}
                 className="py-2 px-3 rounded-xl text-xs font-medium text-slate-200 hover:text-white hover:bg-white/10 transition flex items-center justify-between"
               >
                 <span>{link.name}</span>
@@ -142,8 +169,8 @@ const Navbar = ({ teacherName = 'A/L PHYSICS' }) => {
             </button>
 
             <a
-              href="#register"
-              onClick={() => setMobileMenuOpen(false)}
+              href="/#register"
+              onClick={(e) => handleNavClick(e, 'register')}
               className="mt-2 py-2.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/30"
             >
               <Sparkles size={13} className="text-cyan-300" />

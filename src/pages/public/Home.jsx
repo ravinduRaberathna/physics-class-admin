@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import API from '../../api/axiosInstance';
 import Navbar from '../../components/Navbar';
 import VirtualLab from '../../components/VirtualLab';
@@ -19,11 +20,51 @@ import {
 } from 'lucide-react';
 
 const Home = () => {
+  const location = useLocation();
   const [loadingComplete, setLoadingComplete] = useState(false);
   const [classes, setClasses] = useState([]);
   const [teacher, setTeacher] = useState(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [showWhatsAppFloat, setShowWhatsAppFloat] = useState(false);
+
+  // Smooth scroll to targeted section when navigating with hash from subpages or internally
+  useEffect(() => {
+    const targetId =
+      sessionStorage.getItem('scrollToHash') ||
+      sessionStorage.getItem('returnToSection') ||
+      location.hash.replace(/^#/, '');
+
+    if (!targetId) return;
+
+    const tryScroll = () => {
+      if (targetId === 'hero') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        sessionStorage.removeItem('scrollToHash');
+        sessionStorage.removeItem('returnToSection');
+        return true;
+      }
+
+      const el = document.getElementById(targetId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+        sessionStorage.removeItem('scrollToHash');
+        sessionStorage.removeItem('returnToSection');
+        return true;
+      }
+      return false;
+    };
+
+    if (!tryScroll()) {
+      const timer1 = setTimeout(tryScroll, 180);
+      const timer2 = setTimeout(tryScroll, 550);
+      const timer3 = setTimeout(tryScroll, 1100);
+      return () => {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+        clearTimeout(timer3);
+      };
+    }
+  }, [location.hash, loadingComplete, classes.length]);
 
   const [studentName, setStudentName] = useState('');
   const [phone, setPhone] = useState('');
