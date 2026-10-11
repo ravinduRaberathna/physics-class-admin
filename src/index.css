@@ -49,41 +49,66 @@ body {
   color: #94a3b8 !important;
 }
 
-/* Dark Mode Overrides for Admin Panel (.admin-dark) */
-.admin-dark .admin-input {
+/* Dark Mode Overrides for Admin Panel (.admin-dark) and Public Site (.dark) */
+html.dark body,
+body.dark {
+  background-color: #070a14 !important;
+  background-image: 
+    linear-gradient(to right, rgba(99, 102, 241, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(99, 102, 241, 0.04) 1px, transparent 1px),
+    radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.14) 0%, transparent 45%),
+    radial-gradient(circle at 85% 65%, rgba(6, 182, 212, 0.08) 0%, transparent 50%) !important;
+  color: #f8fafc !important;
+}
+
+.admin-dark .admin-input,
+.dark .admin-input {
   background-color: #0f172a !important;
   color: #f8fafc !important;
   border-color: #334155 !important;
 }
 
-.admin-dark .admin-input:hover {
+.admin-dark .admin-input:hover,
+.dark .admin-input:hover {
   background-color: #131c31 !important;
   border-color: #475569 !important;
 }
 
-.admin-dark .admin-input:focus {
+.admin-dark .admin-input:focus,
+.dark .admin-input:focus {
   background-color: #0f172a !important;
   border-color: #6366f1 !important;
   box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.22) !important;
 }
 
-.admin-dark .admin-input::placeholder {
+.admin-dark .admin-input::placeholder,
+.dark .admin-input::placeholder {
   color: #64748b !important;
 }
 
-/* Automatic surface, border & text adaptation inside .admin-dark */
+/* Automatic surface, border & text adaptation inside .dark and .admin-dark */
+.dark .bg-white,
+.dark .bg-white\/95,
+.dark .bg-white\/90,
+.dark .bg-white\/85,
 .admin-dark .bg-white,
 .admin-dark .bg-white\/95 {
   background-color: #0d1326 !important;
   border-color: rgba(148, 163, 184, 0.14) !important;
 }
 
+.dark .bg-slate-50,
+.dark .bg-slate-50\/90,
+.dark .bg-slate-50\/80,
 .admin-dark .bg-slate-50,
 .admin-dark .bg-slate-50\/90 {
   background-color: #11182d !important;
   border-color: rgba(148, 163, 184, 0.12) !important;
 }
 
+.dark .bg-slate-100,
+.dark .bg-slate-100\/80,
+.dark .bg-slate-100\/90,
 .admin-dark .bg-slate-100,
 .admin-dark .bg-slate-100\/80 {
   background-color: #1e293b !important;
@@ -91,20 +116,31 @@ body {
   border-color: rgba(148, 163, 184, 0.16) !important;
 }
 
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .text-\[\#1e293b\],
 .admin-dark .text-slate-900,
 .admin-dark .text-slate-800 {
   color: #f8fafc !important;
 }
 
+.dark .text-slate-700,
+.dark .text-slate-600,
 .admin-dark .text-slate-700,
 .admin-dark .text-slate-600 {
   color: #cbd5e1 !important;
 }
 
+.dark .text-slate-500,
 .admin-dark .text-slate-500 {
   color: #94a3b8 !important;
 }
 
+.dark .border-slate-200,
+.dark .border-slate-200\/80,
+.dark .border-slate-200\/90,
+.dark .border-slate-100,
+.dark .border-slate-300,
 .admin-dark .border-slate-200,
 .admin-dark .border-slate-200\/80,
 .admin-dark .border-slate-200\/90,
@@ -112,10 +148,12 @@ body {
   border-color: rgba(148, 163, 184, 0.14) !important;
 }
 
+.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
 .admin-dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
   border-color: rgba(148, 163, 184, 0.1) !important;
 }
 
+.dark tr.hover\:bg-indigo-50\/30:hover,
 .admin-dark tr.hover\:bg-indigo-50\/30:hover {
   background-color: rgba(99, 102, 241, 0.08) !important;
 }
@@ -123,6 +161,23 @@ body {
 #register input, #register select {
   color: #0f172a !important;
   background-color: #ffffff !important;
+}
+
+.dark #register input,
+.dark #register select {
+  color: #f8fafc !important;
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+.dark #register input::placeholder {
+  color: #64748b !important;
+}
+
+.dark #register input:focus,
+.dark #register select:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
 }
 
 /* ==========================================================
@@ -144,6 +199,16 @@ body {
 
 .blueprint-card:hover {
   border-color: rgba(99, 102, 241, 0.4);
+}
+
+.dark .blueprint-card {
+  background: rgba(13, 19, 38, 0.88) !important;
+  border: 1px solid rgba(148, 163, 184, 0.16) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+.dark .blueprint-card:hover {
+  border-color: rgba(99, 102, 241, 0.5) !important;
 }
 
 /* ==========================================================
@@ -283,4 +348,16 @@ body {
 
 ::-webkit-scrollbar-thumb:hover { 
   background: #94a3b8; 
+}
+
+.dark ::-webkit-scrollbar-track { 
+  background: #070a14; 
+}
+
+.dark ::-webkit-scrollbar-thumb { 
+  background: #1e293b; 
+}
+
+.dark ::-webkit-scrollbar-thumb:hover { 
+  background: #334155; 
 }

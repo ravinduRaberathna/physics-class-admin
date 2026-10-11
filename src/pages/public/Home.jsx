@@ -132,16 +132,16 @@ const Home = () => {
         <PageLoader onComplete={() => setLoadingComplete(true)} />
       )}
 
-      <div className="text-slate-900 font-['Poppins'] antialiased overflow-x-hidden relative min-h-screen selection:bg-indigo-600 selection:text-white">
+      <div className="text-slate-900 dark:text-slate-100 font-['Poppins'] antialiased overflow-x-hidden relative min-h-screen selection:bg-indigo-600 selection:text-white transition-colors duration-300">
         {/* Subtle Background Math Formulas */}
         <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-          <div className="absolute top-28 right-10 font-mono text-[9.5rem] font-black text-indigo-900/[0.03] select-none leading-none rotate-12">
+          <div className="absolute top-28 right-10 font-mono text-[9.5rem] font-black text-indigo-900/[0.03] dark:text-indigo-400/[0.04] select-none leading-none rotate-12">
             Δx·Δp ≥ ℏ/2
           </div>
-          <div className="absolute top-[48rem] -left-10 font-mono text-[10.5rem] font-black text-indigo-900/[0.03] select-none leading-none -rotate-6">
+          <div className="absolute top-[48rem] -left-10 font-mono text-[10.5rem] font-black text-indigo-900/[0.03] dark:text-indigo-400/[0.04] select-none leading-none -rotate-6">
             ∇×B = μ₀J
           </div>
-          <div className="absolute bottom-24 right-16 font-mono text-[11rem] font-black text-indigo-900/[0.03] select-none leading-none rotate-3">
+          <div className="absolute bottom-24 right-16 font-mono text-[11rem] font-black text-indigo-900/[0.03] dark:text-indigo-400/[0.04] select-none leading-none rotate-3">
             E = mc²
           </div>
         </div>

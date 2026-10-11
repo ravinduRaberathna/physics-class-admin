@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Atom, Menu, X, ArrowRight, Sparkles } from 'lucide-react';
+import { Atom, Menu, X, ArrowRight, Sparkles, Sun, Moon } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = ({ teacherName = 'A/L PHYSICS' }) => {
+  const { darkMode, toggleDarkMode } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -69,8 +71,27 @@ const Navbar = ({ teacherName = 'A/L PHYSICS' }) => {
             ))}
           </div>
 
-          {/* Enroll Button & Mobile Menu Toggle */}
-          <div className="flex items-center gap-3">
+          {/* Enroll Button, Theme Toggle & Mobile Menu Toggle */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Theme Toggle Button */}
+            <button
+              type="button"
+              onClick={toggleDarkMode}
+              title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              aria-label="Toggle theme"
+              className={`p-2 rounded-full border transition-all duration-300 cursor-pointer active:scale-90 ${
+                darkMode
+                  ? 'bg-white/10 hover:bg-white/20 border-white/25 text-amber-300 shadow-[0_0_12px_rgba(252,211,77,0.3)]'
+                  : 'bg-white/10 hover:bg-white/20 border-white/15 text-slate-200 hover:text-white shadow-xs'
+              }`}
+            >
+              {darkMode ? (
+                <Sun size={15} className="transition-transform duration-500 hover:rotate-90" />
+              ) : (
+                <Moon size={15} className="transition-transform duration-500 hover:-rotate-12" />
+              )}
+            </button>
+
             <a
               href="#register"
               className="hidden sm:inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white text-xs font-semibold tracking-wider uppercase transition-all duration-300 shadow-md shadow-indigo-500/25 border border-white/20 active:scale-95"
@@ -104,6 +125,22 @@ const Navbar = ({ teacherName = 'A/L PHYSICS' }) => {
                 <span className="text-slate-500">→</span>
               </a>
             ))}
+
+            {/* Mobile Theme Switcher Bar */}
+            <button
+              type="button"
+              onClick={toggleDarkMode}
+              className="py-2.5 px-3 rounded-xl text-xs font-medium text-slate-200 hover:text-white hover:bg-white/10 transition flex items-center justify-between cursor-pointer border border-white/10 mt-1"
+            >
+              <span className="flex items-center gap-2">
+                {darkMode ? <Sun size={14} className="text-amber-300" /> : <Moon size={14} className="text-cyan-300" />}
+                <span>{darkMode ? 'Theme: Dark Mode' : 'Theme: Light Mode'}</span>
+              </span>
+              <span className="text-[10px] uppercase font-bold text-slate-400">
+                {darkMode ? 'Active' : 'Turn On'}
+              </span>
+            </button>
+
             <a
               href="#register"
               onClick={() => setMobileMenuOpen(false)}

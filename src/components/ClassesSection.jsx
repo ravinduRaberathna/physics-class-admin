@@ -194,7 +194,7 @@ const ClassesSection = ({ classes = [], onSelectClass, whatsappNumber }) => {
                       target="_blank"
                       rel="noreferrer"
                       onClick={() => onSelectClass && onSelectClass(cls._id)}
-                      className="px-6 py-2.5 rounded-full bg-[#22252a] hover:bg-[#111315] text-white text-xs sm:text-sm font-medium tracking-wide transition-all duration-300 shadow-md active:scale-95 inline-flex items-center gap-1.5"
+                      className="px-6 py-2.5 rounded-full bg-[#22252a] hover:bg-[#111315] dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white text-xs sm:text-sm font-medium tracking-wide transition-all duration-300 shadow-md active:scale-95 inline-flex items-center gap-1.5"
                     >
                       <span>Enroll Now</span>
                       <ArrowUpRight size={15} />

@@ -6,7 +6,10 @@ export const AuthProvider = ({ children }) => {
   const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem('adminDarkMode') === 'true';
+    return (
+      localStorage.getItem('appDarkMode') === 'true' ||
+      localStorage.getItem('adminDarkMode') === 'true'
+    );
   });
 
   useEffect(() => {
@@ -18,9 +21,18 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
   const toggleDarkMode = () => {
     setDarkMode((prev) => {
       const next = !prev;
+      localStorage.setItem('appDarkMode', String(next));
       localStorage.setItem('adminDarkMode', String(next));
       return next;
     });

@@ -11,9 +11,13 @@ import {
   Sparkles,
   ArrowUpRight,
   BookOpen,
+  Sun,
+  Moon,
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const BlogDetails = () => {
+  const { darkMode, toggleDarkMode } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
   const [blogs, setBlogs] = useState([]);
@@ -80,7 +84,7 @@ const BlogDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-['Poppins'] selection:bg-indigo-600 selection:text-white">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-['Poppins'] selection:bg-indigo-600 selection:text-white transition-colors duration-300">
       {/* Top Navigation Bar */}
       <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-xl border-b border-slate-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4">
@@ -99,13 +103,30 @@ const BlogDetails = () => {
             </span>
           </div>
 
-          <a
-            href="/#register"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-500 text-white text-xs font-bold shadow-sm hover:opacity-95 transition"
-          >
-            <BookOpen size={13} />
-            <span>Join Classes</span>
-          </a>
+          <div className="flex items-center gap-2.5">
+            {/* Theme Toggle Button */}
+            <button
+              type="button"
+              onClick={toggleDarkMode}
+              title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              aria-label="Toggle theme"
+              className={`p-2 rounded-xl border transition-all cursor-pointer active:scale-90 ${
+                darkMode
+                  ? 'bg-slate-800 text-amber-300 border-slate-700 hover:bg-slate-700 shadow-[0_0_10px_rgba(252,211,77,0.2)]'
+                  : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-indigo-50 hover:text-indigo-600'
+              }`}
+            >
+              {darkMode ? <Sun size={15} /> : <Moon size={15} />}
+            </button>
+
+            <a
+              href="/#register"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-500 text-white text-xs font-bold shadow-sm hover:opacity-95 transition"
+            >
+              <BookOpen size={13} />
+              <span>Join Classes</span>
+            </a>
+          </div>
         </div>
       </header>
 
