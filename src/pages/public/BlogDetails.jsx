@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import API from '../../api/axiosInstance';
 import Navbar from '../../components/Navbar';
+import { optimizeImage } from '../../utils/imageOptimizer';
 import {
   ArrowLeft,
   Calendar,
@@ -155,8 +156,10 @@ const BlogDetails = () => {
             {currentBlog.image && (
               <div className="relative h-64 sm:h-96 w-full bg-slate-900 overflow-hidden">
                 <img
-                  src={currentBlog.image}
+                  src={optimizeImage(currentBlog.image, 1200)}
                   alt={currentBlog.title}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
@@ -251,8 +254,10 @@ const BlogDetails = () => {
                     >
                       {item.image ? (
                         <img
-                          src={item.image}
+                          src={optimizeImage(item.image, 200)}
                           alt={item.title}
+                          loading="lazy"
+                          decoding="async"
                           className="w-20 h-16 rounded-xl object-cover shrink-0 border border-slate-200 dark:border-slate-700"
                         />
                       ) : (
