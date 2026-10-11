@@ -1,6 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Atom, Menu, X, ArrowRight, Sparkles, Sun, Moon } from 'lucide-react';
+import { 
+  Atom, 
+  Menu, 
+  X, 
+  ArrowRight, 
+  Sparkles, 
+  Sun, 
+  Moon,
+  GraduationCap,
+  BookOpen,
+  FileText,
+  PhoneCall,
+  ChevronRight
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = ({ teacherName = 'A/L PHYSICS' }) => {
@@ -20,10 +33,10 @@ const Navbar = ({ teacherName = 'A/L PHYSICS' }) => {
   }, []);
 
   const navLinks = [
-    { name: 'Lecturer', href: '/#lecturer', id: 'lecturer' },
-    { name: 'Batches', href: '/#classes', id: 'classes' },
-    { name: 'Blog', href: '/#blogs', id: 'blogs' },
-    { name: 'Contact', href: '/#register', id: 'register' },
+    { name: 'Lecturer', href: '/#lecturer', id: 'lecturer', icon: GraduationCap },
+    { name: 'Batches', href: '/#classes', id: 'classes', icon: BookOpen },
+    { name: 'Blog', href: '/#blogs', id: 'blogs', icon: FileText },
+    { name: 'Contact', href: '/#register', id: 'register', icon: PhoneCall },
   ];
 
   const handleNavClick = (e, targetId) => {
@@ -48,10 +61,10 @@ const Navbar = ({ teacherName = 'A/L PHYSICS' }) => {
   };
 
   return (
-    <header className="fixed top-3 sm:top-5 left-0 right-0 z-50 flex justify-center px-4 sm:px-6 pointer-events-none font-['Poppins']">
+    <header className="fixed top-3 sm:top-5 left-0 right-0 z-50 flex flex-col items-center px-4 sm:px-6 pointer-events-none font-['Poppins']">
       {/* Centered Floating Glass Capsule */}
       <nav
-        className={`pointer-events-auto w-full max-w-5xl rounded-full transition-all duration-500 border ${
+        className={`pointer-events-auto w-full max-w-5xl rounded-full transition-all duration-300 border ${
           isScrolled
             ? 'bg-[#090d1a]/85 backdrop-blur-2xl border-indigo-500/30 shadow-[0_15px_40px_-10px_rgba(0,0,0,0.6)] py-2.5 px-5 sm:px-8'
             : 'bg-[#0b1021]/60 backdrop-blur-xl border-white/15 shadow-[0_10px_35px_rgba(0,0,0,0.3)] py-3 px-6 sm:px-9'
@@ -130,55 +143,80 @@ const Navbar = ({ teacherName = 'A/L PHYSICS' }) => {
             {/* Mobile Hamburger Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-full bg-white/10 text-slate-200 hover:text-white border border-white/10 active:scale-95 transition"
+              className="md:hidden p-2 rounded-full bg-white/10 text-slate-200 hover:text-white border border-white/10 active:scale-95 transition cursor-pointer"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
         </div>
+      </nav>
 
-        {/* Mobile Dropdown Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden mt-3 pt-3 border-t border-white/10 flex flex-col gap-1 pb-1">
-            {navLinks.map((link) => (
+      {/* Tap-outside Backdrop on Mobile */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-[2px] -z-10 pointer-events-auto md:hidden transition-opacity"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Modern Detached Mobile Menu Card (Crisp & Clean, NOT circular/egg-shaped) */}
+      {mobileMenuOpen && (
+        <div className="md:hidden pointer-events-auto w-full max-w-5xl mt-2 rounded-2xl bg-[#090d1a]/95 backdrop-blur-2xl border border-indigo-500/30 p-3 sm:p-3.5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-2 duration-200">
+          {navLinks.map((link) => {
+            const Icon = link.icon;
+            return (
               <a
                 key={link.name}
                 href={link.href}
                 onClick={(e) => handleNavClick(e, link.id)}
-                className="py-2 px-3 rounded-xl text-xs font-medium text-slate-200 hover:text-white hover:bg-white/10 transition flex items-center justify-between"
+                className="py-3 px-3.5 rounded-xl text-xs font-semibold text-slate-200 hover:text-white hover:bg-white/10 active:bg-white/15 transition flex items-center justify-between group cursor-pointer"
               >
-                <span>{link.name}</span>
-                <span className="text-slate-500">→</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-indigo-500/15 border border-indigo-500/25 text-cyan-300 flex items-center justify-center group-hover:bg-indigo-500/30 group-hover:text-cyan-200 transition shrink-0">
+                    <Icon size={15} />
+                  </div>
+                  <span className="text-[13px] tracking-wide text-slate-200 group-hover:text-white transition">
+                    {link.name}
+                  </span>
+                </div>
+                <ChevronRight size={15} className="text-slate-500 group-hover:translate-x-0.5 group-hover:text-cyan-300 transition shrink-0" />
               </a>
-            ))}
+            );
+          })}
 
-            {/* Mobile Theme Switcher Bar */}
-            <button
-              type="button"
-              onClick={toggleDarkMode}
-              className="py-2.5 px-3 rounded-xl text-xs font-medium text-slate-200 hover:text-white hover:bg-white/10 transition flex items-center justify-between cursor-pointer border border-white/10 mt-1"
-            >
-              <span className="flex items-center gap-2">
+          <div className="my-1 border-t border-white/10" />
+
+          {/* Mobile Theme Switcher Bar */}
+          <button
+            type="button"
+            onClick={toggleDarkMode}
+            className="py-2.5 px-3.5 rounded-xl text-xs font-medium text-slate-200 hover:text-white hover:bg-white/10 active:bg-white/15 transition flex items-center justify-between cursor-pointer border border-white/10"
+          >
+            <span className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center">
                 {darkMode ? <Sun size={14} className="text-amber-300" /> : <Moon size={14} className="text-cyan-300" />}
-                <span>{darkMode ? 'Theme: Dark Mode' : 'Theme: Light Mode'}</span>
-              </span>
-              <span className="text-[10px] uppercase font-bold text-slate-400">
-                {darkMode ? 'Active' : 'Turn On'}
-              </span>
-            </button>
+              </div>
+              <span className="text-xs font-semibold">{darkMode ? 'Dark Mode' : 'Light Mode'}</span>
+            </span>
+            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-white/10 text-cyan-300 border border-white/10">
+              {darkMode ? 'Active' : 'Turn On'}
+            </span>
+          </button>
 
-            <a
-              href="/#register"
-              onClick={(e) => handleNavClick(e, 'register')}
-              className="mt-2 py-2.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/30"
-            >
-              <Sparkles size={13} className="text-cyan-300" />
-              <span>Enroll Class Now</span>
-            </a>
-          </div>
-        )}
-      </nav>
+          {/* Enroll Class CTA Button */}
+          <a
+            href="/#register"
+            onClick={(e) => handleNavClick(e, 'register')}
+            className="mt-1 py-3 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 hover:opacity-95 text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 border border-white/20 active:scale-[0.99] transition cursor-pointer"
+          >
+            <Sparkles size={14} className="text-cyan-200" />
+            <span>Enroll Class Now</span>
+            <ArrowRight size={14} className="text-cyan-100" />
+          </a>
+        </div>
+      )}
     </header>
   );
 };
