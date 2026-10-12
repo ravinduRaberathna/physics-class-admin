@@ -10,21 +10,21 @@ const PageLoader = ({ onComplete }) => {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(timer);
-          setTimeout(() => setIsFading(true), 250);
-          setTimeout(() => onComplete && onComplete(), 800);
+          setTimeout(() => setIsFading(true), 100);
+          setTimeout(() => onComplete && onComplete(), 400);
           return 100;
         }
-        const diff = Math.floor(Math.random() * 15) + 10;
+        const diff = Math.floor(Math.random() * 20) + 18;
         return Math.min(prev + diff, 100);
       });
-    }, 100);
+    }, 45);
 
     return () => clearInterval(timer);
   }, [onComplete]);
 
   return (
     <div
-      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#060813] transition-all duration-700 ease-in-out ${
+      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#060813] transition-all duration-500 ease-in-out ${
         isFading ? 'opacity-0 pointer-events-none scale-105' : 'opacity-100 scale-100'
       }`}
     >
