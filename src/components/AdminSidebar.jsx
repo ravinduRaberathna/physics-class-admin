@@ -56,9 +56,9 @@ const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
         />
       )}
 
-      {/* CoreUI Signature Dark Sidebar */}
+      {/* CoreUI Signature Dark Sidebar (Fixed/Sticky on desktop, never scrolls away) */}
       <aside
-        className={`fixed lg:static top-0 bottom-0 left-0 z-50 w-64 bg-[#212631] text-slate-300 flex flex-col justify-between shrink-0 transition-transform duration-300 font-['Poppins'] select-none border-r border-[#2d3446] shadow-xl lg:shadow-none ${
+        className={`fixed lg:sticky top-0 h-screen z-50 w-64 bg-[#212631] text-slate-300 flex flex-col justify-between shrink-0 transition-transform duration-300 font-['Poppins'] select-none border-r border-[#2d3446] shadow-xl lg:shadow-none lg:self-start ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >

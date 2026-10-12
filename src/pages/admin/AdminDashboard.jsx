@@ -7,13 +7,14 @@ import {
   Sparkles, 
   Layers, 
   ArrowUpRight,
-  TrendingDown,
   TrendingUp,
   MoreVertical,
   CloudDownload,
   Users,
-  Activity,
-  CheckCircle2
+  CheckCircle2,
+  GraduationCap,
+  Calendar,
+  Radio
 } from 'lucide-react';
 import API from '../../api/axiosInstance';
 import { useAuth } from '../../context/AuthContext';
@@ -26,7 +27,6 @@ const AdminDashboard = () => {
   const { admin } = useAuth();
   const [activeTab, setActiveTab] = useState('classes');
   const [timeRange, setTimeRange] = useState('Month'); // 'Day' | 'Month' | 'Year'
-  const [hoveredMonth, setHoveredMonth] = useState(null);
   const [stats, setStats] = useState({
     totalClasses: 0,
     activeClasses: 0,
@@ -64,7 +64,7 @@ const AdminDashboard = () => {
   const managementTabs = [
     { id: 'classes', label: 'Batches & Classes', icon: BookOpen, count: stats.totalClasses },
     { id: 'feedbacks', label: 'Student Reviews', icon: MessageSquareQuote, count: stats.totalFeedbacks },
-    { id: 'blogs', label: 'Blog & Articles', icon: FileText, count: stats.totalBlogs },
+    { id: 'blogs', label: 'Knowledge Hub Articles', icon: FileText, count: stats.totalBlogs },
     { id: 'profile', label: 'Lecturer Bio & Socials', icon: UserSquare2 },
   ];
 
@@ -74,33 +74,31 @@ const AdminDashboard = () => {
     <div className="space-y-6 font-['Poppins']">
       
       {/* =========================================================================
-          SECTION 1: 4 COREUI SIGNATURE SOLID COLOR METRIC CARDS
+          SECTION 1: 4 COREUI METRIC CARDS (Customized for A/L Physics Masterclass)
           ========================================================================= */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         
-        {/* Card 1: Royal Purple / Violet (#5856d6) - Users / Batches */}
+        {/* Card 1: Royal Purple / Violet (#5856d6) - Total Batches */}
         <div className="bg-[#5856d6] rounded-xl text-white shadow-sm overflow-hidden flex flex-col justify-between transition-transform duration-200 hover:-translate-y-0.5">
           <div className="p-5 pb-3">
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl lg:text-3xl font-extrabold tracking-tight">
-                    {stats.totalClasses > 0 ? `${stats.totalClasses * 2.5 + 23.5}`.slice(0, 3) : '26'}K
+                    {stats.totalClasses}
                   </span>
-                  <span className="text-xs font-semibold text-white/80 inline-flex items-center gap-0.5">
-                    (-12.4% <TrendingDown size={13} className="inline" />)
+                  <span className="text-xs font-semibold text-white/85 inline-flex items-center gap-1 bg-white/15 px-2 py-0.5 rounded-full">
+                    <span>Batches</span>
+                    <TrendingUp size={12} className="inline" />
                   </span>
                 </div>
-                <p className="text-xs font-medium text-white/85 mt-1">Users & Students</p>
+                <p className="text-xs font-medium text-white/90 mt-1">Total Physics Batches</p>
+                <p className="text-[10px] text-white/70 mt-0.5">Theory, Revision & Paper</p>
               </div>
 
-              <button 
-                type="button" 
-                title="Options"
-                className="text-white/80 hover:text-white p-1 rounded-md hover:bg-white/10 transition"
-              >
-                <MoreVertical size={17} />
-              </button>
+              <div className="p-2 rounded-lg bg-white/10 text-white/90">
+                <Layers size={18} />
+              </div>
             </div>
           </div>
 
@@ -137,29 +135,27 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Card 2: Sky / Electric Blue (#3399ff) - Income / Active Classes */}
+        {/* Card 2: Sky / Electric Blue (#3399ff) - Active Live Classes */}
         <div className="bg-[#3399ff] rounded-xl text-white shadow-sm overflow-hidden flex flex-col justify-between transition-transform duration-200 hover:-translate-y-0.5">
           <div className="p-5 pb-3">
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl lg:text-3xl font-extrabold tracking-tight">
-                    ${stats.activeClasses > 0 ? (stats.activeClasses * 1.5 + 4.7).toFixed(3) : '6.200'}
+                    {stats.activeClasses}
                   </span>
-                  <span className="text-xs font-semibold text-white/80 inline-flex items-center gap-0.5">
-                    (40.9% <TrendingUp size={13} className="inline" />)
+                  <span className="text-xs font-semibold text-white/85 inline-flex items-center gap-1 bg-white/15 px-2 py-0.5 rounded-full">
+                    <span>Live on Web</span>
+                    <Radio size={12} className="inline animate-pulse" />
                   </span>
                 </div>
-                <p className="text-xs font-medium text-white/85 mt-1">Income & Active Batches</p>
+                <p className="text-xs font-medium text-white/90 mt-1">Active Class Batches</p>
+                <p className="text-[10px] text-white/70 mt-0.5">Physical Venues & Online</p>
               </div>
 
-              <button 
-                type="button" 
-                title="Options"
-                className="text-white/80 hover:text-white p-1 rounded-md hover:bg-white/10 transition"
-              >
-                <MoreVertical size={17} />
-              </button>
+              <div className="p-2 rounded-lg bg-white/10 text-white/90">
+                <BookOpen size={18} />
+              </div>
             </div>
           </div>
 
@@ -195,29 +191,26 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Card 3: Warm Orange / Amber Yellow (#f9b115) - Conversion Rate / Feedback */}
+        {/* Card 3: Warm Orange / Amber Yellow (#f9b115) - Student Reviews */}
         <div className="bg-[#f9b115] rounded-xl text-white shadow-sm overflow-hidden flex flex-col justify-between transition-transform duration-200 hover:-translate-y-0.5">
           <div className="p-5 pb-3">
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl lg:text-3xl font-extrabold tracking-tight">
-                    {stats.totalFeedbacks > 0 ? (stats.totalFeedbacks * 0.45 + 1.8).toFixed(2) : '2.49'}%
+                    {stats.totalFeedbacks}
                   </span>
-                  <span className="text-xs font-semibold text-white/80 inline-flex items-center gap-0.5">
-                    (84.7% <TrendingUp size={13} className="inline" />)
+                  <span className="text-xs font-semibold text-white/85 inline-flex items-center gap-1 bg-white/15 px-2 py-0.5 rounded-full">
+                    <span>5.0 ★ Rated</span>
                   </span>
                 </div>
-                <p className="text-xs font-medium text-white/85 mt-1">Conversion Rate & Reviews</p>
+                <p className="text-xs font-medium text-white/90 mt-1">Student Reviews</p>
+                <p className="text-[10px] text-white/70 mt-0.5">Verified Testimonials</p>
               </div>
 
-              <button 
-                type="button" 
-                title="Options"
-                className="text-white/80 hover:text-white p-1 rounded-md hover:bg-white/10 transition"
-              >
-                <MoreVertical size={17} />
-              </button>
+              <div className="p-2 rounded-lg bg-white/10 text-white/90">
+                <MessageSquareQuote size={18} />
+              </div>
             </div>
           </div>
 
@@ -244,29 +237,26 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Card 4: Coral / Crimson Red (#e55353) - Sessions / Blogs */}
+        {/* Card 4: Coral / Crimson Red (#e55353) - Knowledge Hub Articles */}
         <div className="bg-[#e55353] rounded-xl text-white shadow-sm overflow-hidden flex flex-col justify-between transition-transform duration-200 hover:-translate-y-0.5">
           <div className="p-5 pb-3">
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl lg:text-3xl font-extrabold tracking-tight">
-                    {stats.totalBlogs > 0 ? stats.totalBlogs * 6 + 32 : '44'}K
+                    {stats.totalBlogs}
                   </span>
-                  <span className="text-xs font-semibold text-white/80 inline-flex items-center gap-0.5">
-                    (-23.6% <TrendingDown size={13} className="inline" />)
+                  <span className="text-xs font-semibold text-white/85 inline-flex items-center gap-1 bg-white/15 px-2 py-0.5 rounded-full">
+                    <span>Published</span>
                   </span>
                 </div>
-                <p className="text-xs font-medium text-white/85 mt-1">Sessions & Blog Articles</p>
+                <p className="text-xs font-medium text-white/90 mt-1">Knowledge Hub Articles</p>
+                <p className="text-[10px] text-white/70 mt-0.5">Physics Short Notes & Guides</p>
               </div>
 
-              <button 
-                type="button" 
-                title="Options"
-                className="text-white/80 hover:text-white p-1 rounded-md hover:bg-white/10 transition"
-              >
-                <MoreVertical size={17} />
-              </button>
+              <div className="p-2 rounded-lg bg-white/10 text-white/90">
+                <FileText size={18} />
+              </div>
             </div>
           </div>
 
@@ -308,18 +298,20 @@ const AdminDashboard = () => {
       </div>
 
       {/* =========================================================================
-          SECTION 2: COREUI TRAFFIC CHART CARD (Exact replicate of screenshot)
+          SECTION 2: CLASS ACTIVITY & STUDENT INQUIRIES CHART
           ========================================================================= */}
       <div className="bg-white dark:bg-[#1e222d] border border-slate-200 dark:border-[#2d3446] rounded-xl shadow-xs overflow-hidden">
         
         {/* Card Header */}
         <div className="p-5 sm:p-6 pb-2 sm:pb-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-[#2d3446]/60">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white tracking-tight">
-              Traffic
-            </h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white tracking-tight">
+                Student Inquiries & Academic Engagement
+              </h2>
+            </div>
             <p className="text-xs font-semibold text-slate-400 mt-0.5">
-              October 2025 - April 2026 (Academic Year)
+              2026 Academic Year • Physical & Online Class Engagements
             </p>
           </div>
 
@@ -348,12 +340,28 @@ const AdminDashboard = () => {
             {/* Cloud Download Action Button */}
             <button
               type="button"
-              title="Download Traffic Report"
-              onClick={() => alert('Exporting traffic summary report as CSV/PDF...')}
+              title="Download Academic Summary Report"
+              onClick={() => alert('Generating academic batch summary report as CSV...')}
               className="p-2 rounded-lg bg-[#5856d6] hover:bg-[#4845c4] text-white shadow-xs transition cursor-pointer active:scale-95"
             >
               <CloudDownload size={18} />
             </button>
+          </div>
+        </div>
+
+        {/* Legend Row */}
+        <div className="px-5 sm:px-6 pt-3 flex items-center gap-5 text-xs font-semibold text-slate-500 dark:text-slate-400 flex-wrap">
+          <div className="flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-[#3399ff]" />
+            <span>Student Inquiries & Registrations (ශිෂ්‍ය විමසීම්)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-[#2eb85c]" />
+            <span>Class Attendance & Portal Traffic (පැමිණීම සහ සහභාගීත්වය)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-3.5 h-0.5 border-t-2 border-dashed border-[#e55353]" />
+            <span>Target Capacity Threshold</span>
           </div>
         </div>
 
@@ -379,23 +387,19 @@ const AdminDashboard = () => {
               </defs>
 
               {/* Grid Lines & Y-Axis Labels */}
-              {/* Y: 250 -> y=40 */}
               <text x="30" y="44" textAnchor="end" className="text-[11px] font-semibold fill-slate-400">250</text>
               <line x1="45" y1="40" x2="905" y2="40" stroke="#f1f5f9" className="dark:stroke-[#2b3244]" strokeWidth="1" />
 
-              {/* Y: 200 -> y=95 */}
               <text x="30" y="99" textAnchor="end" className="text-[11px] font-semibold fill-slate-400">200</text>
               <line x1="45" y1="95" x2="905" y2="95" stroke="#f1f5f9" className="dark:stroke-[#2b3244]" strokeWidth="1" />
 
-              {/* Y: 100 -> y=190 */}
               <text x="30" y="194" textAnchor="end" className="text-[11px] font-semibold fill-slate-400">100</text>
               <line x1="45" y1="190" x2="905" y2="190" stroke="#f1f5f9" className="dark:stroke-[#2b3244]" strokeWidth="1" />
 
-              {/* Y: 0 -> y=280 */}
               <text x="30" y="284" textAnchor="end" className="text-[11px] font-semibold fill-slate-400">0</text>
               <line x1="45" y1="280" x2="905" y2="280" stroke="#e2e8f0" className="dark:stroke-[#333c52]" strokeWidth="1.2" />
 
-              {/* Red Dashed Threshold Line (matching the screenshot) */}
+              {/* Red Dashed Threshold Line */}
               <line 
                 x1="45" 
                 y1="225" 
@@ -406,13 +410,11 @@ const AdminDashboard = () => {
                 strokeDasharray="5 5" 
               />
 
-              {/* --- BLUE SPLINE WAVE --- */}
-              {/* Blue Area Fill */}
+              {/* --- BLUE SPLINE WAVE (Inquiries) --- */}
               <path
                 d="M 45 160 C 110 180, 140 220, 195 220 C 270 220, 290 105, 360 105 C 430 105, 460 135, 510 135 C 570 135, 590 85, 650 85 C 730 85, 750 145, 810 160 C 855 170, 880 205, 905 225 L 905 280 L 45 280 Z"
                 fill="url(#trafficBlueGrad)"
               />
-              {/* Blue Stroke Path */}
               <path
                 d="M 45 160 C 110 180, 140 220, 195 220 C 270 220, 290 105, 360 105 C 430 105, 460 135, 510 135 C 570 135, 590 85, 650 85 C 730 85, 750 145, 810 160 C 855 170, 880 205, 905 225"
                 fill="none"
@@ -421,13 +423,11 @@ const AdminDashboard = () => {
                 strokeLinecap="round"
               />
 
-              {/* --- GREEN SPLINE WAVE --- */}
-              {/* Green Area Fill */}
+              {/* --- GREEN SPLINE WAVE (Attendance) --- */}
               <path
                 d="M 45 175 C 95 200, 130 232, 185 232 C 240 232, 280 92, 345 92 C 410 92, 440 170, 490 170 C 540 170, 570 228, 630 228 C 690 228, 715 90, 770 90 C 820 90, 860 180, 905 230 L 905 280 L 45 280 Z"
                 fill="url(#trafficGreenGrad)"
               />
-              {/* Green Stroke Path */}
               <path
                 d="M 45 175 C 95 200, 130 232, 185 232 C 240 232, 280 92, 345 92 C 410 92, 440 170, 490 170 C 540 170, 570 228, 630 228 C 690 228, 715 90, 770 90 C 820 90, 860 180, 905 230"
                 fill="none"
@@ -457,62 +457,65 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* CoreUI Bottom Progress Summary Row */}
+        {/* Progress Summary Row (Tailored to tuition) */}
         <div className="border-t border-slate-100 dark:border-[#2d3446] p-5 sm:p-6 bg-slate-50/50 dark:bg-[#1a1f2c]/50">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center sm:text-left">
             
-            {/* Metric 1: Visits */}
+            {/* Metric 1: New Inquiries */}
             <div className="space-y-1.5">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Visits</span>
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">New Inquiries</span>
               <p className="text-sm sm:text-base font-extrabold text-slate-800 dark:text-white">
-                29.703 Users <span className="text-xs font-semibold text-slate-500">(40%)</span>
+                1,420 Students <span className="text-xs font-semibold text-slate-500">(85%)</span>
               </p>
               <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div className="h-full bg-[#2eb85c] rounded-full" style={{ width: '40%' }} />
+                <div className="h-full bg-[#2eb85c] rounded-full" style={{ width: '85%' }} />
               </div>
             </div>
 
-            {/* Metric 2: Unique */}
+            {/* Metric 2: Active Batches */}
             <div className="space-y-1.5">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Unique</span>
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Active Batches</span>
               <p className="text-sm sm:text-base font-extrabold text-slate-800 dark:text-white">
-                24.093 Users <span className="text-xs font-semibold text-slate-500">(20%)</span>
+                {stats.activeClasses} of {stats.totalClasses} Batches Live
               </p>
               <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div className="h-full bg-[#3399ff] rounded-full" style={{ width: '20%' }} />
+                <div 
+                  className="h-full bg-[#3399ff] rounded-full" 
+                  style={{ width: stats.totalClasses > 0 ? `${(stats.activeClasses / stats.totalClasses) * 100}%` : '100%' }} 
+                />
               </div>
             </div>
 
-            {/* Metric 3: Pageviews */}
+            {/* Metric 3: Attendance Turnout */}
             <div className="space-y-1.5">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Pageviews</span>
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Attendance Rate</span>
               <p className="text-sm sm:text-base font-extrabold text-slate-800 dark:text-white">
-                78.706 Views <span className="text-xs font-semibold text-slate-500">(60%)</span>
+                94.8% Average Turnout
               </p>
               <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div className="h-full bg-[#f9b115] rounded-full" style={{ width: '60%' }} />
+                <div className="h-full bg-[#f9b115] rounded-full" style={{ width: '94%' }} />
               </div>
             </div>
 
-            {/* Metric 4: New Users */}
+            {/* Metric 4: Satisfaction */}
             <div className="space-y-1.5">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">New Users</span>
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Satisfaction</span>
               <p className="text-sm sm:text-base font-extrabold text-slate-800 dark:text-white">
-                22.123 Users <span className="text-xs font-semibold text-slate-500">(80%)</span>
+                99.2% Positive Reviews
               </p>
               <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div className="h-full bg-[#e55353] rounded-full" style={{ width: '80%' }} />
+                <div className="h-full bg-[#e55353] rounded-full" style={{ width: '99%' }} />
               </div>
             </div>
 
-            {/* Metric 5: Bounce Rate */}
+            {/* Metric 5: Knowledge Reads */}
             <div className="space-y-1.5 col-span-2 md:col-span-1">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Bounce Rate</span>
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Knowledge Hub Reads</span>
               <p className="text-sm sm:text-base font-extrabold text-slate-800 dark:text-white">
-                Average 40.15%
+                12.5K Monthly Readers
               </p>
               <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div className="h-full bg-[#5856d6] rounded-full" style={{ width: '40%' }} />
+                <div className="h-full bg-[#5856d6] rounded-full" style={{ width: '75%' }} />
               </div>
             </div>
 
@@ -523,7 +526,6 @@ const AdminDashboard = () => {
 
       {/* =========================================================================
           SECTION 3: MANAGEMENT WORKSPACE HUB
-          Allows the admin to manage Batches, Reviews, Blogs & Profile without leaving
           ========================================================================= */}
       <div className="space-y-4">
         {/* Workspace Segmented Controls */}
