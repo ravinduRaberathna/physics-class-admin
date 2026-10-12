@@ -11,6 +11,7 @@ import {
   Sparkles,
   Atom
 } from 'lucide-react';
+import { getOptimizedAvatar } from '../utils/imageOptimizer';
 
 const TestimonialsSection = () => {
   const [feedbacks, setFeedbacks] = useState([]);
@@ -140,7 +141,7 @@ const TestimonialsSection = () => {
                       <div className="flex items-center gap-3 min-w-0">
                         {fb.avatar ? (
                           <img 
-                            src={fb.avatar} 
+                            src={getOptimizedAvatar(fb.avatar)} 
                             alt={fb.studentName} 
                             loading="lazy"
                             decoding="async"

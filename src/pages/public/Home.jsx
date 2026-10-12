@@ -18,6 +18,7 @@ import {
   Send,
   UserSquare2
 } from 'lucide-react';
+import { preloadImage } from '../../utils/imageOptimizer';
 
 const Home = () => {
   const location = useLocation();
@@ -91,11 +92,23 @@ const Home = () => {
 
   useEffect(() => {
     API.get('/classes')
-      .then((res) => setClasses(res.data))
+      .then((res) => {
+        setClasses(res.data);
+        if (Array.isArray(res.data)) {
+          res.data.slice(0, 3).forEach((c) => {
+            if (c.image) preloadImage(c.image, { width: 800 });
+          });
+        }
+      })
       .catch((err) => console.error(err));
 
     API.get('/teacher')
-      .then((res) => setTeacher(res.data))
+      .then((res) => {
+        setTeacher(res.data);
+        if (res.data?.profileImage) {
+          preloadImage(res.data.profileImage, { width: 900 });
+        }
+      })
       .catch((err) => console.error(err));
   }, []);
 

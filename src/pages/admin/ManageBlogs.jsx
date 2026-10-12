@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import API from '../../api/axiosInstance';
 import ImageUploadField from '../../components/ImageUploadField';
 import AdminPagination from '../../components/AdminPagination';
+import { getOptimizedThumbnail } from '../../utils/imageOptimizer';
 import {
   Plus,
   Edit3,
@@ -250,7 +251,7 @@ const ManageBlogs = ({ embedded = false }) => {
                       <div className="flex items-center gap-3.5">
                         {blog.image ? (
                           <img
-                            src={blog.image}
+                            src={getOptimizedThumbnail(blog.image)}
                             alt={blog.title}
                             className="w-14 h-12 rounded-2xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
                           />

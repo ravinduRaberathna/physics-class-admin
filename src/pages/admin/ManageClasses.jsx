@@ -14,19 +14,31 @@ import {
   Clock,
   CheckCircle2,
   EyeOff,
+  SlidersHorizontal,
+  RotateCcw,
+  ArrowRight,
+  Eye,
+  Radio
 } from 'lucide-react';
 import ImageUploadField from '../../components/ImageUploadField';
 import AdminPagination from '../../components/AdminPagination';
+import { getOptimizedThumbnail } from '../../utils/imageOptimizer';
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 6;
 
 const ManageClasses = ({ embedded = false }) => {
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  
+  // Filter states (Matching the Dribbble screenshot)
   const [searchQuery, setSearchQuery] = useState('');
-  const [typeFilter, setTypeFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('All'); // 'All' | 'Active' | 'Hidden'
+  const [deliveryFilter, setDeliveryFilter] = useState('All'); // 'All' | 'Physical' | 'Online'
+  const [typeFilter, setTypeFilter] = useState('All'); // 'All' | 'Theory' | 'Revision' | 'Paper'
+  const [yearFilter, setYearFilter] = useState('All'); // 'All' | 2025 | 2026 | 2027
+  const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'table'
   const [currentPage, setCurrentPage] = useState(1);
 
   const initialFormState = {
@@ -131,14 +143,49 @@ const ManageClasses = ({ embedded = false }) => {
     }
   };
 
+  const toggleActiveStatus = async (cls) => {
+    try {
+      const updated = !cls.isActive;
+      await API.put(`/classes/${cls._id}`, { isActive: updated });
+      setClasses(classes.map((c) => (c._id === cls._id ? { ...c, isActive: updated } : c)));
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update status');
+    }
+  };
+
+  const resetFilters = () => {
+    setSearchQuery('');
+    setStatusFilter('All');
+    setDeliveryFilter('All');
+    setTypeFilter('All');
+    setYearFilter('All');
+    setCurrentPage(1);
+  };
+
+  // Filter application
   const filteredClasses = classes.filter((cls) => {
-    const matchesType = typeFilter === 'All' || cls.type === typeFilter;
     const matchesSearch =
       !searchQuery.trim() ||
       cls.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       String(cls.batchYear).includes(searchQuery) ||
       cls.locations?.join(' ').toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesType && matchesSearch;
+
+    const matchesStatus =
+      statusFilter === 'All' ||
+      (statusFilter === 'Active' && cls.isActive) ||
+      (statusFilter === 'Hidden' && !cls.isActive);
+
+    const matchesDelivery =
+      deliveryFilter === 'All' || cls.deliveryMethod === deliveryFilter;
+
+    const matchesType =
+      typeFilter === 'All' || cls.type === typeFilter;
+
+    const matchesYear =
+      yearFilter === 'All' || String(cls.batchYear) === String(yearFilter);
+
+    return matchesSearch && matchesStatus && matchesDelivery && matchesType && matchesYear;
   });
 
   const totalPages = Math.max(1, Math.ceil(filteredClasses.length / ITEMS_PER_PAGE));
@@ -149,307 +196,470 @@ const ManageClasses = ({ embedded = false }) => {
   );
 
   return (
-    <div className={`${embedded ? '' : 'p-6 sm:p-8 lg:p-10 max-w-7xl mx-auto'} space-y-6 font-['Poppins']`}>
-      {/* Header Card */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#0d1326] p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-[0_8px_30px_rgb(15,23,42,0.04)]">
-        <div className="flex items-start sm:items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 shrink-0">
-            <BookOpen size={22} />
-          </div>
-          <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                Class Batches Directory
-              </h1>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-200/80 dark:bg-indigo-500/15 dark:text-indigo-300 dark:border-indigo-500/30">
-                {classes.length} Batches
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Configure batch details, timetables, fees, and live website visibility
-            </p>
-          </div>
-        </div>
-
-        <button
-          onClick={() => {
-            setFormData(initialFormState);
-            setEditingId(null);
-            setIsModalOpen(true);
-          }}
-          className="flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white px-5 py-3 rounded-2xl text-xs font-bold tracking-wide transition-all shadow-lg shadow-indigo-500/25 cursor-pointer shrink-0 active:scale-95"
-        >
-          <Plus size={16} />
-          <span>Create Class Batch</span>
-        </button>
-      </div>
-
-      {/* Ultra-Modern Table Card with Search & Filter Toolbar */}
-      <div className="rounded-3xl bg-white dark:bg-[#0d1326] border border-slate-200/80 dark:border-slate-800/80 shadow-[0_12px_35px_rgb(15,23,42,0.05)] overflow-hidden">
+    <div className="font-['Poppins']">
+      
+      {/* =========================================================================
+          Dribbble Split-Tone Layout (Left Filters + Right Cards Grid)
+         ========================================================================= */}
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
         
-        {/* Interactive Table Toolbar */}
-        <div className="p-4 sm:px-6 sm:py-4 border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-900/50 flex flex-col md:flex-row md:items-center justify-between gap-3.5">
-          {/* Search Input */}
-          <div className="relative w-full md:w-72">
-            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search batch title, year or venue..."
-              className="admin-input w-full pl-9 pr-4 py-2 rounded-xl border text-xs"
-            />
-          </div>
-
-          {/* Filter Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
-            {['All', 'Theory', 'Revision', 'Paper'].map((type) => {
-              const active = typeFilter === type;
-              return (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => setTypeFilter(type)}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                    active
-                      ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-500/30'
-                      : 'bg-white dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700 hover:border-indigo-300'
-                  }`}
-                >
-                  {type === 'All' ? 'All Streams' : type}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {loading ? (
-          <div className="p-16 text-center text-xs font-medium text-slate-500 dark:text-slate-400">
-            Loading physics batches...
-          </div>
-        ) : filteredClasses.length === 0 ? (
-          <div className="p-16 text-center space-y-2">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-500 flex items-center justify-center mx-auto mb-2">
-              <Layers size={22} />
+        {/* =====================================================================
+            LEFT FILTERS PANEL (Exact Dribbble Sidebar Style)
+           ===================================================================== */}
+        <aside className="w-full lg:w-72 shrink-0 bg-white dark:bg-[#0c1224] rounded-3xl p-6 border border-slate-200/90 dark:border-slate-800 shadow-[0_10px_30px_rgba(15,23,42,0.04)] space-y-6">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-2">
+              <SlidersHorizontal size={16} className="text-purple-600 dark:text-purple-400" />
+              <h3 className="font-extrabold text-sm text-slate-900 dark:text-white tracking-tight">
+                Filters
+              </h3>
             </div>
-            <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
-              No matching classes found
-            </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Try clearing your search filter or click "Create Class Batch" to add a new stream.
-            </p>
+            <button
+              type="button"
+              onClick={resetFilters}
+              title="Reset all filters"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-slate-800 transition cursor-pointer"
+            >
+              <RotateCcw size={13} />
+            </button>
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="bg-slate-50/90 dark:bg-slate-900/80 border-b border-slate-200/80 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider font-extrabold">
-                  <th className="py-4 pl-6 pr-3 w-12">#</th>
-                  <th className="py-4 px-4">Batch & Academic Stream</th>
-                  <th className="py-4 px-4">Program Type</th>
-                  <th className="py-4 px-4">Mode & Venues</th>
-                  <th className="py-4 px-4">Weekly Timetable</th>
-                  <th className="py-4 px-4">Monthly Fee</th>
-                  <th className="py-4 px-4">Visibility</th>
-                  <th className="py-4 pl-4 pr-6 text-right">Manage</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
-                {paginatedClasses.map((cls, index) => (
-                  <tr
-                    key={cls._id}
-                    className="group/row relative hover:bg-indigo-50/40 dark:hover:bg-indigo-500/[0.06] transition-all duration-200"
-                  >
-                    {/* Index Number */}
-                    <td className="py-4 pl-6 pr-3 font-mono text-[11px] font-bold text-slate-400 dark:text-slate-500">
-                      {String((safePage - 1) * ITEMS_PER_PAGE + index + 1).padStart(2, '0')}
-                    </td>
 
-                    {/* Batch Thumbnail & Title */}
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-3.5">
+          {/* Section 1: Order / Class Status */}
+          <div className="space-y-2.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+              Batch Status
+            </span>
+            <div className="space-y-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
+              {[
+                { label: 'All Statuses', value: 'All' },
+                { label: 'Active (Live on Web)', value: 'Active' },
+                { label: 'Hidden / Inactive', value: 'Hidden' },
+              ].map((item) => (
+                <label key={item.value} className="flex items-center gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="radio"
+                    name="batchStatus"
+                    checked={statusFilter === item.value}
+                    onChange={() => {
+                      setStatusFilter(item.value);
+                      setCurrentPage(1);
+                    }}
+                    className="accent-purple-600 w-4 h-4 cursor-pointer"
+                  />
+                  <span>{item.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Section 2: Delivery Mode */}
+          <div className="space-y-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+              Delivery Method
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {['All', 'Physical', 'Online', 'Hybrid'].map((method) => {
+                const active = deliveryFilter === method;
+                return (
+                  <button
+                    key={method}
+                    type="button"
+                    onClick={() => {
+                      setDeliveryFilter(method);
+                      setCurrentPage(1);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                      active
+                        ? 'bg-purple-600 text-white shadow-sm'
+                        : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    {method}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Section 3: Class Type */}
+          <div className="space-y-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+              Class Stream / Type
+            </span>
+            <div className="space-y-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
+              {['All', 'Theory', 'Revision', 'Paper'].map((type) => (
+                <label key={type} className="flex items-center gap-2.5 cursor-pointer select-none">
+                  <input
+                    type="radio"
+                    name="classType"
+                    checked={typeFilter === type}
+                    onChange={() => {
+                      setTypeFilter(type);
+                      setCurrentPage(1);
+                    }}
+                    className="accent-purple-600 w-4 h-4 cursor-pointer"
+                  />
+                  <span>{type === 'All' ? 'All Types' : `${type} Masterclass`}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Section 4: Batch Year */}
+          <div className="space-y-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+              A/L Batch Year
+            </span>
+            <div className="grid grid-cols-2 gap-2">
+              {['All', '2025', '2026', '2027'].map((yr) => {
+                const active = yearFilter === yr;
+                return (
+                  <button
+                    key={yr}
+                    type="button"
+                    onClick={() => {
+                      setYearFilter(yr);
+                      setCurrentPage(1);
+                    }}
+                    className={`py-2 px-3 rounded-xl text-xs font-bold transition cursor-pointer border ${
+                      active
+                        ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-transparent shadow-sm'
+                        : 'bg-white dark:bg-slate-800/50 border-slate-200/80 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-purple-300'
+                    }`}
+                  >
+                    {yr === 'All' ? 'All Batches' : `${yr} A/L`}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Section 5: View Mode Switch (Card View / Table View) */}
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+              Card view
+            </span>
+            <button
+              type="button"
+              onClick={() => setViewMode(viewMode === 'cards' ? 'table' : 'cards')}
+              className={`w-11 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ${
+                viewMode === 'cards' ? 'bg-purple-600 justify-end' : 'bg-slate-300 dark:bg-slate-700 justify-start'
+              }`}
+            >
+              <div className="w-4 h-4 rounded-full bg-white shadow-sm" />
+            </button>
+          </div>
+        </aside>
+
+        {/* =====================================================================
+            RIGHT WORKSPACE (Card Grid or Table Matching Screenshot)
+           ===================================================================== */}
+        <div className="flex-1 min-w-0 w-full space-y-5">
+          
+          {/* Top Control Bar: Search + Count Badge + Add Class Button */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-[#0c1224] p-4 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+            <div className="relative flex-1 max-w-md">
+              <Search
+                size={16}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+              />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder="Search batch, venue, or year..."
+                className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-purple-500"
+              />
+            </div>
+
+            <div className="flex items-center gap-3 justify-between sm:justify-end">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                <strong className="text-purple-600 dark:text-purple-400 font-extrabold">{filteredClasses.length}</strong> Batches
+              </span>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData(initialFormState);
+                  setEditingId(null);
+                  setIsModalOpen(true);
+                }}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-bold shadow-md shadow-purple-600/25 transition cursor-pointer active:scale-95 shrink-0"
+              >
+                <Plus size={16} />
+                <span>New Batch</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Loading Indicator */}
+          {loading ? (
+            <div className="p-16 text-center text-slate-500 dark:text-slate-400 bg-white dark:bg-[#0c1224] rounded-3xl border border-slate-200/90 dark:border-slate-800">
+              <div className="inline-block animate-spin w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full mb-3" />
+              <p className="text-xs font-semibold">Loading class batches...</p>
+            </div>
+          ) : filteredClasses.length === 0 ? (
+            <div className="p-16 text-center text-slate-500 dark:text-slate-400 bg-white dark:bg-[#0c1224] rounded-3xl border border-slate-200/90 dark:border-slate-800">
+              <Layers size={36} className="mx-auto text-slate-300 mb-2 opacity-60" />
+              <p className="text-xs font-semibold">සෙවුමට ගැලපෙන පන්ති හමු නොවීය.</p>
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="mt-3 text-xs font-bold text-purple-600 hover:underline cursor-pointer"
+              >
+                Reset filters
+              </button>
+            </div>
+          ) : viewMode === 'cards' ? (
+            /* =================================================================
+                CARD GRID VIEW (Matches Alex Trio, Jerome Bell cards from Dribbble)
+               ================================================================= */
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              {paginatedClasses.map((cls) => (
+                <div
+                  key={cls._id}
+                  className="bg-white dark:bg-[#0c1224] rounded-3xl p-5 border border-slate-200/90 dark:border-slate-800 hover:border-purple-400/80 dark:hover:border-purple-500/50 shadow-[0_10px_30px_-10px_rgba(15,23,42,0.05)] hover:shadow-[0_20px_45px_-10px_rgba(147,51,234,0.18)] transition-all flex flex-col justify-between group h-full"
+                >
+                  <div>
+                    {/* Top Header Row of Card */}
+                    <div className="flex items-start justify-between gap-3 mb-4">
+                      <div className="flex items-center gap-3 min-w-0">
                         {cls.image ? (
                           <img
-                            src={cls.image}
+                            src={getOptimizedThumbnail(cls.image)}
                             alt={cls.title}
-                            className="w-12 h-12 rounded-2xl object-cover border border-slate-200 dark:border-slate-700 shadow-2xs shrink-0 group-hover/row:scale-105 transition-transform"
+                            className="w-11 h-11 rounded-2xl object-cover shrink-0 border border-slate-100 dark:border-slate-800"
                           />
                         ) : (
-                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500/15 to-cyan-500/15 border border-indigo-200/80 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-300 flex flex-col items-center justify-center font-extrabold text-[11px] shrink-0">
-                            <span>{cls.batchYear ? String(cls.batchYear).slice(-2) : 'AL'}</span>
-                            <span className="text-[8px] uppercase tracking-wider opacity-75">Batch</span>
+                          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center shrink-0 shadow-sm font-black text-xs">
+                            <BookOpen size={18} />
                           </div>
                         )}
                         <div className="min-w-0">
-                          <div className="font-extrabold text-slate-900 dark:text-white text-sm group-hover/row:text-indigo-600 dark:group-hover/row:text-indigo-400 transition-colors truncate">
+                          <h4 className="font-extrabold text-sm text-slate-900 dark:text-white group-hover:text-purple-600 transition-colors truncate">
                             {cls.title}
-                          </div>
-                          <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 mt-0.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
-                            <span>{cls.batchYear} A/L Cohort</span>
-                          </div>
+                          </h4>
+                          <span className="text-[11px] font-semibold text-slate-400 block truncate mt-0.5">
+                            {cls.batchYear} A/L • {cls.type}
+                          </span>
                         </div>
                       </div>
-                    </td>
 
-                    {/* Program Type Badge */}
-                    <td className="py-4 px-4">
+                      {/* Status Pill Badge */}
                       <span
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[11px] font-bold border ${
-                          cls.type === 'Revision'
-                            ? 'bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-500/15 dark:text-violet-300 dark:border-violet-500/30'
-                            : cls.type === 'Paper'
-                            ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/30'
-                            : 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-500/15 dark:text-indigo-300 dark:border-indigo-500/30'
-                        }`}
-                      >
-                        {cls.type}
-                      </span>
-                    </td>
-
-                    {/* Delivery & Venues */}
-                    <td className="py-4 px-4">
-                      <span
-                        className={`inline-block px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider mb-1 ${
-                          cls.deliveryMethod === 'Online'
-                            ? 'bg-cyan-50 text-cyan-700 dark:bg-cyan-500/15 dark:text-cyan-300'
-                            : cls.deliveryMethod === 'Hybrid'
-                            ? 'bg-purple-50 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300'
-                            : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
-                        }`}
-                      >
-                        {cls.deliveryMethod}
-                      </span>
-                      {cls.locations?.length > 0 && (
-                        <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 max-w-[190px] truncate">
-                          <MapPin size={11} className="text-indigo-500 shrink-0" />
-                          <span className="truncate">{cls.locations.join(', ')}</span>
-                        </div>
-                      )}
-                    </td>
-
-                    {/* Schedule */}
-                    <td className="py-4 px-4">
-                      {cls.schedule?.[0] ? (
-                        <div className="inline-flex flex-col gap-0.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/70 dark:border-slate-700/70">
-                          <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 text-[11px]">
-                            <Calendar size={12} className="text-indigo-500 shrink-0" />
-                            {cls.schedule[0].day}
-                          </span>
-                          <span className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                            <Clock size={10} />
-                            {cls.schedule[0].startTime} - {cls.schedule[0].endTime}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="text-slate-400">-</span>
-                      )}
-                    </td>
-
-                    {/* Monthly Fee */}
-                    <td className="py-4 px-4">
-                      {cls.monthlyFee > 0 ? (
-                        <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-cyan-50/90 text-cyan-800 border border-cyan-200/80 dark:bg-cyan-500/15 dark:text-cyan-300 dark:border-cyan-500/30 font-extrabold text-xs">
-                          Rs. {cls.monthlyFee.toLocaleString()}
-                        </span>
-                      ) : (
-                        <span className="text-slate-400">-</span>
-                      )}
-                    </td>
-
-                    {/* Status Pill */}
-                    <td className="py-4 px-4">
-                      <span
-                        className={`px-3 py-1.5 rounded-full text-[11px] font-bold inline-flex items-center gap-1.5 w-fit border ${
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide shrink-0 ${
                           cls.isActive
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30'
-                            : 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/30'
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/30'
+                            : 'bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-500/15 dark:text-rose-400 dark:border-rose-500/30'
                         }`}
                       >
-                        {cls.isActive ? (
-                          <CheckCircle2 size={12} className="text-emerald-500" />
-                        ) : (
-                          <EyeOff size={12} className="text-rose-500" />
-                        )}
-                        {cls.isActive ? 'Published' : 'Hidden'}
+                        {cls.isActive ? 'Active' : 'Hidden'}
                       </span>
-                    </td>
+                    </div>
 
-                    {/* Actions Capsule */}
-                    <td className="py-4 pl-4 pr-6 text-right">
-                      <div className="inline-flex items-center gap-1.5 p-1 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80">
-                        <button
-                          onClick={() => handleEdit(cls)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-white dark:hover:bg-slate-700 rounded-xl font-semibold text-[11px] transition cursor-pointer"
-                          title="Edit Batch"
-                        >
-                          <Edit3 size={13} />
-                          <span className="hidden xl:inline">Edit</span>
-                        </button>
-                        <button
-                          onClick={() => handleDelete(cls._id)}
-                          className="p-1.5 text-rose-600 dark:text-rose-400 hover:text-white hover:bg-rose-600 dark:hover:bg-rose-600 rounded-xl transition cursor-pointer"
-                          title="Delete Batch"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                    {/* Middle Details Grid */}
+                    <div className="space-y-2 py-3 border-y border-slate-100 dark:border-slate-800/70 text-xs">
+                      {/* Schedule */}
+                      <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
+                        <span className="text-slate-400 flex items-center gap-1.5 text-[11px]">
+                          <Calendar size={13} className="text-purple-500" />
+                          <span>Schedule</span>
+                        </span>
+                        <span className="font-bold text-[11px]">
+                          {cls.schedule?.[0]
+                            ? `${cls.schedule[0].day} (${cls.schedule[0].startTime})`
+                            : 'Weekly Session'}
+                        </span>
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
 
-        <AdminPagination
-          currentPage={safePage}
-          totalItems={filteredClasses.length}
-          itemsPerPage={ITEMS_PER_PAGE}
-          onPageChange={setCurrentPage}
-          itemLabel="registered batches"
-        />
+                      {/* Delivery Mode & Venue */}
+                      <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
+                        <span className="text-slate-400 flex items-center gap-1.5 text-[11px]">
+                          <MapPin size={13} className="text-cyan-500" />
+                          <span>Venue</span>
+                        </span>
+                        <span className="font-bold text-[11px] truncate max-w-[150px]">
+                          {cls.locations?.[0] || cls.deliveryMethod}
+                        </span>
+                      </div>
+
+                      {/* Monthly Fee */}
+                      <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
+                        <span className="text-slate-400 text-[11px]">Monthly Fee</span>
+                        <span className="font-extrabold text-xs text-slate-900 dark:text-white">
+                          {cls.monthlyFee > 0 ? `Rs. ${cls.monthlyFee.toLocaleString()}` : 'Free / Contact'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom Action Footer (Matches "Order details →" button in Dribbble) */}
+                  <div className="mt-4 pt-2 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1">
+                      {/* Toggle Active Switch */}
+                      <button
+                        type="button"
+                        onClick={() => toggleActiveStatus(cls)}
+                        title={cls.isActive ? 'Hide batch from website' : 'Publish batch live'}
+                        className={`p-2 rounded-xl transition cursor-pointer ${
+                          cls.isActive
+                            ? 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-800'
+                            : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        {cls.isActive ? <Eye size={15} /> : <EyeOff size={15} />}
+                      </button>
+
+                      {/* Delete Button */}
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(cls._id)}
+                        title="Delete batch permanently"
+                        className="p-2 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-slate-800 transition cursor-pointer"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+
+                    {/* Manage Details Primary Action Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleEdit(cls)}
+                      className="px-4 py-2 rounded-xl bg-[#0f172a] dark:bg-purple-600/20 hover:bg-purple-600 dark:hover:bg-purple-600 text-white dark:text-purple-300 hover:text-white border border-slate-700/50 dark:border-purple-500/30 text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-xs active:scale-95"
+                    >
+                      <span>Class details</span>
+                      <ArrowRight size={13} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* =================================================================
+                TABLE VIEW (Alternate classic view)
+               ================================================================= */
+            <div className="bg-white dark:bg-[#0c1224] rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-[0_10px_30px_rgba(15,23,42,0.04)] overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200/80 dark:border-slate-800 text-slate-500 uppercase text-[10px] font-extrabold tracking-wider">
+                    <tr>
+                      <th className="py-4 pl-6 pr-3">Batch</th>
+                      <th className="py-4 px-3">Type</th>
+                      <th className="py-4 px-3">Mode & Venues</th>
+                      <th className="py-4 px-3">Schedule</th>
+                      <th className="py-4 px-3">Fee</th>
+                      <th className="py-4 px-3">Status</th>
+                      <th className="py-4 pl-3 pr-6 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {paginatedClasses.map((cls) => (
+                      <tr key={cls._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition">
+                        <td className="py-4 pl-6 pr-3">
+                          <div className="font-extrabold text-slate-900 dark:text-white">{cls.title}</div>
+                          <div className="text-[10px] text-slate-400 font-semibold">{cls.batchYear} A/L</div>
+                        </td>
+                        <td className="py-4 px-3 font-semibold">{cls.type}</td>
+                        <td className="py-4 px-3">
+                          <span className="font-semibold text-slate-700 dark:text-slate-300 block">{cls.deliveryMethod}</span>
+                          <span className="text-[10px] text-slate-400 truncate max-w-[150px] block">{cls.locations?.join(', ') || '-'}</span>
+                        </td>
+                        <td className="py-4 px-3 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                          {cls.schedule?.[0] ? `${cls.schedule[0].day} (${cls.schedule[0].startTime})` : '-'}
+                        </td>
+                        <td className="py-4 px-3 font-extrabold text-slate-900 dark:text-white">
+                          {cls.monthlyFee > 0 ? `Rs. ${cls.monthlyFee.toLocaleString()}` : '-'}
+                        </td>
+                        <td className="py-4 px-3">
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            cls.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
+                          }`}>
+                            {cls.isActive ? 'Active' : 'Hidden'}
+                          </span>
+                        </td>
+                        <td className="py-4 pl-3 pr-6 text-right">
+                          <div className="inline-flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleEdit(cls)}
+                              className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-purple-600 hover:bg-purple-50 transition cursor-pointer"
+                            >
+                              <Edit3 size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(cls._id)}
+                              className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 transition cursor-pointer"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <AdminPagination
+              currentPage={safePage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          )}
+
+        </div>
       </div>
 
-      {/* Modern Modal */}
+      {/* =========================================================================
+          ADD / EDIT BATCH MODAL (Sleek Glassmorphic Modal)
+         ========================================================================= */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#0d1326] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto p-6 sm:p-8">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-200/80 dark:border-slate-800 mb-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#0d142b] rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 sm:p-8">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-100 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-300 flex items-center justify-center">
-                  <Sparkles size={18} />
+                <div className="w-10 h-10 rounded-xl bg-purple-600/15 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
+                  <Layers size={18} />
                 </div>
                 <div>
-                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">
-                    {editingId ? 'Edit Batch Details' : 'Create New Class Batch'}
-                  </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Parameters will reflect instantly on the public website
+                  <h3 className="font-extrabold text-lg text-slate-900 dark:text-white">
+                    {editingId ? 'Edit Physics Class Batch' : 'Create New Class Batch'}
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Configure syllabus stream, schedules, monthly fee and live visibility
                   </p>
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
               >
                 <X size={18} />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4 pt-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
+                <div className="sm:col-span-2">
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    Class Title
+                    Class Batch Title
                   </label>
                   <input
                     type="text"
                     required
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="2027 A/L Physics Theory"
-                    className="admin-input w-full px-3.5 py-2.5 rounded-xl border text-xs"
+                    placeholder="e.g. 2027 A/L Theory Masterclass"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
                   />
                 </div>
 
@@ -462,7 +672,7 @@ const ManageClasses = ({ embedded = false }) => {
                     required
                     value={formData.batchYear}
                     onChange={(e) => setFormData({ ...formData, batchYear: e.target.value })}
-                    className="admin-input w-full px-3.5 py-2.5 rounded-xl border text-xs"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
                   />
                 </div>
 
@@ -473,7 +683,7 @@ const ManageClasses = ({ embedded = false }) => {
                   <select
                     value={formData.type}
                     onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                    className="admin-input w-full px-3.5 py-2.5 rounded-xl border text-xs"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
                   >
                     <option value="Theory">Theory</option>
                     <option value="Revision">Revision</option>
@@ -488,35 +698,49 @@ const ManageClasses = ({ embedded = false }) => {
                   <select
                     value={formData.deliveryMethod}
                     onChange={(e) => setFormData({ ...formData, deliveryMethod: e.target.value })}
-                    className="admin-input w-full px-3.5 py-2.5 rounded-xl border text-xs"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
                   >
                     <option value="Physical">Physical</option>
                     <option value="Online">Online</option>
                     <option value="Hybrid">Hybrid</option>
                   </select>
                 </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Monthly Fee (LKR)
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.monthlyFee}
+                    onChange={(e) => setFormData({ ...formData, monthlyFee: e.target.value })}
+                    placeholder="4500"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
+                  />
+                </div>
               </div>
 
               <ImageUploadField
-                label="Poster / Thumbnail Image (Uploads to Cloudinary)"
+                label="Poster / Thumbnail Image"
                 value={formData.image}
                 onChange={(url) => setFormData({ ...formData, image: url })}
-                placeholder="Upload image or paste URL..."
+                placeholder="Upload photo or paste URL..."
               />
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Locations (කොමා වලින් වෙන් කරන්න)
+                  Locations / Venues (Separate by comma)
                 </label>
                 <input
                   type="text"
                   value={formData.locations}
                   onChange={(e) => setFormData({ ...formData, locations: e.target.value })}
                   placeholder="Rotary Hall Nugegoda, SASIP Nawinna"
-                  className="admin-input w-full px-3.5 py-2.5 rounded-xl border text-xs"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
                 />
               </div>
 
+              {/* Schedule row */}
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
@@ -528,7 +752,7 @@ const ManageClasses = ({ embedded = false }) => {
                     value={formData.day}
                     onChange={(e) => setFormData({ ...formData, day: e.target.value })}
                     placeholder="Sunday"
-                    className="admin-input w-full px-3 py-2.5 rounded-xl border text-xs"
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
                   />
                 </div>
                 <div>
@@ -541,7 +765,7 @@ const ManageClasses = ({ embedded = false }) => {
                     value={formData.startTime}
                     onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
                     placeholder="08:00 AM"
-                    className="admin-input w-full px-3 py-2.5 rounded-xl border text-xs"
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
                   />
                 </div>
                 <div>
@@ -554,42 +778,12 @@ const ManageClasses = ({ embedded = false }) => {
                     value={formData.endTime}
                     onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
                     placeholder="01:30 PM"
-                    className="admin-input w-full px-3 py-2.5 rounded-xl border text-xs"
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    Monthly Fee (LKR)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.monthlyFee}
-                    onChange={(e) => setFormData({ ...formData, monthlyFee: e.target.value })}
-                    placeholder="4500"
-                    className="admin-input w-full px-3.5 py-2.5 rounded-xl border text-xs"
-                  />
-                </div>
-
-                <label
-                  htmlFor="modalActive"
-                  className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-indigo-50/70 dark:bg-indigo-500/10 border border-indigo-200/70 dark:border-indigo-500/30 cursor-pointer select-none"
-                >
-                  <input
-                    type="checkbox"
-                    id="modalActive"
-                    checked={formData.isActive}
-                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                    className="w-4 h-4 accent-indigo-600 rounded cursor-pointer"
-                  />
-                  <span className="text-xs font-bold text-indigo-900 dark:text-indigo-200">
-                    Publish Live on Website
-                  </span>
-                </label>
-              </div>
-
+              {/* Description */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                   Syllabus Overview / Notes
@@ -598,12 +792,26 @@ const ManageClasses = ({ embedded = false }) => {
                   rows="3"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Detailed breakdown of syllabus content and resources..."
-                  className="admin-input w-full px-3.5 py-2.5 rounded-xl border text-xs"
-                ></textarea>
+                  placeholder="Detailed breakdown of syllabus content and materials..."
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
+                />
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-200/80 dark:border-slate-800">
+              {/* Publish Checkbox */}
+              <label className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/40 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={formData.isActive}
+                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                  className="w-4 h-4 accent-purple-600 rounded cursor-pointer"
+                />
+                <span className="text-xs font-bold text-purple-950 dark:text-purple-200">
+                  Publish Live on Website
+                </span>
+              </label>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
@@ -613,7 +821,7 @@ const ManageClasses = ({ embedded = false }) => {
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white text-xs font-bold tracking-wide transition shadow-lg shadow-indigo-500/25 cursor-pointer"
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-bold transition shadow-md shadow-purple-600/25 cursor-pointer active:scale-95"
                 >
                   {editingId ? 'Save Updates' : 'Publish Batch'}
                 </button>
@@ -622,6 +830,7 @@ const ManageClasses = ({ embedded = false }) => {
           </div>
         </div>
       )}
+
     </div>
   );
 };

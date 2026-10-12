@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { UploadCloud, Loader2, X, CheckCircle2, Image as ImageIcon } from 'lucide-react';
 import { uploadToCloudinary } from '../utils/uploadToCloudinary';
+import { getOptimizedThumbnail } from '../utils/imageOptimizer';
 
 const ImageUploadField = ({
   label = 'Image',
@@ -105,7 +106,7 @@ const ImageUploadField = ({
       {value && (
         <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/70">
           <img
-            src={value}
+            src={getOptimizedThumbnail(value)}
             alt="Uploaded preview"
             className="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0 bg-white"
             onError={(e) => {

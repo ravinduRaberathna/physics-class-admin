@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import ImageUploadField from '../../components/ImageUploadField';
 import AdminPagination from '../../components/AdminPagination';
+import { getOptimizedAvatar } from '../../utils/imageOptimizer';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -323,7 +324,7 @@ const ManageFeedback = ({ embedded = false }) => {
                       <div className="flex items-center gap-3.5">
                         {fb.avatar ? (
                           <img
-                            src={fb.avatar}
+                            src={getOptimizedAvatar(fb.avatar)}
                             alt={fb.studentName}
                             className="w-10 h-10 rounded-full object-cover border-2 border-indigo-100 dark:border-indigo-500/30 shrink-0"
                           />

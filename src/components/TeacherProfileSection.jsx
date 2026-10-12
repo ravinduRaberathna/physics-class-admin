@@ -15,6 +15,7 @@ import {
   ArrowUpRight,
   ShieldCheck,
 } from 'lucide-react';
+import { getOptimizedProfileImage } from '../utils/imageOptimizer';
 
 const TeacherProfileSection = ({ teacher, isModalOpen, onCloseModal, onOpenModal }) => {
   const [imgError, setImgError] = useState(false);
@@ -187,9 +188,10 @@ const TeacherProfileSection = ({ teacher, isModalOpen, onCloseModal, onOpenModal
 
                   {profileImage ? (
                     <img
-                      src={profileImage}
+                      src={getOptimizedProfileImage(profileImage)}
                       alt={name}
-                      loading="lazy"
+                      loading="eager"
+                      fetchPriority="high"
                       decoding="async"
                       onError={() => setImgError(true)}
                       className="relative z-10 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
@@ -324,7 +326,7 @@ const TeacherProfileSection = ({ teacher, isModalOpen, onCloseModal, onOpenModal
                   <div className="w-full h-full rounded-full overflow-hidden bg-gradient-to-tr from-[#7e22ce] to-indigo-600 flex items-center justify-center">
                     {profileImage ? (
                       <img
-                        src={profileImage}
+                        src={getOptimizedProfileImage(profileImage)}
                         alt={name}
                         loading="lazy"
                         decoding="async"

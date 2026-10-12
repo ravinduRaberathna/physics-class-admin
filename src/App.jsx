@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminSidebar from './components/AdminSidebar';
+import AdminTopNav from './components/AdminTopNav';
 
 import Home from './pages/public/Home';
 import BlogDetails from './pages/public/BlogDetails';
@@ -14,31 +16,38 @@ import EditTeacher from './pages/admin/EditTeacher';
 
 const AdminShell = () => {
   const { darkMode } = useAuth();
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   return (
     <div
-      className={`flex flex-col lg:flex-row min-h-screen font-['Poppins'] selection:bg-indigo-600 selection:text-white transition-colors duration-300 ${
+      className={`min-h-screen font-['Poppins'] flex transition-colors duration-200 ${
         darkMode
-          ? 'dark admin-dark bg-[#070a14] text-slate-100'
-          : 'bg-[#f8fafc] text-slate-800'
+          ? 'dark admin-dark bg-[#12151d] text-slate-100'
+          : 'bg-[#ebedef] text-slate-800'
       }`}
     >
-      <AdminSidebar />
-      <main
-        className={`flex-1 overflow-y-auto lg:max-h-screen transition-colors duration-300 ${
-          darkMode
-            ? 'bg-[radial-gradient(ellipse_80%_60%_at_50%_-15%,rgba(99,102,241,0.16),rgba(6,182,212,0.06),transparent)]'
-            : 'bg-[radial-gradient(ellipse_80%_60%_at_50%_-15%,rgba(99,102,241,0.08),rgba(6,182,212,0.04),transparent)]'
-        }`}
-      >
-        <Routes>
-          <Route path="/" element={<AdminDashboard />} />
-          <Route path="/classes" element={<ManageClasses />} />
-          <Route path="/feedback" element={<ManageFeedback />} />
-          <Route path="/blogs" element={<ManageBlogs />} />
-          <Route path="/profile" element={<EditTeacher />} />
-        </Routes>
-      </main>
+      {/* CoreUI Left Dark Sidebar */}
+      <AdminSidebar 
+        mobileOpen={mobileSidebarOpen} 
+        setMobileOpen={setMobileSidebarOpen} 
+      />
+
+      {/* Main Content View with Top Nav & Breadcrumbs */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+        <AdminTopNav 
+          onToggleSidebar={() => setMobileSidebarOpen((prev) => !prev)} 
+        />
+        
+        <main className="flex-1 p-4 sm:p-6 lg:p-7 overflow-y-auto">
+          <Routes>
+            <Route path="/" element={<AdminDashboard />} />
+            <Route path="/classes" element={<ManageClasses />} />
+            <Route path="/feedback" element={<ManageFeedback />} />
+            <Route path="/blogs" element={<ManageBlogs />} />
+            <Route path="/profile" element={<EditTeacher />} />
+          </Routes>
+        </main>
+      </div>
     </div>
   );
 };

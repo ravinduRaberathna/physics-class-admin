@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Home as HomeIcon,
 } from 'lucide-react';
+import { getOptimizedBlogBanner, getOptimizedThumbnail } from '../../utils/imageOptimizer';
 
 const BlogDetails = () => {
   const { id } = useParams();
@@ -155,9 +156,10 @@ const BlogDetails = () => {
             {currentBlog.image && (
               <div className="relative h-64 sm:h-96 w-full bg-slate-900 overflow-hidden">
                 <img
-                  src={currentBlog.image}
+                  src={getOptimizedBlogBanner(currentBlog.image)}
                   alt={currentBlog.title}
-                  loading="lazy"
+                  loading="eager"
+                  fetchPriority="high"
                   decoding="async"
                   className="w-full h-full object-cover"
                 />
@@ -253,7 +255,7 @@ const BlogDetails = () => {
                     >
                       {item.image ? (
                         <img
-                          src={item.image}
+                          src={getOptimizedThumbnail(item.image)}
                           alt={item.title}
                           loading="lazy"
                           decoding="async"

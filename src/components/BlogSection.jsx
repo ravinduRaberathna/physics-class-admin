@@ -13,6 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+import { getOptimizedCardImage } from '../utils/imageOptimizer';
 
 const POSTS_PER_PAGE = 3;
 
@@ -144,7 +145,7 @@ const BlogSection = () => {
                 <div className="relative h-52 overflow-hidden bg-gradient-to-tr from-indigo-950 via-indigo-900 to-cyan-900">
                   {blog.image ? (
                     <img
-                      src={blog.image}
+                      src={getOptimizedCardImage(blog.image)}
                       alt={blog.title}
                       loading="lazy"
                       decoding="async"
