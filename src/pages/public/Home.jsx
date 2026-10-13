@@ -10,6 +10,7 @@ import ClassesSection from '../../components/ClassesSection';
 import TestimonialsSection from '../../components/TestimonialsSection';
 import BlogSection from '../../components/BlogSection';
 import TeacherProfileSection from '../../components/TeacherProfileSection';
+import Footer from '../../components/Footer';
 import { 
   BookOpen, 
   Sparkles, 
@@ -454,16 +455,7 @@ const Home = () => {
         </main>
 
         {/* FOOTER */}
-        <footer className="border-t border-slate-200 bg-white py-8 px-4 text-center text-xs text-slate-500 font-['Poppins']">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-              <span className="font-bold text-slate-900">{teacher?.name || 'A/L PHYSICS MASTERCLASS'}</span> • Sri Lanka Advanced Level
-            </div>
-            <div>
-              Hotline: {teacher?.contactInfo?.phone || '+94 77 123 4567'} • Rotary • Sakya • Sasip • Syzygy
-            </div>
-          </div>
-        </footer>
+        <Footer teacher={teacher} />
 
         {/* FLOATING WHATSAPP BUTTON (APPEARS WHEN SCROLLING PAST HERO) */}
         <a

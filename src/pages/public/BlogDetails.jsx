@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import API from '../../api/axiosInstance';
 import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 import {
   ArrowLeft,
   Calendar,
@@ -315,18 +316,7 @@ const BlogDetails = () => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#070a14] py-8 px-4 text-center text-xs text-slate-500 dark:text-slate-400 font-['Poppins'] transition-colors relative z-10 mt-12">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
-            <span className="font-bold text-slate-900 dark:text-white">
-              {teacher?.name || 'A/L PHYSICS MASTERCLASS'}
-            </span> • Sri Lanka Advanced Level
-          </div>
-          <div>
-            Hotline: {teacher?.contactInfo?.phone || '+94 77 123 4567'} • Rotary • Sakya • Sasip • Syzygy
-          </div>
-        </div>
-      </footer>
+      <Footer teacher={teacher} />
     </div>
   );
 };

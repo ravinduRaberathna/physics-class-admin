@@ -360,3 +360,30 @@ body.dark {
 .dark ::-webkit-scrollbar-thumb:hover { 
   background: #334155; 
 }
+
+/* ==========================================================
+   FOOTER CTA ANGLED CONTINUOUS UPWARD SCROLL ANIMATIONS
+   ========================================================== */
+@keyframes scrollUpContinuous {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+.animate-scroll-up-1 {
+  animation: scrollUpContinuous 22s linear infinite;
+  will-change: transform;
+}
+
+.animate-scroll-up-2 {
+  animation: scrollUpContinuous 30s linear infinite;
+  will-change: transform;
+}
+
+.animate-scroll-up-1:hover,
+.animate-scroll-up-2:hover {
+  animation-play-state: paused;
+}

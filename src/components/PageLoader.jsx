@@ -10,17 +10,27 @@ const PageLoader = ({ onComplete }) => {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(timer);
-          setTimeout(() => setIsFading(true), 100);
-          setTimeout(() => onComplete && onComplete(), 400);
+          setTimeout(() => setIsFading(true), 80);
+          setTimeout(() => onComplete && onComplete(), 350);
           return 100;
         }
-        const diff = Math.floor(Math.random() * 20) + 18;
+        const diff = Math.floor(Math.random() * 25) + 20;
         return Math.min(prev + diff, 100);
       });
-    }, 45);
+    }, 40);
 
-    return () => clearInterval(timer);
-  }, [onComplete]);
+    // Hard fallback: never trap the page under any circumstance
+    const fallbackTimer = setTimeout(() => {
+      clearInterval(timer);
+      setIsFading(true);
+      setTimeout(() => onComplete && onComplete(), 200);
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+      clearTimeout(fallbackTimer);
+    };
+  }, []);
 
   return (
     <div
