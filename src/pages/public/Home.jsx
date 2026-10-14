@@ -25,7 +25,14 @@ const Home = () => {
   const location = useLocation();
   const [loadingComplete, setLoadingComplete] = useState(false);
   const [classes, setClasses] = useState([]);
-  const [teacher, setTeacher] = useState(null);
+  const [teacher, setTeacher] = useState(() => {
+    try {
+      const cached = localStorage.getItem('cached_teacher_profile');
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [showWhatsAppFloat, setShowWhatsAppFloat] = useState(false);
 
@@ -105,9 +112,14 @@ const Home = () => {
 
     API.get('/teacher')
       .then((res) => {
-        setTeacher(res.data);
-        if (res.data?.profileImage) {
-          preloadImage(res.data.profileImage, { width: 900 });
+        if (res.data) {
+          setTeacher(res.data);
+          try {
+            localStorage.setItem('cached_teacher_profile', JSON.stringify(res.data));
+          } catch {}
+          if (res.data?.profileImage) {
+            preloadImage(res.data.profileImage, { width: 900 });
+          }
         }
       })
       .catch((err) => console.error(err));

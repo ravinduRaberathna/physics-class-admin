@@ -20,7 +20,7 @@ import { getOptimizedProfileImage } from '../utils/imageOptimizer';
 const TeacherProfileSection = ({ teacher, isModalOpen, onCloseModal, onOpenModal }) => {
   const [imgError, setImgError] = useState(false);
 
-  const name = teacher?.name || 'Eng. Nivantha Silva';
+  const name = teacher?.name || 'Eng. Chamath Dissanayake';
   const title = teacher?.title || 'B.Sc. Engineering (Hons) • A/L Physics Lecturer';
   const bio =
     teacher?.bio ||
@@ -29,7 +29,7 @@ const TeacherProfileSection = ({ teacher, isModalOpen, onCloseModal, onOpenModal
 
   const phone = teacher?.contactInfo?.phone || '+94 77 123 4567';
   const whatsapp = teacher?.contactInfo?.whatsapp || '94771234567';
-  const email = teacher?.contactInfo?.email || 'info@physicsmasterclass.lk';
+  const email = teacher?.contactInfo?.email || 'info@chamathphysics.lk';
 
   const youtube = teacher?.socialLinks?.youtube || '';
   const facebook = teacher?.socialLinks?.facebook || '';

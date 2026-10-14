@@ -68,7 +68,10 @@ const EditTeacher = ({ embedded = false }) => {
     };
 
     try {
-      await API.post('/teacher', payload);
+      const res = await API.post('/teacher', payload);
+      try {
+        localStorage.setItem('cached_teacher_profile', JSON.stringify(res.data));
+      } catch {}
       alert('Teacher profile updated successfully!');
     } catch (err) {
       console.error(err);
@@ -128,7 +131,7 @@ const EditTeacher = ({ embedded = false }) => {
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Eng. Nivantha Silva"
+                placeholder="Eng. Chamath Dissanayake"
                 className="admin-input w-full px-3.5 py-2.5 border rounded-xl text-xs"
               />
             </div>
