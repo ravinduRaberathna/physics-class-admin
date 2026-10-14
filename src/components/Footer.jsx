@@ -110,6 +110,93 @@ const Footer = ({ teacher }) => {
             </div>
 
             {/* -------------------------------------------------------------
+                MOBILE-ONLY: FULL-BLEED ANGLED UPWARD BACKGROUND SHOWCASE
+                Spans across the ENTIRE banner background in mobile view!
+               ------------------------------------------------------------- */}
+            <div 
+              className="md:hidden absolute -left-16 -right-16 -top-36 -bottom-36 pointer-events-none select-none overflow-hidden z-0 opacity-40"
+              style={{
+                WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)',
+                maskImage: 'linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)'
+              }}
+            >
+              <div className="h-full w-full transform -rotate-[10deg] flex justify-center gap-3 sm:gap-3.5">
+                
+                {/* Column 1 */}
+                <div className="flex flex-col gap-3.5 animate-scroll-up-1">
+                  {[...physicsShowcaseColumn1, ...physicsShowcaseColumn1].map((imgUrl, idx) => (
+                    <div
+                      key={`bg-col1-${idx}`}
+                      className="w-28 sm:w-32 h-20 sm:h-22 rounded-2xl bg-slate-900 border border-white/25 shadow-lg shadow-black/40 overflow-hidden flex-shrink-0"
+                    >
+                      <img 
+                        src={imgUrl} 
+                        alt="Physics Showcase" 
+                        loading="lazy" 
+                        className="w-full h-full object-cover" 
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Column 2 */}
+                <div className="flex flex-col gap-3.5 animate-scroll-up-2 pt-14">
+                  {[...physicsShowcaseColumn2, ...physicsShowcaseColumn2].map((imgUrl, idx) => (
+                    <div
+                      key={`bg-col2-${idx}`}
+                      className="w-28 sm:w-32 h-20 sm:h-22 rounded-2xl bg-slate-900 border border-white/25 shadow-lg shadow-black/40 overflow-hidden flex-shrink-0"
+                    >
+                      <img 
+                        src={imgUrl} 
+                        alt="Physics Showcase" 
+                        loading="lazy" 
+                        className="w-full h-full object-cover" 
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Column 3 */}
+                <div className="flex flex-col gap-3.5 animate-scroll-up-1 pt-7">
+                  {[...physicsShowcaseColumn1, ...physicsShowcaseColumn1].map((imgUrl, idx) => (
+                    <div
+                      key={`bg-col3-${idx}`}
+                      className="w-28 sm:w-32 h-20 sm:h-22 rounded-2xl bg-slate-900 border border-white/25 shadow-lg shadow-black/40 overflow-hidden flex-shrink-0"
+                    >
+                      <img 
+                        src={imgUrl} 
+                        alt="Physics Showcase" 
+                        loading="lazy" 
+                        className="w-full h-full object-cover" 
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Column 4 */}
+                <div className="flex flex-col gap-3.5 animate-scroll-up-2 pt-20">
+                  {[...physicsShowcaseColumn2, ...physicsShowcaseColumn2].map((imgUrl, idx) => (
+                    <div
+                      key={`bg-col4-${idx}`}
+                      className="w-28 sm:w-32 h-20 sm:h-22 rounded-2xl bg-slate-900 border border-white/25 shadow-lg shadow-black/40 overflow-hidden flex-shrink-0"
+                    >
+                      <img 
+                        src={imgUrl} 
+                        alt="Physics Showcase" 
+                        loading="lazy" 
+                        className="w-full h-full object-cover" 
+                      />
+                    </div>
+                  ))}
+                </div>
+
+              </div>
+            </div>
+
+            {/* Mobile background soft tint overlay to guarantee foreground text readability */}
+            <div className="md:hidden absolute inset-0 bg-gradient-to-b from-[#4c1d95]/50 via-[#5b21b6]/40 to-[#7c3aed]/50 pointer-events-none z-10" />
+
+            {/* -------------------------------------------------------------
                 RIGHT SIDE: ANGLED UPWARD MOVING CLEAN CARDS (NO TEXT OVERLAY)
                 Desktop/Tablet only: angled upward moving cards on the right
                ------------------------------------------------------------- */}
@@ -221,53 +308,6 @@ const Footer = ({ teacher }) => {
                   </div>
                 </button>
 
-              </div>
-
-              {/* MOBILE-ONLY ANGLED UPWARD SHOWCASE (IDENTICAL TO WEB VIEW ANGLE) */}
-              <div 
-                className="md:hidden relative h-60 sm:h-64 my-6 -mx-2 overflow-hidden pointer-events-none select-none"
-                style={{
-                  WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)',
-                  maskImage: 'linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)'
-                }}
-              >
-                <div className="h-full w-full transform -rotate-[10deg] flex justify-center gap-3 sm:gap-4">
-                  
-                  {/* Column 1 — Clean photo cards scrolling upward */}
-                  <div className="flex flex-col gap-3.5 animate-scroll-up-1">
-                    {[...physicsShowcaseColumn1, ...physicsShowcaseColumn1].map((imgUrl, idx) => (
-                      <div
-                        key={`mob-col1-${idx}`}
-                        className="w-32 sm:w-36 h-20 sm:h-24 rounded-2xl bg-slate-900 border border-white/30 shadow-xl shadow-black/40 overflow-hidden flex-shrink-0"
-                      >
-                        <img 
-                          src={imgUrl} 
-                          alt="Physics Visual Showcase" 
-                          loading="lazy" 
-                          className="w-full h-full object-cover" 
-                        />
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Column 2 — Staggered clean photo cards scrolling upward */}
-                  <div className="flex flex-col gap-3.5 animate-scroll-up-2 pt-10 sm:pt-12">
-                    {[...physicsShowcaseColumn2, ...physicsShowcaseColumn2].map((imgUrl, idx) => (
-                      <div
-                        key={`mob-col2-${idx}`}
-                        className="w-32 sm:w-36 h-20 sm:h-24 rounded-2xl bg-slate-900 border border-white/30 shadow-xl shadow-black/40 overflow-hidden flex-shrink-0"
-                      >
-                        <img 
-                          src={imgUrl} 
-                          alt="Physics Visual Showcase" 
-                          loading="lazy" 
-                          className="w-full h-full object-cover" 
-                        />
-                      </div>
-                    ))}
-                  </div>
-
-                </div>
               </div>
 
               {/* -------------------------------------------------------------
