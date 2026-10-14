@@ -387,3 +387,24 @@ body.dark {
 .animate-scroll-up-2:hover {
   animation-play-state: paused;
 }
+
+/* ==========================================================
+   FOOTER CTA MOBILE HORIZONTAL CONTINUOUS MARQUEE
+   ========================================================== */
+@keyframes scrollLeftContinuous {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll-left {
+  animation: scrollLeftContinuous 20s linear infinite;
+  will-change: transform;
+}
+
+.animate-scroll-left:hover {
+  animation-play-state: paused;
+}
