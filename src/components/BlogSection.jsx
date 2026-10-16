@@ -18,7 +18,14 @@ import { getOptimizedCardImage } from '../utils/imageOptimizer';
 const POSTS_PER_PAGE = 3;
 
 const BlogSection = () => {
-  const [blogs, setBlogs] = useState([]);
+  const [blogs, setBlogs] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem('cached_blogs_public');
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [currentPage, setCurrentPage] = useState(() => {
     const saved = Number(sessionStorage.getItem('blogSectionPage'));
@@ -28,7 +35,14 @@ const BlogSection = () => {
 
   useEffect(() => {
     API.get('/blogs/public')
-      .then((res) => setBlogs(res.data))
+      .then((res) => {
+        if (Array.isArray(res.data)) {
+          setBlogs(res.data);
+          try {
+            sessionStorage.setItem('cached_blogs_public', JSON.stringify(res.data));
+          } catch {}
+        }
+      })
       .catch((err) => console.log('Blogs load error:', err));
   }, []);
 
