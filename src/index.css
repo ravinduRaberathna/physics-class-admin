@@ -226,21 +226,21 @@ body.dark {
 .lane-down-fast {
   display: flex;
   flex-direction: column;
-  animation: streamDownSeamless 20s linear infinite;
+  animation: streamDownSeamless 85s linear infinite;
   will-change: transform;
 }
 
 .lane-up-normal {
   display: flex;
   flex-direction: column;
-  animation: streamUpSeamless 24s linear infinite;
+  animation: streamUpSeamless 110s linear infinite;
   will-change: transform;
 }
 
 .lane-down-slow {
   display: flex;
   flex-direction: column;
-  animation: streamDownSeamless 28s linear infinite;
+  animation: streamDownSeamless 135s linear infinite;
   will-change: transform;
 }
 

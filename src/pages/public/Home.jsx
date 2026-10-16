@@ -191,7 +191,7 @@ const Home = () => {
     setIsSubmitting(false);
   };
 
-  const patternA = ['PHYSICS', 'PHYSICS', 'PHYSICS', 'PHYSICS', 'PHYSICS', 'PHYSICS'];
+  const patternA = Array.from({ length: 20 }, () => 'PHYSICS');
 
   return (
     <>

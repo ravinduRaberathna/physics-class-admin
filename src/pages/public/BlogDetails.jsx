@@ -96,7 +96,7 @@ const BlogDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-[#070a14] text-slate-900 dark:text-slate-100 font-['Poppins'] selection:bg-indigo-600 selection:text-white transition-colors duration-300 relative overflow-x-hidden flex flex-col justify-between">
+    <div className="min-h-screen bg-[#f8fafc] dark:bg-[#070a14] text-slate-900 dark:text-slate-100 font-['Poppins'] selection:bg-indigo-600 selection:text-white transition-colors duration-300 relative overflow-x-clip flex flex-col justify-between">
       {/* Subtle Background Math Formulas */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
         <div className="absolute top-28 right-10 font-mono text-[9.5rem] font-black text-indigo-900/[0.03] dark:text-indigo-400/[0.04] select-none leading-none rotate-12">
@@ -222,8 +222,11 @@ const BlogDetails = () => {
             </div>
           </article>
 
-          {/* RIGHT SIDEBAR: Other Blog Posts (4 Cols) */}
-          <aside className="lg:col-span-4 space-y-6 lg:sticky lg:top-28">
+          {/* RIGHT SIDEBAR: Other Blog Posts (4 Cols - Sticky on scroll) */}
+          <aside 
+            className="lg:col-span-4 space-y-6 lg:sticky lg:top-24 self-start lg:max-h-[calc(100vh-6.5rem)] lg:overflow-y-auto lg:overflow-x-hidden pr-0.5"
+            style={{ scrollbarWidth: 'thin' }}
+          >
             <div className="bg-white dark:bg-[#0d1326] rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-[0_12px_35px_rgb(15,23,42,0.04)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-6 transition-colors">
               <div className="flex items-center justify-between pb-4 mb-5 border-b border-slate-100 dark:border-slate-800/80">
                 <div className="flex items-center gap-2.5">
@@ -247,7 +250,10 @@ const BlogDetails = () => {
                   තවත් ලිපි දැනට ඇතුළත් කර නොමැත.
                 </p>
               ) : (
-                <div className="space-y-4">
+                <div 
+                  className="space-y-4 max-h-[380px] xl:max-h-[440px] overflow-y-auto pr-1"
+                  style={{ scrollbarWidth: 'thin' }}
+                >
                   {otherBlogs.map((item) => (
                     <Link
                       key={item._id}
