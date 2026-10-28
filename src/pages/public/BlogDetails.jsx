@@ -15,10 +15,8 @@ import {
   ArrowUpRight,
   ChevronRight,
   Home as HomeIcon,
-  Quote,
   BookOpen,
   Share2,
-  CheckCircle2,
 } from 'lucide-react';
 import { getOptimizedBlogBanner, getOptimizedThumbnail } from '../../utils/imageOptimizer';
 
@@ -330,67 +328,6 @@ const BlogDetails = () => {
             </div>
           </RevealOnScroll>
 
-          {/* =========================================================================
-              EDITORIAL QUOTE BLOCK (MATCHING MOCKUP BLOCKQUOTE DESIGN)
-             ========================================================================= */}
-          <RevealOnScroll delay={70}>
-            <div className="my-8 sm:my-10 p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#0d1326] border-l-4 border-l-indigo-600 border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden">
-              <Quote className="absolute top-4 right-4 w-12 h-12 text-indigo-500/10 dark:text-cyan-400/10 pointer-events-none" />
-              <p className="text-base sm:text-lg italic font-medium text-slate-800 dark:text-slate-200 leading-relaxed mb-5">
-                &ldquo;භෞතික විද්‍යාව යනු සූත්‍ර කටපාඩම් කිරීමක් නොවේ; විශ්වයේ සියලු සිදුවීම් පිටුපස ඇති තර්කනය නිවැරදිව තේරුම් ගැනීමයි. මූලික සංකල්ප පැහැදිලි වූ විට ඕනෑම සංකීර්ණ විභාග ගැටලුවක් සරලව විසඳිය හැක.&rdquo;
-              </p>
-              <div className="flex items-center gap-3">
-                {teacher?.profileImage ? (
-                  <img
-                    src={getOptimizedThumbnail(teacher.profileImage)}
-                    alt={teacherName}
-                    className="w-11 h-11 rounded-full object-cover border-2 border-indigo-500 shadow-xs"
-                  />
-                ) : (
-                  <div className="w-11 h-11 rounded-full bg-indigo-600 text-white font-black text-xs flex items-center justify-center">
-                    CD
-                  </div>
-                )}
-                <div>
-                  <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
-                    {teacherName}
-                  </p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                    {teacherTitle}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </RevealOnScroll>
-
-          {/* =========================================================================
-              KEY TAKEAWAYS / CONCLUSION CARD (MATCHING MOCKUP CONCLUSION CARD)
-             ========================================================================= */}
-          <RevealOnScroll delay={70}>
-            <div className="my-8 p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-indigo-50/90 via-purple-50/50 to-cyan-50/70 dark:from-indigo-950/40 dark:via-purple-950/20 dark:to-cyan-950/30 border border-indigo-200/80 dark:border-indigo-500/30 shadow-xs">
-              <div className="flex items-center gap-2.5 mb-4 text-indigo-700 dark:text-cyan-300 font-extrabold text-sm uppercase tracking-wider">
-                <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-xs">
-                  <Sparkles size={15} />
-                </div>
-                <span>Conclusion & Exam Strategy</span>
-              </div>
-              
-              <ul className="space-y-2.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 size={16} className="text-emerald-500 shrink-0 mt-0.5" />
-                  <span>විෂය නිර්දේශයේ සියලුම ප්‍රායෝගික පරීක්ෂණ සහ ඒවායේ දෝෂ ගණනය කිරීම් නිරන්තරයෙන් පුහුණු වන්න.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 size={16} className="text-emerald-500 shrink-0 mt-0.5" />
-                  <span>පසුගිය වසර 20 ක A/L විභාග ප්‍රශ්න පත්‍ර සහ Model Papers සඳහා නිවැරදි වේලා කළමනාකරණය ප්‍රගුණ කරන්න.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 size={16} className="text-emerald-500 shrink-0 mt-0.5" />
-                  <span>සෑම පාඩමක් අවසානයේම තමන් විසින්ම කෙටි සටහන් (Mind Maps / Summary Formula Sheets) පිළියෙල කරන්න.</span>
-                </li>
-              </ul>
-            </div>
-          </RevealOnScroll>
 
           {/* Social Share & Action Bar */}
           <RevealOnScroll delay={60}>

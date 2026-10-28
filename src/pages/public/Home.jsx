@@ -141,7 +141,7 @@ const Home = () => {
     );
 
     const lines = [
-      'Hello Sir, I would like to join or get more information about A/L Physics classes:',
+      `Hello ${teacher?.name || 'Sir'}, I would like to get more information and connect with you:`,
       '',
       `*Student Name:* ${studentName}`,
       `*WhatsApp Number:* ${phone}`,
@@ -164,14 +164,14 @@ const Home = () => {
         lines.push(`*Monthly Fee:* Rs. ${chosenClass.monthlyFee.toLocaleString()}`);
       }
     } else {
-      lines.push('*Selected Class:* General Physics Inquiry');
+      lines.push('*Inquiry:* General Class Inquiry');
     }
 
     if (message?.trim()) {
-      lines.push(`*Preferred Venue / Note:* ${message.trim()}`);
+      lines.push(`*Message / Question:* ${message.trim()}`);
     }
 
-    lines.push('', 'Could you please share the registration details? Thank you!');
+    lines.push('', 'Could you please advise me on this? Thank you!');
 
     const wpUrl = `https://wa.me/${wpNumber}?text=${encodeURIComponent(lines.join('\n'))}`;
 
@@ -288,9 +288,15 @@ const Home = () => {
               </div>
 
               <div className="relative z-10 max-w-4xl mx-auto text-center flex flex-col items-center justify-center my-auto w-full">
-                <div className="animate-hero-badge inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md border border-indigo-400/40 text-cyan-300 text-[10px] sm:text-xs font-medium tracking-wider uppercase mb-3.5 sm:mb-6 shadow-sm max-w-full truncate">
-                  <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-cyan-400 animate-pulse shrink-0"></span>
-                  <span className="truncate">A/L PHYSICS ACADEMY • {teacher?.name || 'MASTERCLASS'}</span>
+                <div className="animate-hero-badge inline-flex items-center gap-2 sm:gap-2.5 p-1 sm:p-1.5 pr-3.5 sm:pr-4 rounded-full bg-slate-950/80 backdrop-blur-xl border border-indigo-500/30 shadow-[0_0_25px_rgba(99,102,241,0.2)] max-w-full mb-3.5 sm:mb-6 transition-all duration-300 hover:border-cyan-400/40">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-cyan-300 font-mono text-[10px] sm:text-[11px] font-semibold lowercase tracking-wide shrink-0">
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse shrink-0"></span>
+                    <span>physicswithchamath.com</span>
+                  </div>
+                  <span className="w-1 h-1 rounded-full bg-indigo-400/40 shrink-0"></span>
+                  <span className="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider truncate">
+                    {teacher?.name || 'Chamath Piyumal'}
+                  </span>
                 </div>
 
                 <h1 className="animate-hero-title text-[1.85rem] xs:text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.18] sm:leading-tight drop-shadow-lg px-1">
@@ -301,7 +307,7 @@ const Home = () => {
                 </h1>
 
                 <p className="animate-hero-sub text-[11px] sm:text-sm md:text-base text-indigo-200 mt-3 sm:mt-4 uppercase tracking-wider sm:tracking-widest font-semibold max-w-2xl px-2 leading-relaxed">
-                  Comprehensive Theory • Systematic Revision • Paper Classes
+                  Deep Theory • Strategic Revision • Targeted Paper Discussions
                 </p>
 
                 <p className="animate-hero-desc text-xs sm:text-sm md:text-base text-slate-300 max-w-2xl mt-2.5 sm:mt-4 leading-relaxed font-normal px-2">
@@ -350,7 +356,7 @@ const Home = () => {
           {/* VENUES CAROUSEL */}
          {/* <RevealOnScroll delay={150}>
             <VenuesCarousel onSelectVenue={(venueText) => setMessage(venueText)} />
-          </RevealOnScroll>
+          </RevealOnScroll> */}
 
           {/* ACADEMIC BATCHES & PROGRAMS SECTION */}
           <ClassesSection 
@@ -376,10 +382,10 @@ const Home = () => {
               <div className="blueprint-card rounded-2xl p-8 sm:p-10 border border-slate-200 shadow-lg bg-white">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                   <div>
-                    <span className="text-xs font-semibold text-indigo-600 uppercase tracking-widest">Admissions</span>
-                    <h3 className="text-2xl font-extrabold text-slate-900 mt-1">Direct WhatsApp Enrollment</h3>
+                    <span className="text-xs font-semibold text-emerald-600 uppercase tracking-widest">Direct Contact</span>
+                    <h3 className="text-2xl font-extrabold text-slate-900 mt-1">Contact Sir on WhatsApp</h3>
                     <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
-                      Register now for online portal access, LMS credentials, and physical classroom verification cards.
+                      පන්ති පිළිබඳ විස්තර, කාලසටහන් හෝ වෙනත් ඕනෑම කරුණක් පිළිබඳව සර් සමඟ සෘජුවම සම්බන්ධ වීමට පහත පෝරමය පුරවා WhatsApp වෙත යොමු වන්න.
                     </p>
                     <div className="mt-6 space-y-3 text-xs text-slate-700">
                       <div className="flex items-center gap-2">
@@ -395,7 +401,7 @@ const Home = () => {
 
                   <form onSubmit={handleEnrollSubmit} className="space-y-3.5 bg-slate-50 p-6 rounded-xl border border-slate-200">
                     <div>
-                      <label className="block text-[11px] text-slate-700 mb-1 font-semibold">Student Full Name</label>
+                      <label className="block text-[11px] text-slate-700 mb-1 font-semibold">Your Full Name</label>
                       <input
                         type="text"
                         required
@@ -425,7 +431,7 @@ const Home = () => {
                         onChange={(e) => setSelectedClassId(e.target.value)}
                         className="w-full px-3 py-2.5 rounded-lg bg-white border border-slate-300 text-slate-900 text-xs focus:outline-none focus:border-indigo-600"
                       >
-                        <option value="">General Physics Inquiry</option>
+                        <option value="">General Class Inquiry</option>
                         {classes.map((c) => (
                           <option key={c._id} value={c._id}>
                             {c.title} ({c.batchYear} - {c.type})
@@ -435,12 +441,12 @@ const Home = () => {
                     </div>
 
                     <div>
-                      <label className="block text-[11px] text-slate-700 mb-1 font-semibold">Message / Preferred Venue</label>
+                      <label className="block text-[11px] text-slate-700 mb-1 font-semibold">Message / Inquiry</label>
                       <input
                         type="text"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
-                        placeholder="e.g. Joining Rotary Nugegoda Batch"
+                        placeholder="e.g. Asking about timetable, syllabus or enrollment"
                         className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-slate-300 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-indigo-600"
                       />
                     </div>
@@ -448,15 +454,15 @@ const Home = () => {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs tracking-wider uppercase transition shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 disabled:bg-slate-400 cursor-pointer"
+                      className="w-full py-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs tracking-wider uppercase transition shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:bg-slate-400 cursor-pointer"
                     >
-                      <Send size={14} />
-                      <span>{isSubmitting ? 'Processing...' : 'Confirm Registration on WhatsApp'}</span>
+                      <MessageSquare size={14} />
+                      <span>{isSubmitting ? 'Opening WhatsApp...' : 'Chat with Sir on WhatsApp'}</span>
                     </button>
 
                     {feedback && (
                       <p className="text-[11px] text-center text-emerald-600 animate-pulse font-medium">
-                        Saved! Redirecting to WhatsApp...
+                        Opening WhatsApp chat with Sir...
                       </p>
                     )}
                   </form>

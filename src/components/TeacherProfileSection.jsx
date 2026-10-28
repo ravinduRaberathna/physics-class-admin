@@ -461,7 +461,7 @@ const TeacherProfileSection = ({ teacher, isModalOpen, onCloseModal, onOpenModal
                   onClick={onCloseModal}
                   className="px-6 py-2.5 rounded-xl bg-[#f95715] hover:bg-[#e04809] text-white text-xs font-bold transition shadow-md shadow-orange-500/20"
                 >
-                  Enroll Now
+                  Contact Sir
                 </a>
                 <button
                   type="button"

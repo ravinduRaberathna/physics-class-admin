@@ -136,7 +136,7 @@ const Navbar = ({ teacherName = 'A/L PHYSICS' }) => {
               onClick={(e) => handleNavClick(e, 'register')}
               className="hidden sm:inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white text-xs font-semibold tracking-wider uppercase transition-all duration-300 shadow-md shadow-indigo-500/25 border border-white/20 active:scale-95"
             >
-              <span>Enroll</span>
+              <span>Contact</span>
               <ArrowRight size={13} className="text-cyan-100" />
             </a>
 
@@ -212,7 +212,7 @@ const Navbar = ({ teacherName = 'A/L PHYSICS' }) => {
             className="mt-1 py-3 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 hover:opacity-95 text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 border border-white/20 active:scale-[0.99] transition cursor-pointer"
           >
             <Sparkles size={14} className="text-cyan-200" />
-            <span>Enroll Class Now</span>
+            <span>Contact Sir on WhatsApp</span>
             <ArrowRight size={14} className="text-cyan-100" />
           </a>
         </div>

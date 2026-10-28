@@ -26,7 +26,6 @@ const BlogSection = () => {
       return [];
     }
   });
-  const [selectedCategory, setSelectedCategory] = useState('All');
   const [currentPage, setCurrentPage] = useState(() => {
     const saved = Number(sessionStorage.getItem('blogSectionPage'));
     return saved > 0 ? saved : 1;
@@ -66,16 +65,9 @@ const BlogSection = () => {
 
   if (blogs.length === 0) return null;
 
-  const categories = ['All', ...new Set(blogs.map((b) => b.category).filter(Boolean))];
-
-  const filteredBlogs =
-    selectedCategory === 'All'
-      ? blogs
-      : blogs.filter((b) => b.category === selectedCategory);
-
-  const totalPages = Math.max(1, Math.ceil(filteredBlogs.length / POSTS_PER_PAGE));
+  const totalPages = Math.max(1, Math.ceil(blogs.length / POSTS_PER_PAGE));
   const safePage = Math.min(currentPage, totalPages);
-  const paginatedBlogs = filteredBlogs.slice(
+  const paginatedBlogs = blogs.slice(
     (safePage - 1) * POSTS_PER_PAGE,
     safePage * POSTS_PER_PAGE
   );
@@ -102,44 +94,17 @@ const BlogSection = () => {
       <div className="relative z-10">
         {/* Section Header */}
         <RevealOnScroll delay={100}>
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 sm:mb-12 gap-6">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-indigo-200/80 text-indigo-700 text-xs uppercase tracking-widest font-semibold mb-3 shadow-xs">
-                <Sparkles size={14} className="text-indigo-600" />
-                <span>Physics Knowledge Hub</span>
-              </div>
-              <h3 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
-                Latest Articles & Exam Insights
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-500 mt-2.5 max-w-2xl font-normal leading-relaxed">
-                A/L භෞතික විද්‍යා විෂය නිර්දේශය, විභාග රහස්, සහ ඉහළම ප්‍රතිඵලයක් කරා යාමට වැදගත් වන විශේෂ ලිපි පෙළ.
-              </p>
+          <div className="mb-10 sm:mb-12">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-indigo-200/80 text-indigo-700 text-xs uppercase tracking-widest font-semibold mb-3 shadow-xs">
+              <Sparkles size={14} className="text-indigo-600" />
+              <span>Knowledge Hub & Insights</span>
             </div>
-
-            {/* Category Filter Pills */}
-            {categories.length > 2 && (
-              <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
-                {categories.map((cat) => {
-                  const active = selectedCategory === cat;
-                  return (
-                    <button
-                      key={cat}
-                      onClick={() => {
-                        setSelectedCategory(cat);
-                        handlePageChange(1);
-                      }}
-                      className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                        active
-                          ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-md shadow-indigo-500/25'
-                          : 'bg-white border border-slate-200/90 text-slate-600 hover:border-indigo-300 hover:text-indigo-600'
-                      }`}
-                    >
-                      {cat}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+            <h3 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+              Latest Articles & Exam Insights
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-500 mt-2.5 max-w-2xl font-normal leading-relaxed">
+              විෂය නිර්දේශය, විභාග රහස් සහ ඉහළම ප්‍රතිඵලයක් කරා යාමට උපකාරී වන විශේෂ අධ්‍යයන ලිපි පෙළ.
+            </p>
           </div>
         </RevealOnScroll>
 
@@ -169,7 +134,7 @@ const BlogSection = () => {
                     <div className="w-full h-full flex flex-col items-center justify-center text-white/80 p-6 text-center">
                       <FileText size={36} className="text-cyan-400 mb-2 opacity-80" />
                       <span className="text-xs font-bold uppercase tracking-widest text-indigo-200">
-                        A/L Physics Article
+                        Study Article
                       </span>
                     </div>
                   )}
@@ -178,7 +143,7 @@ const BlogSection = () => {
                   <div className="absolute top-4 left-4">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/80 backdrop-blur-md border border-white/20 text-cyan-300 text-[10px] font-bold uppercase tracking-wider">
                       <Tag size={10} />
-                      {blog.category || 'Physics Article'}
+                      {blog.category || 'Article'}
                     </span>
                   </div>
                 </div>
@@ -235,9 +200,9 @@ const BlogSection = () => {
               Showing{' '}
               <strong className="text-slate-800">
                 {(safePage - 1) * POSTS_PER_PAGE + 1}–
-                {Math.min(safePage * POSTS_PER_PAGE, filteredBlogs.length)}
+                {Math.min(safePage * POSTS_PER_PAGE, blogs.length)}
               </strong>{' '}
-              of <strong className="text-slate-800">{filteredBlogs.length}</strong> articles
+              of <strong className="text-slate-800">{blogs.length}</strong> articles
             </span>
 
             <div className="flex items-center gap-2">

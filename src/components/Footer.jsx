@@ -41,7 +41,7 @@ const Footer = ({ teacher }) => {
   const formattedWp = cleanWhatsapp.startsWith('0') ? `94${cleanWhatsapp.slice(1)}` : cleanWhatsapp || '94771234567';
   
   const whatsappEnrollUrl = `https://wa.me/${formattedWp}?text=${encodeURIComponent(
-    'Hello Sir, I would like to enroll in the A/L Physics Masterclass. Could you please share the registration details?'
+    'Hello Sir, I would like to get more information about the classes. Could you please share more details?'
   )}`;
 
   const scrollToSection = (id) => {
@@ -290,8 +290,8 @@ const Footer = ({ teacher }) => {
                     <path d="M12 2C6.48 2 2 6.48 2 12c0 1.84.5 3.56 1.37 5.05L2 22l5.09-1.33C8.52 21.52 10.21 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18.27c-1.57 0-3.04-.44-4.29-1.21l-.31-.19-3.19.83.85-3.11-.2-.32C4.04 14.98 3.57 13.53 3.57 12c0-4.65 3.78-8.43 8.43-8.43s8.43 3.78 8.43 8.43-3.78 8.27-8.43 8.27z" />
                   </svg>
                   <div className="text-left">
-                    <div className="text-[10px] uppercase font-bold tracking-wider text-slate-500 leading-none">Register Now</div>
-                    <div className="text-xs sm:text-sm font-extrabold text-slate-900 leading-tight">Enroll via WhatsApp</div>
+                    <div className="text-[10px] uppercase font-bold tracking-wider text-slate-500 leading-none">Get In Touch</div>
+                    <div className="text-xs sm:text-sm font-extrabold text-slate-900 leading-tight">Chat via WhatsApp</div>
                   </div>
                 </a>
 

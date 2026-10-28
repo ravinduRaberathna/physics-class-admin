@@ -43,7 +43,7 @@ const ClassesSection = ({ classes = [], onSelectClass, whatsappNumber }) => {
       lines.push(`*Monthly Fee:* ${feeStr}`);
     }
 
-    lines.push('', 'Could you please share the enrollment details? Thank you!');
+    lines.push('', 'Could you please share more details about this class? Thank you!');
 
     return `https://wa.me/${wpNumber}?text=${encodeURIComponent(lines.join('\n'))}`;
   };
