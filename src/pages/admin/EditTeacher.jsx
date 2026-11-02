@@ -1,11 +1,61 @@
 import { useEffect, useState } from 'react';
 import API from '../../api/axiosInstance';
-import { UserSquare2, PhoneCall, Share2, Save, Sparkles } from 'lucide-react';
+import { 
+  UserSquare2, 
+  PhoneCall, 
+  Share2, 
+  Save, 
+  Sparkles, 
+  Images, 
+  Plus, 
+  Trash2, 
+  ExternalLink,
+  RotateCcw
+} from 'lucide-react';
 import ImageUploadField from '../../components/ImageUploadField';
+import { getOptimizedThumbnail } from '../../utils/imageOptimizer';
+
+const DEFAULT_TEMPLATE_SHOWCASE = [
+  {
+    src: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Physics Laboratory Research and Experiments',
+  },
+  {
+    src: 'https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Quantum & Theoretical Physics Wave Models',
+  },
+  {
+    src: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Digital Learning & Modern Classroom Technology',
+  },
+  {
+    src: 'https://images.unsplash.com/photo-1507668077129-56e32842fceb?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Optics & Laser Light Refraction in Physics',
+  },
+  {
+    src: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Astrophysics, Cosmic Gravity and Universe Dimensions',
+  },
+  {
+    src: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Data Analysis and Problem Solving',
+  },
+  {
+    src: 'https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Advanced Mechanical and Electrical Science',
+  },
+  {
+    src: 'https://images.unsplash.com/photo-1518152006812-edab29b069ac?auto=format&fit=crop&w=1200&q=80',
+    alt: 'Mathematical Equations and Pure Physics Foundations',
+  },
+];
 
 const EditTeacher = ({ embedded = false }) => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [newImageUrl, setNewImageUrl] = useState('');
+  const [newImageAlt, setNewImageAlt] = useState('');
+
   const [formData, setFormData] = useState({
     name: '',
     title: '',
@@ -17,6 +67,7 @@ const EditTeacher = ({ embedded = false }) => {
     youtube: '',
     facebook: '',
     telegram: '',
+    showcaseImages: [],
   });
 
   useEffect(() => {
@@ -35,6 +86,9 @@ const EditTeacher = ({ embedded = false }) => {
             youtube: res.data.socialLinks?.youtube || '',
             facebook: res.data.socialLinks?.facebook || '',
             telegram: res.data.socialLinks?.telegram || '',
+            showcaseImages: Array.isArray(res.data.showcaseImages)
+              ? res.data.showcaseImages
+              : [],
           });
         }
       } catch (err) {
@@ -45,6 +99,44 @@ const EditTeacher = ({ embedded = false }) => {
     };
     fetchTeacher();
   }, []);
+
+  const handleAddShowcaseImage = (e) => {
+    e?.preventDefault();
+    if (!newImageUrl.trim()) return;
+
+    const newItem = {
+      src: newImageUrl.trim(),
+      alt: newImageAlt.trim() || 'Classroom & Laboratory Showcase',
+    };
+
+    setFormData((prev) => ({
+      ...prev,
+      showcaseImages: [...(prev.showcaseImages || []), newItem],
+    }));
+
+    setNewImageUrl('');
+    setNewImageAlt('');
+  };
+
+  const handleRemoveShowcaseImage = (indexToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      showcaseImages: prev.showcaseImages.filter((_, idx) => idx !== indexToRemove),
+    }));
+  };
+
+  const handleLoadTemplateShowcase = () => {
+    if (
+      formData.showcaseImages?.length > 0 &&
+      !window.confirm('Replace current showcase images with 8 curated physics template photos?')
+    ) {
+      return;
+    }
+    setFormData((prev) => ({
+      ...prev,
+      showcaseImages: [...DEFAULT_TEMPLATE_SHOWCASE],
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -65,6 +157,7 @@ const EditTeacher = ({ embedded = false }) => {
         facebook: formData.facebook,
         telegram: formData.telegram,
       },
+      showcaseImages: formData.showcaseImages || [],
     };
 
     try {
@@ -72,7 +165,7 @@ const EditTeacher = ({ embedded = false }) => {
       try {
         localStorage.setItem('cached_teacher_profile', JSON.stringify(res.data));
       } catch {}
-      alert('Teacher profile updated successfully!');
+      alert('Lecturer profile and Hero showcase images saved successfully!');
     } catch (err) {
       console.error(err);
       alert('Failed to update teacher profile');
@@ -99,10 +192,10 @@ const EditTeacher = ({ embedded = false }) => {
           </div>
           <div>
             <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">
-              Lecturer Profile & Contact Settings
+              Lecturer Profile & Hero Showcase Settings
             </h1>
             <p className="text-xs text-slate-500 mt-1">
-              Update lecturer biography, official hotline numbers, and social media channels
+              Update lecturer biography, official hotline numbers, social channels, and 3D curved Hero images
             </p>
           </div>
         </div>
@@ -144,7 +237,7 @@ const EditTeacher = ({ embedded = false }) => {
                 required
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="B.Sc. Eng (Hons) Moratuwa, Physics Lecturer"
+                placeholder="B.Sc. Engineering (Hons) • A/L Physics Lecturer"
                 className="admin-input w-full px-3.5 py-2.5 border rounded-xl text-xs"
               />
             </div>
@@ -152,30 +245,151 @@ const EditTeacher = ({ embedded = false }) => {
 
           <div className="mt-4">
             <ImageUploadField
-              label="Profile Photo (Uploads to Cloudinary)"
+              label="Lecturer Profile Photo"
               value={formData.profileImage}
               onChange={(url) => setFormData({ ...formData, profileImage: url })}
-              placeholder="Upload photo or paste URL..."
+              placeholder="https://res.cloudinary.com/... or upload photo"
             />
           </div>
 
           <div className="mt-4">
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Biography / About Lecturer
-            </label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Short Bio / Philosophy</label>
             <textarea
-              rows="4"
-              required
+              rows="3"
               value={formData.bio}
               onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-              placeholder="වසර ගණනාවක A/L භෞතික විද්‍යා ඉගැන්වීමේ පළපුරුද්ද..."
+              placeholder="Enter brief teacher bio or teaching motto..."
               className="admin-input w-full px-3.5 py-2.5 border rounded-xl text-xs"
             ></textarea>
           </div>
         </div>
 
+        {/* =========================================================================
+            HERO CURVED 3D CYLINDRICAL SHOWCASE IMAGES (ADMIN MANAGEMENT)
+           ========================================================================= */}
+        <div className="pt-4 border-t border-slate-100">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center shrink-0">
+                <Images size={15} />
+              </div>
+              <div>
+                <h2 className="text-sm sm:text-base font-extrabold text-slate-900">
+                  Hero 3D Curved Showcase Images
+                </h2>
+                <p className="text-[11px] text-slate-500">
+                  Hero area එකට යටින් 3D සිලින්ඩරාකාරව කැරකෙන images band එක සඳහා පින්තූර මෙතැනින් එකතු කරන්න / වෙනස් කරන්න.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleLoadTemplateShowcase}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition cursor-pointer"
+              >
+                <RotateCcw size={12} />
+                <span>Reset to Templates</span>
+              </button>
+              <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+                {formData.showcaseImages?.length || 0} Images
+              </span>
+            </div>
+          </div>
+
+          {/* Add New Showcase Image Sub-form */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 mb-5 space-y-3">
+            <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <Plus size={14} className="text-purple-600" />
+              <span>Add New Image to 3D Loop</span>
+            </span>
+
+            <ImageUploadField
+              label="Choose from Device or Enter URL"
+              value={newImageUrl}
+              onChange={(url) => setNewImageUrl(url)}
+              placeholder="Upload photo via Cloudinary or paste direct image URL"
+            />
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
+              <input
+                type="text"
+                value={newImageAlt}
+                onChange={(e) => setNewImageAlt(e.target.value)}
+                placeholder="Image description or label (e.g. Model Paper Class, Laboratory)"
+                className="admin-input flex-1 px-3.5 py-2.5 border rounded-xl text-xs bg-white"
+              />
+              <button
+                type="button"
+                disabled={!newImageUrl.trim()}
+                onClick={handleAddShowcaseImage}
+                className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 disabled:bg-slate-300 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer disabled:cursor-not-allowed shadow-md shadow-purple-600/20 shrink-0"
+              >
+                <Plus size={14} />
+                <span>Add to Showcase</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Showcase Images Gallery Grid */}
+          {formData.showcaseImages && formData.showcaseImages.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5">
+              {formData.showcaseImages.map((img, idx) => {
+                const src = typeof img === 'string' ? img : img.src;
+                const alt = typeof img === 'string' ? `Showcase image ${idx + 1}` : (img.alt || `Showcase image ${idx + 1}`);
+                return (
+                  <div
+                    key={idx}
+                    className="group relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-900 aspect-[16/10] shadow-sm hover:shadow-md transition-all"
+                  >
+                    <img
+                      src={getOptimizedThumbnail(src)}
+                      alt={alt}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-80" />
+                    
+                    {/* Index badge */}
+                    <div className="absolute top-2 left-2">
+                      <span className="px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-[10px] font-mono font-bold text-white border border-white/20">
+                        #{idx + 1}
+                      </span>
+                    </div>
+
+                    {/* Remove button */}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveShowcaseImage(idx)}
+                      title="Remove image"
+                      className="absolute top-2 right-2 w-7 h-7 rounded-lg bg-rose-600/90 hover:bg-rose-600 text-white flex items-center justify-center transition shadow-md cursor-pointer opacity-90 hover:scale-110 active:scale-95"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+
+                    {/* Bottom label */}
+                    <div className="absolute bottom-1.5 left-2 right-2 truncate">
+                      <span className="text-[10px] font-medium text-slate-200 truncate block">
+                        {alt}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="p-8 text-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/50">
+              <Images size={28} className="mx-auto text-slate-400 mb-2 opacity-60" />
+              <p className="text-xs font-semibold text-slate-600">No custom images added yet</p>
+              <p className="text-[11px] text-slate-400 mt-1 max-w-sm mx-auto">
+                Currently, the 8 curated default physics stock images are displayed on the homepage. You can upload custom classroom or lab photos anytime above.
+              </p>
+            </div>
+          )}
+        </div>
+
         {/* Contact Info */}
-        <div>
+        <div className="pt-4 border-t border-slate-100">
           <div className="flex items-center gap-2.5 mb-4 pb-3 border-b border-slate-100">
             <div className="w-8 h-8 rounded-xl bg-cyan-50 border border-cyan-100 text-cyan-600 flex items-center justify-center">
               <PhoneCall size={15} />
@@ -220,7 +434,7 @@ const EditTeacher = ({ embedded = false }) => {
         </div>
 
         {/* Social Media */}
-        <div>
+        <div className="pt-4 border-t border-slate-100">
           <div className="flex items-center gap-2.5 mb-4 pb-3 border-b border-slate-100">
             <div className="w-8 h-8 rounded-xl bg-violet-50 border border-violet-100 text-violet-600 flex items-center justify-center">
               <Share2 size={15} />
@@ -271,7 +485,7 @@ const EditTeacher = ({ embedded = false }) => {
             className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white rounded-2xl text-xs font-bold tracking-wide transition shadow-lg shadow-indigo-500/25 disabled:opacity-60 cursor-pointer active:scale-95"
           >
             <Save size={15} />
-            <span>{submitting ? 'Saving Profile...' : 'Save Profile Details'}</span>
+            <span>{submitting ? 'Saving Profile & Showcase...' : 'Save Profile & Showcase Images'}</span>
           </button>
         </div>
       </form>

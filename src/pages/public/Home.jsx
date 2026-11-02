@@ -10,6 +10,7 @@ import ClassesSection from '../../components/ClassesSection';
 import TestimonialsSection from '../../components/TestimonialsSection';
 import BlogSection from '../../components/BlogSection';
 import TeacherProfileSection from '../../components/TeacherProfileSection';
+import HeroShowcaseSection from '../../components/HeroShowcaseSection';
 import Footer from '../../components/Footer';
 import { 
   BookOpen, 
@@ -311,7 +312,7 @@ const Home = () => {
                 </p>
 
                 <p className="animate-hero-desc text-xs sm:text-sm md:text-base text-slate-300 max-w-2xl mt-2.5 sm:mt-4 leading-relaxed font-normal px-2">
-                  {teacher?.bio || 'Designed specifically for ambitious Sri Lankan students targeting Island Top Rankings. Transform mechanical memorization into sharp conceptual clarity.'}
+                  {teacher?.bio || 'කටපාඩමෙන් එහා ගිය තාර්කික අවබෝධය — විෂයය හරියටම ග්‍රහණය කරගන්න නව පරපුරේ මඟපෙන්වීම.'}
                 </p>
 
                 <div className="animate-hero-cta flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mt-6 sm:mt-8 w-full sm:w-auto px-2">
@@ -344,6 +345,9 @@ const Home = () => {
               </div>
             </section>
           </RevealOnScroll>
+
+          {/* CURVED 3D CYLINDRICAL HERO SHOWCASE BAND (DIRECTLY UNDER HERO) */}
+          <HeroShowcaseSection images={teacher?.showcaseImages} />
 
           {/* TEACHER / LECTURER PROFILE SECTION & MODAL */}
           <TeacherProfileSection

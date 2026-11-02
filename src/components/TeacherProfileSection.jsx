@@ -20,11 +20,11 @@ import { getOptimizedProfileImage } from '../utils/imageOptimizer';
 const TeacherProfileSection = ({ teacher, isModalOpen, onCloseModal, onOpenModal }) => {
   const [imgError, setImgError] = useState(false);
 
-  const name = teacher?.name || 'Eng. Chamath Dissanayake';
-  const title = teacher?.title || 'B.Sc. Engineering (Hons) • A/L Physics Lecturer';
+  const name = teacher?.name || 'Chamath Piyumal';
+  const title = teacher?.title || 'B.Sc. (Hons) University of Sri Jayewardenepura';
   const bio =
     teacher?.bio ||
-    'වසර ගණනාවක A/L භෞතික විද්‍යා ඉගැන්වීමේ පළපුරුද්ද සමඟින්, සංකීර්ණ සිද්ධාන්ත ඉතා සරල හා ප්‍රායෝගික අයුරින් සිසුන් වෙත සමීප කරවමින් දිවයිනේ විශිෂ්ටතම ප්‍රතිඵල බිහිකළ ප්‍රවීණ දේශකවරයෙකි.';
+    'කටපාඩමෙන් එහා ගිය තාර්කික අවබෝධය — විෂයය හරියටම ග්‍රහණය කරගන්න නව පරපුරේ මඟපෙන්වීම.';
   const profileImage = !imgError && teacher?.profileImage ? teacher.profileImage : '';
 
   const phone = teacher?.contactInfo?.phone || '+94 77 123 4567';
