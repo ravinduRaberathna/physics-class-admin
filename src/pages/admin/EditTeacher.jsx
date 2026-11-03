@@ -10,10 +10,17 @@ import {
   Plus, 
   Trash2, 
   ExternalLink,
-  RotateCcw
+  RotateCcw,
+  Check
 } from 'lucide-react';
 import ImageUploadField from '../../components/ImageUploadField';
 import { getOptimizedThumbnail } from '../../utils/imageOptimizer';
+
+const DEFAULT_HIGHLIGHTS = [
+  '98% Pass Rate & Island Ranks',
+  'Complete Theory & Speed Revision',
+  'Physical & Online LMS Access',
+];
 
 const DEFAULT_TEMPLATE_SHOWCASE = [
   {
@@ -68,6 +75,7 @@ const EditTeacher = ({ embedded = false }) => {
     facebook: '',
     telegram: '',
     showcaseImages: [],
+    highlights: [...DEFAULT_HIGHLIGHTS],
   });
 
   useEffect(() => {
@@ -89,6 +97,10 @@ const EditTeacher = ({ embedded = false }) => {
             showcaseImages: Array.isArray(res.data.showcaseImages)
               ? res.data.showcaseImages
               : [],
+            highlights:
+              Array.isArray(res.data.highlights) && res.data.highlights.length > 0
+                ? res.data.highlights
+                : [...DEFAULT_HIGHLIGHTS],
           });
         }
       } catch (err) {
@@ -138,6 +150,35 @@ const EditTeacher = ({ embedded = false }) => {
     }));
   };
 
+  const handleHighlightChange = (index, value) => {
+    setFormData((prev) => {
+      const updated = [...(prev.highlights || [])];
+      updated[index] = value;
+      return { ...prev, highlights: updated };
+    });
+  };
+
+  const handleAddHighlight = () => {
+    setFormData((prev) => ({
+      ...prev,
+      highlights: [...(prev.highlights || []), ''],
+    }));
+  };
+
+  const handleRemoveHighlight = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      highlights: (prev.highlights || []).filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleResetHighlights = () => {
+    setFormData((prev) => ({
+      ...prev,
+      highlights: [...DEFAULT_HIGHLIGHTS],
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -158,14 +199,22 @@ const EditTeacher = ({ embedded = false }) => {
         telegram: formData.telegram,
       },
       showcaseImages: formData.showcaseImages || [],
+      highlights: (formData.highlights || []).filter(
+        (h) => typeof h === 'string' && h.trim() !== ''
+      ),
     };
 
     try {
       const res = await API.post('/teacher', payload);
+      const updatedTeacher = {
+        ...res.data,
+        highlights: payload.highlights,
+      };
       try {
-        localStorage.setItem('cached_teacher_profile', JSON.stringify(res.data));
+        localStorage.setItem('cached_teacher_profile', JSON.stringify(updatedTeacher));
+        window.dispatchEvent(new Event('storage'));
       } catch {}
-      alert('Lecturer profile and Hero showcase images saved successfully!');
+      alert('Lecturer profile details & key highlights saved successfully!');
     } catch (err) {
       console.error(err);
       alert('Failed to update teacher profile');
@@ -261,6 +310,62 @@ const EditTeacher = ({ embedded = false }) => {
               placeholder="Enter brief teacher bio or teaching motto..."
               className="admin-input w-full px-3.5 py-2.5 border rounded-xl text-xs"
             ></textarea>
+          </div>
+
+          {/* Key Highlights / Profile Checklist Features */}
+          <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-900 dark:text-white">
+                  Lecturer Key Highlights (2x2 Green Checklist Details)
+                </label>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  සර්ගේ Profile Section එකේ කොළ පාට හරි ලකුණු (Checkmarks) සමඟ පෙන්වන ප්‍රධාන කරුණු ලැයිස්තුව මෙතැනින් Edit කරන්න හෝ අලුතින් Add කරන්න:
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleResetHighlights}
+                className="inline-flex items-center gap-1.5 text-[11px] font-bold text-indigo-600 hover:text-indigo-700 dark:text-cyan-400 cursor-pointer self-start sm:self-auto"
+              >
+                <RotateCcw size={12} />
+                <span>Reset Default 3 Points</span>
+              </button>
+            </div>
+
+            <div className="space-y-2.5">
+              {(formData.highlights || []).map((point, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-[#16c60c] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                    <Check size={12} strokeWidth={3.5} />
+                  </div>
+                  <input
+                    type="text"
+                    value={point}
+                    onChange={(e) => handleHighlightChange(index, e.target.value)}
+                    placeholder={`Highlight point ${index + 1} (e.g. 98% Pass Rate & Island Ranks)`}
+                    className="admin-input flex-1 px-3.5 py-2.5 border rounded-xl text-xs"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveHighlight(index)}
+                    className="p-2.5 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-slate-200 dark:border-slate-700 transition cursor-pointer"
+                    title="Remove point"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={handleAddHighlight}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40 text-xs font-bold transition cursor-pointer mt-2"
+              >
+                <Plus size={14} />
+                <span>Add Highlight Point</span>
+              </button>
+            </div>
           </div>
         </div>
 

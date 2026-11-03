@@ -47,7 +47,7 @@ const HeroShowcaseSection = ({ images = [] }) => {
     : [];
 
   const displayImages =
-    validAdminImages.length >= 2 ? validAdminImages : DEFAULT_SHOWCASE_IMAGES;
+    validAdminImages.length > 0 ? validAdminImages : DEFAULT_SHOWCASE_IMAGES;
 
   return (
     <section className="relative my-8 sm:my-14 font-['Poppins']">
@@ -90,7 +90,7 @@ const HeroShowcaseSection = ({ images = [] }) => {
               {/* Bottom Subtle Pill Description */}
               <div className="pointer-events-auto max-w-xl mx-auto">
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 backdrop-blur-xl bg-white/80 dark:bg-slate-950/80 py-2.5 px-5 rounded-2xl border border-slate-200/80 dark:border-indigo-500/30 shadow-lg leading-relaxed font-normal">
-                  පන්ති කාමරයේ සජීවී අවස්ථා, ප්‍රායෝගික පරීක්ෂණ සහ තාර්කික සංකල්ප විශ්ලේෂණය එකම අත්දැකීමක් ලෙස.
+                  Moving from observation to logic—a complete practical learning experience that brings every concept to light.
                 </p>
               </div>
 

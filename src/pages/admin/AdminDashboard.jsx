@@ -14,7 +14,8 @@ import {
   CheckCircle2,
   GraduationCap,
   Calendar,
-  Radio
+  Radio,
+  Images
 } from 'lucide-react';
 import API from '../../api/axiosInstance';
 import { useAuth } from '../../context/AuthContext';
@@ -22,6 +23,7 @@ import ManageClasses from './ManageClasses';
 import ManageFeedback from './ManageFeedback';
 import ManageBlogs from './ManageBlogs';
 import EditTeacher from './EditTeacher';
+import ManageHeroShowcase from './ManageHeroShowcase';
 
 const AdminDashboard = () => {
   const { admin } = useAuth();
@@ -63,6 +65,7 @@ const AdminDashboard = () => {
 
   const managementTabs = [
     { id: 'classes', label: 'Batches & Classes', icon: BookOpen, count: stats.totalClasses },
+    { id: 'showcase', label: 'Hero 3D Showcase', icon: Images },
     { id: 'feedbacks', label: 'Student Reviews', icon: MessageSquareQuote, count: stats.totalFeedbacks },
     { id: 'blogs', label: 'Knowledge Hub Articles', icon: FileText, count: stats.totalBlogs },
     { id: 'profile', label: 'Lecturer Bio & Socials', icon: UserSquare2 },
@@ -571,6 +574,7 @@ const AdminDashboard = () => {
         {/* Dynamic Workspace Container */}
         <div>
           {activeTab === 'classes' && <ManageClasses embedded />}
+          {activeTab === 'showcase' && <ManageHeroShowcase embedded />}
           {activeTab === 'feedbacks' && <ManageFeedback embedded />}
           {activeTab === 'blogs' && <ManageBlogs embedded />}
           {activeTab === 'profile' && <EditTeacher embedded />}

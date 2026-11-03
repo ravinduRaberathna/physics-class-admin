@@ -248,7 +248,9 @@ export function TiltedGridHero({
           // Tile `columns - 1` starts nearest the exit and tile 0 furthest
           // back, so this numbers tiles in the order they come on.
           const first = columns - 1 - t;
-          const img = validImages[(shown[t] ?? first) % validImages.length];
+          const rawIdx = (shown[t] ?? first) % validImages.length;
+          const safeIndex = (rawIdx + validImages.length) % validImages.length;
+          const img = validImages[safeIndex] || validImages[0];
           return (
             <div
               key={t}

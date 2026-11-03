@@ -126,6 +126,19 @@ const Home = () => {
       .catch((err) => console.error(err));
   }, []);
 
+  // Live cross-tab sync when showcase photos or profile are updated in Admin Panel
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === 'cached_teacher_profile' && e.newValue) {
+        try {
+          setTeacher(JSON.parse(e.newValue));
+        } catch {}
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
   const formatWhatsAppNumber = (raw) => {
     const digits = String(raw || '').replace(/[^0-9]/g, '');
     if (!digits) return '94771234567';
@@ -327,18 +340,18 @@ const Home = () => {
                   </a>
                 </div>
 
-                <div className="animate-hero-stats grid grid-cols-3 gap-3 sm:gap-14 pt-5 sm:pt-8 mt-6 sm:mt-8 border-t border-slate-700/80 max-w-xl w-full px-2">
+                <div className="animate-hero-stats grid grid-cols-3 gap-2 sm:gap-6 md:gap-10 pt-5 sm:pt-8 mt-6 sm:mt-8 border-t border-slate-700/80 max-w-2xl w-full px-2">
                   <div className="text-center">
-                    <div className="text-lg xs:text-xl sm:text-3xl font-extrabold text-cyan-400 tracking-tight">98%</div>
-                    <div className="text-[9px] sm:text-[11px] text-slate-300 uppercase mt-0.5 tracking-wide font-medium">Pass Rate</div>
+                    <div className="text-lg xs:text-xl sm:text-2xl md:text-3xl font-extrabold text-cyan-400 tracking-tight">100%</div>
+                    <div className="text-[9px] sm:text-[11px] text-slate-300 uppercase mt-0.5 tracking-wide font-medium">Syllabus Coverage</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-lg xs:text-xl sm:text-3xl font-extrabold text-white tracking-tight">24+</div>
-                    <div className="text-[9px] sm:text-[11px] text-slate-300 uppercase mt-0.5 tracking-wide font-medium">Top 50</div>
+                    <div className="text-lg xs:text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight">24/7</div>
+                    <div className="text-[9px] sm:text-[11px] text-slate-300 uppercase mt-0.5 tracking-wide font-medium">Doubt Clearing</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-lg xs:text-xl sm:text-3xl font-extrabold text-pink-400 tracking-tight">1800+</div>
-                    <div className="text-[9px] sm:text-[11px] text-slate-300 uppercase mt-0.5 tracking-wide font-medium">Students</div>
+                    <div className="text-lg xs:text-xl sm:text-2xl md:text-3xl font-extrabold text-pink-400 tracking-tight">100%</div>
+                    <div className="text-[9px] sm:text-[11px] text-slate-300 uppercase mt-0.5 tracking-wide font-medium">Individual Attention</div>
                   </div>
                 </div>
 

@@ -10,7 +10,8 @@ import {
   ArrowUpRight,
   Hexagon,
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  Images
 } from 'lucide-react';
 
 const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
@@ -34,6 +35,7 @@ const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
       title: 'ACADEMIC MANAGEMENT',
       items: [
         { label: 'Batches & Classes', path: '/admin/classes', icon: Layers },
+        { label: 'Hero 3D Showcase', path: '/admin/showcase', icon: Images, badge: '3D LOOP', badgeColor: 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white' },
         { label: 'Student Reviews', path: '/admin/feedback', icon: MessageSquareQuote },
         { label: 'Blog & Articles', path: '/admin/blogs', icon: FileText },
       ],

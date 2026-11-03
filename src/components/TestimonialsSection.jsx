@@ -1,86 +1,72 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import API from '../api/axiosInstance';
 import RevealOnScroll from './RevealOnScroll';
 import { 
   Star, 
   Award, 
   School, 
-  ChevronLeft, 
-  ChevronRight,
-  ShieldCheck,
-  Sparkles,
-  Atom
+  ShieldCheck, 
+  Atom,
+  Pause,
+  Play
 } from 'lucide-react';
 import { getOptimizedAvatar } from '../utils/imageOptimizer';
 
 const TestimonialsSection = () => {
   const [feedbacks, setFeedbacks] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [itemsPerView, setItemsPerView] = useState(3);
-  const autoSlideTimerRef = useRef(null);
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setItemsPerView(1);
-      } else if (window.innerWidth < 1024) {
-        setItemsPerView(2);
-      } else {
-        setItemsPerView(3);
-      }
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   useEffect(() => {
     API.get('/feedback/public')
-      .then((res) => setFeedbacks(res.data))
+      .then((res) => {
+        if (Array.isArray(res.data)) {
+          setFeedbacks(res.data);
+        }
+      })
       .catch((err) => console.log('Feedbacks load error:', err));
   }, []);
 
-  const total = feedbacks.length;
-  const maxIndex = Math.max(0, total - itemsPerView);
+  if (feedbacks.length === 0) return null;
 
-  const handleNext = () => {
-    if (total <= itemsPerView) return;
-    setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
-  };
+  // Ensure there are enough cards to make a seamless infinite loop from left to right
+  const baseList = feedbacks.length <= 4 
+    ? [...feedbacks, ...feedbacks, ...feedbacks] 
+    : feedbacks.length <= 8 
+      ? [...feedbacks, ...feedbacks] 
+      : feedbacks;
 
-  const handlePrev = () => {
-    if (total <= itemsPerView) return;
-    setCurrentIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
-  };
-
-  useEffect(() => {
-    if (isPaused || total <= itemsPerView) return;
-
-    autoSlideTimerRef.current = setInterval(() => {
-      handleNext();
-    }, 4200);
-
-    return () => {
-      if (autoSlideTimerRef.current) clearInterval(autoSlideTimerRef.current);
-    };
-  }, [isPaused, total, maxIndex, itemsPerView]);
-
-  if (total === 0) return null;
+  // Duplicate for seamless 50% translation loop
+  const marqueeCards = [...baseList, ...baseList];
 
   return (
     <section 
       id="testimonials" 
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-      className="py-8 sm:py-10 max-w-7xl mx-auto px-3 sm:px-6 relative font-['Poppins'] selection:bg-indigo-600 selection:text-white"
+      className="py-10 sm:py-14 max-w-7xl mx-auto px-3 sm:px-6 relative font-['Poppins'] selection:bg-indigo-600 selection:text-white overflow-hidden"
     >
+      {/* Keyframes for seamless Left-to-Right slow motion */}
+      <style>{`
+        @keyframes feedback-scroll-ltr {
+          0% {
+            transform: translateX(-50%);
+          }
+          100% {
+            transform: translateX(0%);
+          }
+        }
+        .animate-feedback-ltr {
+          animation: feedback-scroll-ltr 50s linear infinite;
+          will-change: transform;
+        }
+        .animate-feedback-ltr:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
+
       <div className="relative z-10">
         
-        {/* SECTION HEADER & NAVIGATION */}
+        {/* SECTION HEADER */}
         <RevealOnScroll delay={100}>
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 sm:mb-12 gap-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-10 gap-6">
             <div>
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-indigo-200/80 text-indigo-700 text-xs uppercase tracking-widest font-semibold mb-3 shadow-xs">
                 <Atom size={14} className="text-indigo-600 animate-spin" style={{ animationDuration: '9s' }} />
@@ -94,50 +80,59 @@ const TestimonialsSection = () => {
               </p>
             </div>
 
-            {/* Navigation Controls */}
-            {total > itemsPerView && (
-              <div className="flex items-center gap-2.5 self-start md:self-auto">
-                <button
-                  onClick={handlePrev}
-                  className="w-12 h-12 rounded-2xl bg-white/90 backdrop-blur-md border border-slate-200/90 hover:border-indigo-400 text-slate-700 hover:text-indigo-600 hover:shadow-lg hover:shadow-indigo-500/10 transition-all active:scale-95 flex items-center justify-center cursor-pointer shadow-xs"
-                  aria-label="Previous Feedback"
-                >
-                  <ChevronLeft size={19} />
-                </button>
-                <button
-                  onClick={handleNext}
-                  className="w-12 h-12 rounded-2xl bg-white/90 backdrop-blur-md border border-slate-200/90 hover:border-indigo-400 text-slate-700 hover:text-indigo-600 hover:shadow-lg hover:shadow-indigo-500/10 transition-all active:scale-95 flex items-center justify-center cursor-pointer shadow-xs"
-                  aria-label="Next Feedback"
-                >
-                  <ChevronRight size={19} />
-                </button>
-              </div>
-            )}
+            {/* Live Status / Pause Toggle */}
+            <div className="flex items-center gap-2.5 self-start md:self-auto">
+              <button
+                type="button"
+                onClick={() => setIsPaused((prev) => !prev)}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/90 backdrop-blur-md border border-slate-200/90 hover:border-indigo-400 text-slate-700 hover:text-indigo-600 transition shadow-xs text-xs font-semibold cursor-pointer active:scale-95"
+                title={isPaused ? 'Resume slow motion' : 'Pause slow motion'}
+              >
+                {isPaused ? <Play size={13} className="text-emerald-500" /> : <Pause size={13} className="text-amber-500" />}
+                <span className={`w-2 h-2 rounded-full ${isPaused ? 'bg-amber-400' : 'bg-emerald-500 animate-pulse'}`} />
+                <span>{isPaused ? 'Paused (Click to Play)' : 'Slow Stream • Hover to Read'}</span>
+              </button>
+            </div>
           </div>
         </RevealOnScroll>
 
-        {/* CAROUSEL VIEWPORT */}
-        <div className="overflow-hidden relative pt-2 pb-6">
+        {/* INFINITE MARQUEE VIEWPORT (Left to Right Motion) */}
+        <div 
+          className="relative w-full overflow-hidden py-4 -mx-3 sm:-mx-6 px-3 sm:px-6"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
+          {/* Subtle Left & Right Edge Vignette Fades */}
           <div 
-            className="flex transition-transform duration-700 ease-out"
+            className="absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-[#f8fafc] dark:from-[#070a14] to-transparent z-20 pointer-events-none" 
+            aria-hidden="true"
+          />
+          <div 
+            className="absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-[#f8fafc] dark:from-[#070a14] to-transparent z-20 pointer-events-none" 
+            aria-hidden="true"
+          />
+
+          {/* Continuous Left-to-Right Animated Track */}
+          <div 
+            className="flex w-max gap-5 sm:gap-6 animate-feedback-ltr"
             style={{
-              transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)`
+              animationPlayState: isPaused ? 'paused' : 'running',
             }}
           >
-            {feedbacks.map((fb) => (
+            {marqueeCards.map((fb, idx) => (
               <div 
-                key={fb._id}
-                className="w-full md:w-1/2 lg:w-1/3 shrink-0 px-3 sm:px-3.5"
+                key={`${fb._id || 'fb'}-${idx}`}
+                className="w-[310px] sm:w-[350px] md:w-[370px] shrink-0"
               >
                 {/* FROSTED GLASS CAPSULE CARD */}
-                <div className="group rounded-[2.2rem] bg-white/90 backdrop-blur-xl border border-slate-200/90 hover:border-indigo-400/80 p-6 sm:p-7 flex flex-col justify-between shadow-[0_10px_35px_-10px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_50px_-12px_rgba(99,102,241,0.2)] transition-all duration-500 h-[370px] relative overflow-hidden">
+                <div className="group rounded-[2.2rem] bg-white/95 backdrop-blur-xl border border-slate-200/90 hover:border-indigo-400/80 p-6 sm:p-7 flex flex-col justify-between shadow-[0_10px_35px_-10px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_50px_-12px_rgba(99,102,241,0.2)] transition-all duration-300 h-[340px] sm:h-[350px] relative overflow-hidden">
                   
                   {/* Glowing Top Laser on Hover */}
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-400 via-indigo-500 to-fuchsia-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-400 via-indigo-500 to-fuchsia-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                   <div>
                     {/* Top Identity Row */}
-                    <div className="flex items-center justify-between gap-3 pb-5 border-b border-slate-100">
+                    <div className="flex items-center justify-between gap-3 pb-4 border-b border-slate-100">
                       <div className="flex items-center gap-3 min-w-0">
                         {fb.avatar ? (
                           <img 
@@ -149,7 +144,7 @@ const TestimonialsSection = () => {
                           />
                         ) : (
                           <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
-                            {fb.studentName.charAt(0)}
+                            {fb.studentName?.charAt(0) || 'S'}
                           </div>
                         )}
 
@@ -176,15 +171,15 @@ const TestimonialsSection = () => {
                     </div>
 
                     {/* Comment Body */}
-                    <div className="pt-5">
+                    <div className="pt-4">
                       <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed font-normal line-clamp-5">
-                        {fb.comment}
+                        "{fb.comment}"
                       </p>
                     </div>
                   </div>
 
                   {/* Bottom Spec Bar */}
-                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
+                  <div className="pt-3.5 border-t border-slate-100 flex items-center justify-between mt-auto">
                     <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
                       {fb.batch || 'A/L Examination'}
                     </span>
@@ -202,27 +197,6 @@ const TestimonialsSection = () => {
             ))}
           </div>
         </div>
-
-        {/* CAPSULE PAGINATION BAR */}
-        {total > itemsPerView && (
-          <div className="flex items-center justify-center gap-2 mt-4 relative z-10">
-            {[...Array(maxIndex + 1)].map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrentIndex(i)}
-                className="h-1.5 rounded-full transition-all duration-500 cursor-pointer overflow-hidden bg-slate-200"
-                style={{
-                  width: currentIndex === i ? '2.4rem' : '0.6rem'
-                }}
-                aria-label={`Slide ${i + 1}`}
-              >
-                {currentIndex === i && (
-                  <span className="block h-full w-full bg-gradient-to-r from-indigo-500 to-cyan-400" />
-                )}
-              </button>
-            ))}
-          </div>
-        )}
 
       </div>
     </section>

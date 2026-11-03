@@ -16,6 +16,7 @@ const ManageClasses = lazy(() => import('./pages/admin/ManageClasses'));
 const ManageFeedback = lazy(() => import('./pages/admin/ManageFeedback'));
 const ManageBlogs = lazy(() => import('./pages/admin/ManageBlogs'));
 const EditTeacher = lazy(() => import('./pages/admin/EditTeacher'));
+const ManageHeroShowcase = lazy(() => import('./pages/admin/ManageHeroShowcase'));
 
 // Minimal, non-intrusive spinner fallback during route transitions
 const RouteFallback = () => (
@@ -56,6 +57,7 @@ const AdminShell = () => {
               <Route path="/feedback" element={<ManageFeedback />} />
               <Route path="/blogs" element={<ManageBlogs />} />
               <Route path="/profile" element={<EditTeacher />} />
+              <Route path="/showcase" element={<ManageHeroShowcase />} />
             </Routes>
           </Suspense>
         </main>

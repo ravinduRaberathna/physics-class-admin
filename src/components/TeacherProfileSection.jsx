@@ -44,12 +44,19 @@ const TeacherProfileSection = ({ teacher, isModalOpen, onCloseModal, onOpenModal
     .slice(0, 2)
     .toUpperCase();
 
-  const checkFeatures = [
-    title,
+  const DEFAULT_HIGHLIGHTS = [
     '98% Pass Rate & Island Ranks',
     'Complete Theory & Speed Revision',
     'Physical & Online LMS Access',
   ];
+
+  const customHighlights =
+    Array.isArray(teacher?.highlights) && teacher.highlights.length > 0
+      ? teacher.highlights.filter((h) => typeof h === 'string' && h.trim() !== '')
+      : DEFAULT_HIGHLIGHTS;
+
+  const checkFeatures =
+    customHighlights.length > 0 ? customHighlights : DEFAULT_HIGHLIGHTS;
 
   return (
     <>
@@ -241,6 +248,14 @@ const TeacherProfileSection = ({ teacher, isModalOpen, onCloseModal, onOpenModal
                 {name} — Guiding Students to Island Top Rankings.
               </h2>
 
+              {/* Academic Title / Designation (Matching Official Academic Streams Indigo Badge Style) */}
+              {title && (
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-200/80 text-indigo-700 text-xs sm:text-sm font-bold w-fit shadow-2xs">
+                  <GraduationCap size={15} className="text-indigo-600 shrink-0" />
+                  <span>{title}</span>
+                </div>
+              )}
+
               {/* Description / Bio */}
               <p className="text-xs sm:text-sm md:text-[15px] text-slate-500 leading-relaxed whitespace-pre-line font-normal">
                 {bio}
@@ -349,8 +364,8 @@ const TeacherProfileSection = ({ teacher, isModalOpen, onCloseModal, onOpenModal
               <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">
                 {name}
               </h3>
-              <p className="text-xs sm:text-sm font-bold text-purple-700 mt-1 flex items-center gap-1.5">
-                <GraduationCap size={16} />
+              <p className="text-xs sm:text-sm font-bold text-indigo-700 mt-1 flex items-center gap-1.5">
+                <GraduationCap size={16} className="text-indigo-600" />
                 <span>{title}</span>
               </p>
 
