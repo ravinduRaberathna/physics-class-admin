@@ -10,6 +10,7 @@ import Home from './pages/public/Home';
 
 // Code-Split Dynamic Pages (Loaded on-demand only when the user navigates to them)
 const BlogDetails = lazy(() => import('./pages/public/BlogDetails'));
+const ClassDetails = lazy(() => import('./pages/public/ClassDetails'));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const ManageClasses = lazy(() => import('./pages/admin/ManageClasses'));
@@ -74,6 +75,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/blog/:id" element={<BlogDetails />} />
+            <Route path="/class/:id" element={<ClassDetails />} />
             <Route path="/admin/login" element={<AdminLogin />} />
 
             <Route

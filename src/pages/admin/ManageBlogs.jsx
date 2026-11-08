@@ -36,7 +36,7 @@ const ManageBlogs = ({ embedded = false }) => {
     summary: '',
     content: '',
     image: '',
-    author: 'Lecturer',
+    author: 'Teacher',
     readTime: '3 min read',
     isActive: true,
   };
@@ -90,7 +90,7 @@ const ManageBlogs = ({ embedded = false }) => {
       summary: blog.summary || '',
       content: blog.content || '',
       image: blog.image || '',
-      author: blog.author || 'Lecturer',
+      author: blog.author || 'Teacher',
       readTime: blog.readTime || '3 min read',
       isActive: blog.isActive ?? true,
     });
@@ -416,7 +416,7 @@ const ManageBlogs = ({ embedded = false }) => {
                     type="text"
                     value={formData.author}
                     onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-                    placeholder="Lecturer"
+                    placeholder="Teacher"
                     className="admin-input w-full px-3.5 py-2.5 rounded-xl border text-xs"
                   />
                 </div>

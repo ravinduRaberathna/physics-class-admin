@@ -17,8 +17,11 @@ import {
   Home as HomeIcon,
   BookOpen,
   Share2,
+  Copy,
+  Check,
+  MoreHorizontal,
 } from 'lucide-react';
-import { getOptimizedBlogBanner, getOptimizedThumbnail } from '../../utils/imageOptimizer';
+import { getOptimizedBlogBanner, getOptimizedThumbnail, getOptimizedCardImage } from '../../utils/imageOptimizer';
 
 const BlogDetails = () => {
   const { id } = useParams();
@@ -110,9 +113,31 @@ const BlogDetails = () => {
   };
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 2200);
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(window.location.href);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2200);
+    }
+  };
+
+  const handleDeviceShare = async () => {
+    const shareData = {
+      title: currentBlog?.title || 'Physics Article',
+      text: currentBlog?.summary || currentBlog?.title || 'Check out this physics article',
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.log('Share dismissed or error:', err);
+        }
+      }
+    } else {
+      handleCopyLink();
+    }
   };
 
   const cleanWhatsapp = String(teacher?.contactInfo?.whatsapp || '94771234567').replace(/[^0-9]/g, '');
@@ -123,7 +148,7 @@ const BlogDetails = () => {
   )}`;
 
   const teacherName = teacher?.name || 'Eng. Chamath Dissanayake';
-  const teacherTitle = teacher?.title || 'B.Sc. Engineering (Hons) • A/L Physics Lecturer';
+  const teacherTitle = teacher?.title || 'B.Sc. Engineering (Hons) • A/L Physics Teacher';
 
   if (loading) {
     return (
@@ -332,41 +357,36 @@ const BlogDetails = () => {
           {/* Social Share & Action Bar */}
           <RevealOnScroll delay={60}>
             <div className="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-slate-200 dark:border-slate-800">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 mr-2 flex items-center gap-1.5">
-                  <Share2 size={14} />
-                  <span>Share:</span>
-                </span>
-
-                {/* Share to WhatsApp */}
-                <a
-                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
-                    `Check out this physics article by ${teacherName}: ${currentBlog.title} - ${window.location.href}`
-                  )}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-3.5 py-1.5 rounded-full bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 text-xs font-bold transition flex items-center gap-1.5"
+              <div className="flex items-center gap-2.5">
+                {/* Device Share Button (Select device app to share: WhatsApp, Telegram, etc.) */}
+                <button
+                  type="button"
+                  onClick={handleDeviceShare}
+                  className="px-4 py-2 rounded-full bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-500/30 text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-xs active:scale-95"
+                  title="Share via device apps"
                 >
-                  <span>WhatsApp</span>
-                </a>
-
-                {/* Share to Telegram */}
-                <a
-                  href={`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(currentBlog.title)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-3.5 py-1.5 rounded-full bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-500/30 text-xs font-bold transition flex items-center gap-1.5"
-                >
-                  <span>Telegram</span>
-                </a>
+                  <Share2 size={13} className="text-indigo-600 dark:text-indigo-400" />
+                  <span>Share</span>
+                </button>
 
                 {/* Copy Link Button */}
                 <button
                   type="button"
                   onClick={handleCopyLink}
-                  className="px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700 text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-xs active:scale-95"
+                  title="Copy article link"
                 >
-                  <span>{copiedLink ? 'Copied!' : 'Copy Link'}</span>
+                  {copiedLink ? (
+                    <>
+                      <Check size={13} className="text-emerald-500" />
+                      <span className="text-emerald-600 dark:text-emerald-400">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={13} />
+                      <span>Copy Link</span>
+                    </>
+                  )}
                 </button>
               </div>
 
@@ -386,46 +406,7 @@ const BlogDetails = () => {
         </article>
 
         {/* =========================================================================
-            4. SUBSCRIBE / WHATSAPP CHANNEL BOX (MATCHING MOCKUP SUBSCRIBE CARD)
-           ========================================================================= */}
-        <RevealOnScroll delay={80}>
-          <section className="max-w-4xl mx-auto my-12 sm:my-16">
-            <div className="relative rounded-3xl sm:rounded-[2.5rem] bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-950 text-white border border-indigo-500/30 shadow-2xl p-8 sm:p-12 text-center overflow-hidden">
-              {/* Ambient Glow */}
-              <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-cyan-500/15 blur-3xl pointer-events-none" />
-              <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-indigo-500/20 blur-3xl pointer-events-none" />
-
-              <div className="relative z-10 space-y-4 max-w-xl mx-auto">
-                <span className="inline-block px-3.5 py-1 rounded-full bg-white/10 text-cyan-300 text-[10px] font-bold uppercase tracking-wider border border-white/15">
-                  Stay Updated & Prepared
-                </span>
-
-                <h3 className="text-xl sm:text-3xl font-black tracking-tight text-white">
-                  Join the Official A/L Physics Channel
-                </h3>
-
-                <p className="text-xs sm:text-sm text-indigo-200/90 leading-relaxed font-normal">
-                  නව විෂය නිර්දේශයේ Physics Papers, Model Tests සහ පන්ති කාලසටහන් පිළිබඳ සියලුම තොරතුරු ඔබේ WhatsApp වෙතම ලබාගන්න.
-                </p>
-
-                <div className="pt-2">
-                  <a
-                    href={whatsappEnrollUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold text-xs tracking-wider uppercase shadow-xl shadow-emerald-500/25 transition-all hover:scale-[1.02] active:scale-95"
-                  >
-                    <span>Connect with WhatsApp Community</span>
-                    <ArrowUpRight size={15} />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </section>
-        </RevealOnScroll>
-
-        {/* =========================================================================
-            5. LATEST ARTICLES GRID (MATCHING MOCKUP'S 3-COLUMN "LATEST ARTICLE")
+            4. LATEST ARTICLES GRID (MATCHING MOCKUP'S 3-COLUMN "LATEST ARTICLE")
            ========================================================================= */}
         {otherBlogs.length > 0 && (
           <RevealOnScroll delay={80}>
@@ -452,63 +433,98 @@ const BlogDetails = () => {
                 </button>
               </div>
 
-              {/* 3-Column Articles Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                {otherBlogs.slice(0, 3).map((item) => (
-                  <Link
-                    key={item._id}
-                    to={`/blog/${item._id}`}
-                    className="group flex flex-col bg-white dark:bg-[#0d1326] rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm hover:shadow-xl hover:shadow-indigo-950/5 dark:hover:shadow-black/40 hover:-translate-y-1 transition-all duration-300 overflow-hidden"
-                  >
-                    {/* Thumbnail Banner */}
-                    <div className="relative aspect-[16/10] w-full bg-slate-900 overflow-hidden">
-                      {item.image ? (
-                        <img
-                          src={getOptimizedThumbnail(item.image)}
-                          alt={item.title}
-                          loading="lazy"
-                          decoding="async"
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-tr from-indigo-700 to-cyan-600 flex items-center justify-center text-white">
-                          <FileText size={28} />
-                        </div>
-                      )}
-                      <div className="absolute top-3 left-3">
-                        <span className="inline-block px-3 py-1 rounded-full bg-slate-900/80 backdrop-blur-md text-[10px] font-bold uppercase tracking-wider text-cyan-300 border border-white/20">
-                          {item.category || 'Physics'}
-                        </span>
-                      </div>
-                    </div>
+              {/* 2-Column Articles Grid matching the modern card reference */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
+                {otherBlogs.slice(0, 4).map((item) => {
+                  const authorName = item.author || teacher?.name || 'Chamath Piyumal';
+                  const authorAvatar = teacher?.profileImage || null;
+                  const categoryTag = item.category
+                    ? (item.category.startsWith('#')
+                        ? item.category.toLowerCase()
+                        : `#${item.category.toLowerCase().replace(/[^a-z0-9]/g, '')}`)
+                    : '#physics';
 
-                    {/* Card Content */}
-                    <div className="p-5 sm:p-6 flex flex-col flex-1 justify-between space-y-3">
-                      <div>
-                        <h4 className="text-base font-extrabold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-cyan-400 transition-colors line-clamp-2 leading-snug">
-                          {item.title}
-                        </h4>
-                        {item.summary && (
-                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 line-clamp-2 leading-relaxed">
-                            {item.summary}
-                          </p>
+                  return (
+                    <Link
+                      key={item._id}
+                      to={`/blog/${item._id}`}
+                      className="group rounded-[28px] sm:rounded-[32px] bg-white dark:bg-[#181a20] p-3.5 sm:p-4.5 border border-slate-200/80 dark:border-white/10 shadow-[0_10px_30px_rgba(15,23,42,0.05)] hover:shadow-[0_20px_45px_rgba(15,23,42,0.11)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.35)] hover:-translate-y-1 transition-all duration-300 flex flex-col sm:flex-row gap-4 sm:gap-5 items-stretch cursor-pointer"
+                    >
+                      {/* Left Thumbnail with #tag */}
+                      <div className="relative w-full sm:w-44 md:w-48 lg:w-52 h-44 sm:h-auto sm:aspect-square rounded-[22px] overflow-hidden shrink-0 bg-[#0d111c]">
+                        <span className="absolute top-3.5 left-4 z-10 text-[12px] sm:text-[13px] font-semibold text-white/95 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] tracking-wide select-none">
+                          {categoryTag}
+                        </span>
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-transparent to-black/25 z-[1] pointer-events-none" />
+                        {item.image ? (
+                          <img
+                            src={getOptimizedCardImage(item.image)}
+                            alt={item.title}
+                            loading="lazy"
+                            decoding="async"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#0b0f19] via-[#1a2333] to-[#0f172a] text-white p-4 text-center">
+                            <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 flex items-center justify-center mb-2 shadow-lg">
+                              <FileText size={24} className="text-white" />
+                            </div>
+                            <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+                              Study Article
+                            </span>
+                          </div>
                         )}
                       </div>
 
-                      <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800/80 text-[11px] text-slate-400 dark:text-slate-500">
-                        <div className="flex items-center gap-2">
-                          <span>{formatDate(item.createdAt)}</span>
-                          <span>•</span>
-                          <span>{item.readTime || '3 min'}</span>
+                      {/* Right Text Content & Author/Actions */}
+                      <div className="flex-1 flex flex-col justify-between py-1 px-1 sm:px-1.5 min-w-0">
+                        <div>
+                          <h4 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-cyan-400 transition-colors leading-snug line-clamp-2">
+                            {item.title}
+                          </h4>
+                          <p className="text-xs sm:text-[13px] text-slate-500 dark:text-slate-400 mt-2 line-clamp-2 sm:line-clamp-3 leading-relaxed font-normal">
+                            {item.summary || item.content}
+                          </p>
                         </div>
-                        <span className="text-indigo-600 dark:text-cyan-400 font-bold group-hover:translate-x-1 transition-transform flex items-center gap-0.5">
-                          Read
-                          <ChevronRight size={13} />
-                        </span>
+
+                        <div className="flex items-center justify-between gap-3 mt-4 pt-2 border-t border-slate-100 dark:border-white/5 sm:border-0">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            {authorAvatar ? (
+                              <img
+                                src={authorAvatar}
+                                alt={authorName}
+                                className="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-200/80 dark:border-white/15 shadow-2xs"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-violet-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                                {authorName.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                            <div className="min-w-0">
+                              <div className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-[120px] sm:max-w-[150px]">
+                                By {authorName}
+                              </div>
+                              <div className="text-[11px] text-slate-400 dark:text-slate-500 font-medium leading-tight">
+                                {formatDate(item.createdAt)}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="w-8 h-8 rounded-full bg-[#5b3af6] group-hover:bg-[#4d2ee6] text-white flex items-center justify-center shadow-md shadow-indigo-600/30 transition-transform group-hover:scale-105">
+                              <svg className="w-3.5 h-3.5 fill-current transform rotate-[-6deg]" viewBox="0 0 24 24">
+                                <path d="M14 9V5l7 7-7 7v-4.1c-5 0-8.5 1.6-11 5.1 1-5 4-10 11-11z" />
+                              </svg>
+                            </span>
+                            <span className="w-8 h-8 rounded-full bg-slate-100 dark:bg-[#22252e] text-slate-600 dark:text-slate-300 border border-slate-200/70 dark:border-white/10 flex items-center justify-center">
+                              <MoreHorizontal size={15} />
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
 
             </section>

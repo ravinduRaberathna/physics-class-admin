@@ -25,7 +25,7 @@ const AdminTopNav = ({ onToggleSidebar }) => {
       case '/admin/blogs':
         return 'Blog & Articles';
       case '/admin/profile':
-        return 'Lecturer Profile';
+        return 'Teacher Profile';
       default:
         return 'Dashboard';
     }

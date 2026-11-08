@@ -68,6 +68,7 @@ const EditTeacher = ({ embedded = false }) => {
     title: '',
     bio: '',
     profileImage: '',
+    coverImage: '',
     phone: '',
     whatsapp: '',
     email: '',
@@ -83,20 +84,30 @@ const EditTeacher = ({ embedded = false }) => {
       try {
         const res = await API.get('/teacher');
         if (res.data) {
+          const rawCover =
+            res.data.coverImage ||
+            (Array.isArray(res.data.showcaseImages)
+              ? res.data.showcaseImages.find((img) => img && img.alt === '__COVER_IMAGE__')?.src
+              : '') ||
+            '';
+
+          const pureShowcase = Array.isArray(res.data.showcaseImages)
+            ? res.data.showcaseImages.filter((img) => img && img.alt !== '__COVER_IMAGE__')
+            : [];
+
           setFormData({
             name: res.data.name || '',
             title: res.data.title || '',
             bio: res.data.bio || '',
             profileImage: res.data.profileImage || '',
+            coverImage: rawCover,
             phone: res.data.contactInfo?.phone || '',
             whatsapp: res.data.contactInfo?.whatsapp || '',
             email: res.data.contactInfo?.email || '',
             youtube: res.data.socialLinks?.youtube || '',
             facebook: res.data.socialLinks?.facebook || '',
             telegram: res.data.socialLinks?.telegram || '',
-            showcaseImages: Array.isArray(res.data.showcaseImages)
-              ? res.data.showcaseImages
-              : [],
+            showcaseImages: pureShowcase,
             highlights:
               Array.isArray(res.data.highlights) && res.data.highlights.length > 0
                 ? res.data.highlights
@@ -183,11 +194,24 @@ const EditTeacher = ({ embedded = false }) => {
     e.preventDefault();
     setSubmitting(true);
 
+    const pureShowcase = (formData.showcaseImages || []).filter(
+      (img) => img && img.alt !== '__COVER_IMAGE__'
+    );
+
+    const finalShowcase = [...pureShowcase];
+    if (formData.coverImage && formData.coverImage.trim()) {
+      finalShowcase.push({
+        src: formData.coverImage.trim(),
+        alt: '__COVER_IMAGE__',
+      });
+    }
+
     const payload = {
       name: formData.name,
       title: formData.title,
       bio: formData.bio,
       profileImage: formData.profileImage,
+      coverImage: formData.coverImage || '',
       contactInfo: {
         phone: formData.phone,
         whatsapp: formData.whatsapp,
@@ -198,7 +222,7 @@ const EditTeacher = ({ embedded = false }) => {
         facebook: formData.facebook,
         telegram: formData.telegram,
       },
-      showcaseImages: formData.showcaseImages || [],
+      showcaseImages: finalShowcase,
       highlights: (formData.highlights || []).filter(
         (h) => typeof h === 'string' && h.trim() !== ''
       ),
@@ -208,13 +232,14 @@ const EditTeacher = ({ embedded = false }) => {
       const res = await API.post('/teacher', payload);
       const updatedTeacher = {
         ...res.data,
+        coverImage: formData.coverImage || '',
         highlights: payload.highlights,
       };
       try {
         localStorage.setItem('cached_teacher_profile', JSON.stringify(updatedTeacher));
         window.dispatchEvent(new Event('storage'));
       } catch {}
-      alert('Lecturer profile details & key highlights saved successfully!');
+      alert('Teacher profile details & key highlights saved successfully!');
     } catch (err) {
       console.error(err);
       alert('Failed to update teacher profile');
@@ -226,7 +251,7 @@ const EditTeacher = ({ embedded = false }) => {
   if (loading) {
     return (
       <div className="p-14 text-center text-xs font-medium text-slate-500 font-['Poppins']">
-        Loading lecturer profile data...
+        Loading teacher profile data...
       </div>
     );
   }
@@ -241,10 +266,10 @@ const EditTeacher = ({ embedded = false }) => {
           </div>
           <div>
             <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">
-              Lecturer Profile & Hero Showcase Settings
+              Teacher Profile & Hero Showcase Settings
             </h1>
             <p className="text-xs text-slate-500 mt-1">
-              Update lecturer biography, official hotline numbers, social channels, and 3D curved Hero images
+              Update teacher biography, official hotline numbers, social channels, and 3D curved Hero images
             </p>
           </div>
         </div>
@@ -286,18 +311,24 @@ const EditTeacher = ({ embedded = false }) => {
                 required
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="B.Sc. Engineering (Hons) • A/L Physics Lecturer"
+                placeholder="B.Sc. Engineering (Hons) • A/L Physics Teacher"
                 className="admin-input w-full px-3.5 py-2.5 border rounded-xl text-xs"
               />
             </div>
           </div>
 
-          <div className="mt-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <ImageUploadField
-              label="Lecturer Profile Photo"
+              label="Teacher Profile Photo (Circular Portrait)"
               value={formData.profileImage}
               onChange={(url) => setFormData({ ...formData, profileImage: url })}
               placeholder="https://res.cloudinary.com/... or upload photo"
+            />
+            <ImageUploadField
+              label="Overview Modal Background / Cover Banner (Landscape)"
+              value={formData.coverImage}
+              onChange={(url) => setFormData({ ...formData, coverImage: url })}
+              placeholder="https://res.cloudinary.com/... or upload banner photo"
             />
           </div>
 
@@ -317,7 +348,7 @@ const EditTeacher = ({ embedded = false }) => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
               <div>
                 <label className="block text-xs font-bold text-slate-900 dark:text-white">
-                  Lecturer Key Highlights (2x2 Green Checklist Details)
+                  Teacher Key Highlights (2x2 Green Checklist Details)
                 </label>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   සර්ගේ Profile Section එකේ කොළ පාට හරි ලකුණු (Checkmarks) සමඟ පෙන්වන ප්‍රධාන කරුණු ලැයිස්තුව මෙතැනින් Edit කරන්න හෝ අලුතින් Add කරන්න:

@@ -68,9 +68,9 @@ const ManageHeroShowcase = ({ embedded = false }) => {
         if (res.data) {
           setTeacherData(res.data);
           const currentImages = Array.isArray(res.data.showcaseImages)
-            ? res.data.showcaseImages.map((img) =>
-                typeof img === 'string' ? { src: img, alt: '' } : img
-              )
+            ? res.data.showcaseImages
+                .map((img) => (typeof img === 'string' ? { src: img, alt: '' } : img))
+                .filter((img) => img && img.alt !== '__COVER_IMAGE__')
             : [];
           setImages(currentImages);
         }
@@ -119,9 +119,12 @@ const ManageHeroShowcase = ({ embedded = false }) => {
     setSuccessMessage('');
 
     try {
+      const existingCover = (teacherData?.showcaseImages || []).find((img) => img && img.alt === '__COVER_IMAGE__');
+      const finalShowcase = existingCover ? [...images, existingCover] : images;
+
       const payload = {
         ...(teacherData || {}),
-        showcaseImages: images,
+        showcaseImages: finalShowcase,
       };
 
       const res = await API.post('/teacher', payload);

@@ -18,7 +18,8 @@ import {
   PhoneCall, 
   MessageSquare, 
   Send,
-  UserSquare2
+  UserSquare2,
+  FileText
 } from 'lucide-react';
 import { preloadImage } from '../../utils/imageOptimizer';
 
@@ -29,7 +30,14 @@ const Home = () => {
   const [teacher, setTeacher] = useState(() => {
     try {
       const cached = localStorage.getItem('cached_teacher_profile');
-      return cached ? JSON.parse(cached) : null;
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (!parsed.coverImage && Array.isArray(parsed.showcaseImages)) {
+          parsed.coverImage = parsed.showcaseImages.find((img) => img && img.alt === '__COVER_IMAGE__')?.src || '';
+        }
+        return parsed;
+      }
+      return null;
     } catch {
       return null;
     }
@@ -114,12 +122,22 @@ const Home = () => {
     API.get('/teacher')
       .then((res) => {
         if (res.data) {
-          setTeacher(res.data);
+          const coverImg =
+            res.data.coverImage ||
+            (Array.isArray(res.data.showcaseImages)
+              ? res.data.showcaseImages.find((img) => img && img.alt === '__COVER_IMAGE__')?.src
+              : '') ||
+            '';
+          const resolvedTeacher = { ...res.data, coverImage: coverImg };
+          setTeacher(resolvedTeacher);
           try {
-            localStorage.setItem('cached_teacher_profile', JSON.stringify(res.data));
+            localStorage.setItem('cached_teacher_profile', JSON.stringify(resolvedTeacher));
           } catch {}
           if (res.data?.profileImage) {
             preloadImage(res.data.profileImage, { width: 900 });
+          }
+          if (coverImg) {
+            preloadImage(coverImg, { width: 1200 });
           }
         }
       })
@@ -131,7 +149,12 @@ const Home = () => {
     const handleStorage = (e) => {
       if (e.key === 'cached_teacher_profile' && e.newValue) {
         try {
-          setTeacher(JSON.parse(e.newValue));
+          const parsed = JSON.parse(e.newValue);
+          if (!parsed.coverImage && Array.isArray(parsed.showcaseImages)) {
+            parsed.coverImage =
+              parsed.showcaseImages.find((img) => img && img.alt === '__COVER_IMAGE__')?.src || '';
+          }
+          setTeacher(parsed);
         } catch {}
       }
     };
@@ -168,7 +191,7 @@ const Home = () => {
       lines.push(
         `*Selected Class:* ${chosenClass.title}`,
         `*Batch & Stream:* ${chosenClass.batchYear} A/L (${chosenClass.type})`,
-        `*Mode:* ${chosenClass.deliveryMethod || 'Physical'}`,
+        `*Mode:* ${chosenClass.deliveryMethod === 'Hybrid' ? 'Physical & Online' : (chosenClass.deliveryMethod || 'Physical')}`,
         `*Schedule:* ${scheduleStr}`
       );
       if (chosenClass.locations?.length > 0) {
@@ -334,9 +357,16 @@ const Home = () => {
                     <span>Explore Classes & Enroll</span>
                   </a>
 
-                  <a href="#simulator" className="w-full sm:w-auto px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 backdrop-blur-md border border-slate-700 text-white font-semibold text-xs tracking-wider uppercase transition shadow-sm flex items-center justify-center gap-2 active:scale-95">
-                    <Sparkles size={15} className="text-cyan-400" />
-                    <span>Launch Virtual Lab</span>
+                  <a
+                    href="#blogs"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById('blogs')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="w-full sm:w-auto px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 backdrop-blur-md border border-slate-700 text-white font-semibold text-xs tracking-wider uppercase transition shadow-sm flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+                  >
+                    <FileText size={15} className="text-cyan-400" />
+                    <span>Read Study Blogs</span>
                   </a>
                 </div>
 
@@ -358,9 +388,6 @@ const Home = () => {
               </div>
             </section>
           </RevealOnScroll>
-
-          {/* CURVED 3D CYLINDRICAL HERO SHOWCASE BAND (DIRECTLY UNDER HERO) */}
-          <HeroShowcaseSection images={teacher?.showcaseImages} />
 
           {/* TEACHER / LECTURER PROFILE SECTION & MODAL */}
           <TeacherProfileSection
@@ -386,7 +413,7 @@ const Home = () => {
           <TestimonialsSection />
 
           {/* BLOG POSTS & ARTICLES SECTION */}
-          <BlogSection />
+          <BlogSection teacher={teacher} />
 
           {/* VIRTUAL LAB */}
           {/* <RevealOnScroll delay={150}>
@@ -487,10 +514,13 @@ const Home = () => {
               </div>
             </section>
           </RevealOnScroll>
+
+          {/* CURVED 3D CYLINDRICAL SHOWCASE BAND (PLACED AT BOTTOM REPLACING OLD PURPLE CTA) */}
+          <HeroShowcaseSection images={teacher?.showcaseImages} teacher={teacher} />
         </main>
 
         {/* FOOTER */}
-        <Footer teacher={teacher} />
+        <Footer teacher={teacher} classes={classes} />
 
         {/* FLOATING WHATSAPP BUTTON (APPEARS WHEN SCROLLING PAST HERO) */}
         <a

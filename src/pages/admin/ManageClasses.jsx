@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import API from '../../api/axiosInstance';
 import {
   Plus,
@@ -16,21 +16,128 @@ import {
   EyeOff,
   ArrowRight,
   Eye,
-  Radio
+  Radio,
+  Bold,
+  Italic,
+  List,
+  ListOrdered,
+  Underline,
+  RemoveFormatting,
+  GraduationCap
 } from 'lucide-react';
 import ImageUploadField from '../../components/ImageUploadField';
 import AdminPagination from '../../components/AdminPagination';
 import { getOptimizedThumbnail } from '../../utils/imageOptimizer';
 
+const STANDARD_TYPES = ['None', 'Theory', 'Revision', 'Theory + Revision', 'Paper'];
+const STANDARD_DELIVERY_METHODS = ['None', 'Physical', 'Online', 'Physical & Online'];
+const STANDARD_BATCH_YEARS = [2025, 2026, 2027, 2028, 2029];
+
+// Smart batch badge formatter: e.g. "2027 O/L", "2027 A/L", "2027 IGCSE", handles "None"
+const getBatchLevelBadge = (cls) => {
+  if (!cls) return '';
+  const rawYear = cls.batchYear;
+  const isNoneYear = !rawYear || rawYear === 0 || rawYear === '0' || rawYear === 'None';
+  const year = isNoneYear ? '' : String(rawYear).trim();
+
+  const rawLevel = cls.academicLevel;
+  const isNoneLevel = !rawLevel || rawLevel === 'None';
+  const level = isNoneLevel ? '' : rawLevel;
+
+  if (year && level) {
+    if (level === 'Other') return `${year} Stream`.trim();
+    return `${year} ${level}`.trim();
+  }
+  if (year && !level) return year;
+  if (!year && level) {
+    if (level === 'Other') return '';
+    return level;
+  }
+  return '';
+};
 const ITEMS_PER_PAGE = 6;
+
+// Convert markdown or raw text into formatted HTML for live visual editing
+const markdownToHtml = (str) => {
+  if (!str) return '';
+  if (/<[a-z][\s\S]*>/i.test(str)) {
+    return str;
+  }
+  const lines = str.split('\n');
+  let html = '';
+  let inUl = false;
+  let inOl = false;
+
+  for (let line of lines) {
+    let trimmed = line.trim();
+
+    if (trimmed.startsWith('• ') || trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+      if (!inUl) {
+        if (inOl) { html += '</ol>'; inOl = false; }
+        html += '<ul class="list-disc pl-5 my-1.5 space-y-1">';
+        inUl = true;
+      }
+      let content = trimmed.replace(/^[•\-\*]\s*/u, '');
+      content = content.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      content = content.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+      html += '<li>' + content + '</li>';
+      continue;
+    } else if (inUl) {
+      html += '</ul>';
+      inUl = false;
+    }
+
+    const numMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
+    if (numMatch) {
+      if (!inOl) {
+        html += '<ol class="list-decimal pl-5 my-1.5 space-y-1">';
+        inOl = true;
+      }
+      let content = numMatch[2];
+      content = content.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      content = content.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+      html += '<li>' + content + '</li>';
+      continue;
+    } else if (inOl) {
+      html += '</ol>';
+      inOl = false;
+    }
+
+    if (trimmed.startsWith('📌') || trimmed.startsWith('>')) {
+      let content = trimmed.replace(/^[📌>]\s*/u, '');
+      content = content.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      content = content.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+      html += '<div class="note-box" style="padding: 8px 12px; margin: 6px 0; background: rgba(99, 102, 241, 0.12); border-left: 3px solid #6366f1; border-radius: 8px; font-weight: 500;">📌 ' + content + '</div>';
+      continue;
+    }
+
+    if (!trimmed) {
+      html += '<div><br></div>';
+      continue;
+    }
+
+    let content = line;
+    content = content.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    content = content.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    html += '<div>' + content + '</div>';
+  }
+
+  if (inUl) html += '</ul>';
+  if (inOl) html += '</ol>';
+  return html;
+};
 
 const ManageClasses = ({ embedded = false }) => {
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  
-  // Search & view mode states (Clean, streamlined)
+  const [isCustomType, setIsCustomType] = useState(false);
+  const [isCustomDelivery, setIsCustomDelivery] = useState(false);
+  const [isCustomBatchYear, setIsCustomBatchYear] = useState(false);
+  const editorRef = useRef(null);
+
+  // Search & view mode states
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'table'
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,6 +145,8 @@ const ManageClasses = ({ embedded = false }) => {
   const initialFormState = {
     title: '',
     type: 'Theory',
+    academicLevel: 'A/L',
+    customLevel: '',
     batchYear: 2027,
     deliveryMethod: 'Physical',
     image: '',
@@ -51,6 +160,42 @@ const ManageClasses = ({ embedded = false }) => {
   };
 
   const [formData, setFormData] = useState(initialFormState);
+
+  // Initialize WYSIWYG editor content when modal opens or batch changes
+  useEffect(() => {
+    if (isModalOpen) {
+      const timer = setTimeout(() => {
+        if (editorRef.current) {
+          editorRef.current.innerHTML = markdownToHtml(formData.description || '');
+        }
+      }, 20);
+      return () => clearTimeout(timer);
+    }
+  }, [isModalOpen, editingId]);
+
+  // Live visual formatting execution (preserves selection & applies style in-place)
+  const executeFormat = (command, value = null) => {
+    if (editorRef.current) {
+      editorRef.current.focus();
+    }
+    document.execCommand(command, false, value);
+    if (editorRef.current) {
+      const html = editorRef.current.innerHTML;
+      const clean = (html === '<br>' || html === '<p><br></p>' || html === '<div><br></div>') ? '' : html;
+      setFormData((prev) => ({ ...prev, description: clean }));
+    }
+  };
+
+  const insertCallout = () => {
+    if (editorRef.current) {
+      editorRef.current.focus();
+    }
+    const calloutHtml = '<div class="note-box" style="padding: 8px 12px; margin: 6px 0; background: rgba(99, 102, 241, 0.12); border-left: 3px solid #6366f1; border-radius: 8px; font-weight: 500;">📌 <strong>Important Note:</strong> Enter details here...</div><div><br></div>';
+    document.execCommand('insertHTML', false, calloutHtml);
+    if (editorRef.current) {
+      setFormData((prev) => ({ ...prev, description: editorRef.current.innerHTML }));
+    }
+  };
 
   const fetchClasses = async () => {
     try {
@@ -72,13 +217,46 @@ const ManageClasses = ({ embedded = false }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Clean locations and handle "None" flags cleanly without breaking Vercel backend enums
+    const cleanLocations = formData.locations
+      ? formData.locations.split(',').map((s) => s.trim()).filter(Boolean).filter((s) => !s.startsWith('__'))
+      : [];
+
+    let typePayload = formData.type;
+    if (typePayload === 'None') {
+      cleanLocations.push('__TYPE_NONE__');
+      typePayload = 'Theory'; // Valid enum for backend
+    }
+
+    let deliveryMethodPayload = formData.deliveryMethod;
+    if (deliveryMethodPayload === 'None') {
+      cleanLocations.push('__DELIVERY_NONE__');
+      deliveryMethodPayload = 'Physical'; // Valid enum for backend
+    } else if (deliveryMethodPayload === 'Physical & Online') {
+      deliveryMethodPayload = 'Hybrid'; // Backend representation
+    }
+
+    let batchYearPayload;
+    if (formData.batchYear === 'None' || !formData.batchYear || formData.batchYear === '0' || formData.batchYear === 0) {
+      batchYearPayload = 0; // Stored as 0 to satisfy Number validation
+    } else {
+      const batchYearRaw = String(formData.batchYear).trim();
+      batchYearPayload = /^\d+$/.test(batchYearRaw) ? Number(batchYearRaw) : batchYearRaw;
+    }
+
+    const finalLevel =
+      formData.academicLevel === 'Other'
+        ? (formData.customLevel?.trim() || 'Other')
+        : formData.academicLevel;
+
     const payload = {
       title: formData.title,
-      type: formData.type,
-      batchYear: Number(formData.batchYear),
-      deliveryMethod: formData.deliveryMethod,
+      type: typePayload,
+      academicLevel: finalLevel,
+      batchYear: batchYearPayload,
+      deliveryMethod: deliveryMethodPayload,
       image: formData.image,
-      locations: formData.locations ? formData.locations.split(',').map((s) => s.trim()) : [],
+      locations: cleanLocations,
       monthlyFee: formData.monthlyFee ? Number(formData.monthlyFee) : 0,
       description: formData.description,
       schedule: [
@@ -99,6 +277,9 @@ const ManageClasses = ({ embedded = false }) => {
       }
       setIsModalOpen(false);
       setEditingId(null);
+              setIsCustomType(false);
+              setIsCustomDelivery(false);
+              setIsCustomBatchYear(false);
       setFormData(initialFormState);
       fetchClasses();
     } catch (err) {
@@ -109,13 +290,57 @@ const ManageClasses = ({ embedded = false }) => {
 
   const handleEdit = (cls) => {
     setEditingId(cls._id);
+    const isNoneType = cls.type === 'None' || cls.locations?.includes('__TYPE_NONE__');
+    const resolvedType = isNoneType ? 'None' : cls.type;
+    const isCustomT = !STANDARD_TYPES.includes(resolvedType);
+    setIsCustomType(isCustomT);
+
+    const isNoneDelivery = cls.deliveryMethod === 'None' || cls.locations?.includes('__DELIVERY_NONE__');
+    const mappedDelivery = isNoneDelivery
+      ? 'None'
+      : cls.deliveryMethod === 'Hybrid'
+      ? 'Physical & Online'
+      : cls.deliveryMethod;
+    const isCustomD = !STANDARD_DELIVERY_METHODS.includes(mappedDelivery);
+    setIsCustomDelivery(isCustomD);
+
+    const isNoneYear = !cls.batchYear || cls.batchYear === 0 || cls.batchYear === '0' || cls.batchYear === 'None';
+    const resolvedBatchYear = isNoneYear ? 'None' : cls.batchYear;
+    const isCustomB = !isNoneYear && (!STANDARD_BATCH_YEARS.includes(Number(cls.batchYear)) || !/^\d+$/.test(String(cls.batchYear)));
+    setIsCustomBatchYear(isCustomB);
+
+    let initialLevel = 'A/L';
+    let initialCustomLevel = '';
+
+    if (cls.academicLevel) {
+      if (cls.academicLevel === 'A/L' || cls.academicLevel === 'O/L') {
+        initialLevel = cls.academicLevel;
+      } else {
+        initialLevel = 'Other';
+        initialCustomLevel = cls.academicLevel;
+      }
+    } else {
+      const text = `${cls.title || ''} ${cls.batchYear || ''}`;
+      if (/O\/L|Ordinary|Grade 10|Grade 11/i.test(text)) {
+        initialLevel = 'O/L';
+      } else if (/IGCSE|GCSE|Edexcel|Cambridge|Astronomy|Other/i.test(text)) {
+        initialLevel = 'Other';
+        const match = text.match(/(IGCSE|GCSE|Edexcel|Cambridge|Astronomy|Grade\s*\d+)/i);
+        initialCustomLevel = match ? match[0] : 'Other';
+      } else {
+        initialLevel = 'A/L';
+      }
+    }
+
     setFormData({
       title: cls.title,
-      type: cls.type,
-      batchYear: cls.batchYear,
-      deliveryMethod: cls.deliveryMethod,
+      type: resolvedType,
+      academicLevel: initialLevel,
+      customLevel: initialCustomLevel,
+      batchYear: resolvedBatchYear,
+      deliveryMethod: mappedDelivery,
       image: cls.image || '',
-      locations: cls.locations ? cls.locations.join(', ') : '',
+      locations: cls.locations ? cls.locations.filter(l => !l.startsWith('__')).join(', ') : '',
       monthlyFee: cls.monthlyFee || '',
       description: cls.description || '',
       day: cls.schedule?.[0]?.day || 'Sunday',
@@ -154,9 +379,10 @@ const ManageClasses = ({ embedded = false }) => {
     const q = searchQuery.toLowerCase();
     return (
       cls.title?.toLowerCase().includes(q) ||
+      cls.academicLevel?.toLowerCase().includes(q) ||
       String(cls.batchYear).includes(q) ||
       cls.type?.toLowerCase().includes(q) ||
-      cls.deliveryMethod?.toLowerCase().includes(q) ||
+      (cls.deliveryMethod === 'Hybrid' ? 'physical & online' : cls.deliveryMethod?.toLowerCase())?.includes(q) ||
       cls.locations?.join(' ').toLowerCase().includes(q)
     );
   });
@@ -293,7 +519,7 @@ const ManageClasses = ({ embedded = false }) => {
                           {cls.title}
                         </h4>
                         <span className="text-[11px] font-semibold text-slate-400 block truncate mt-0.5">
-                          {cls.batchYear} A/L • {cls.type} Stream
+                          {getBatchLevelBadge(cls)} • {cls.type} Stream
                         </span>
                       </div>
                     </div>
@@ -317,7 +543,7 @@ const ManageClasses = ({ embedded = false }) => {
                   <div className="space-y-2 py-3 border-y border-slate-100 dark:border-[#2d3446] text-xs text-slate-600 dark:text-slate-300">
                     <div className="flex items-center gap-2">
                       <Radio size={14} className="text-[#321fdb] dark:text-[#3399ff] shrink-0" />
-                      <span className="font-semibold">{cls.deliveryMethod}</span>
+                      <span className="font-semibold">{cls.deliveryMethod === 'Hybrid' ? 'Physical & Online' : cls.deliveryMethod}</span>
                       <span className="text-slate-300 dark:text-slate-600">•</span>
                       <span className="text-slate-500 dark:text-slate-400 truncate">
                         {cls.locations?.join(', ') || 'No venues specified'}
@@ -344,7 +570,7 @@ const ManageClasses = ({ embedded = false }) => {
                         Monthly Tuition
                       </span>
                       <span className="text-base font-extrabold text-slate-900 dark:text-white">
-                        {cls.monthlyFee > 0 ? `Rs. ${cls.monthlyFee.toLocaleString()}` : 'Free / Not Specified'}
+                        {cls.monthlyFee > 0 ? `Rs. ${cls.monthlyFee.toLocaleString()}` : 'Not Specified'}
                       </span>
                     </div>
 
@@ -395,11 +621,11 @@ const ManageClasses = ({ embedded = false }) => {
                     <tr key={cls._id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
                       <td className="py-4 pl-6 pr-3">
                         <div className="font-extrabold text-slate-900 dark:text-white">{cls.title}</div>
-                        <div className="text-[10px] text-slate-400 font-semibold">{cls.batchYear} A/L</div>
+                        <div className="text-[10px] text-slate-400 font-semibold">{getBatchLevelBadge(cls)}</div>
                       </td>
                       <td className="py-4 px-3 font-semibold">{cls.type}</td>
                       <td className="py-4 px-3">
-                        <span className="font-semibold text-slate-700 dark:text-slate-300 block">{cls.deliveryMethod}</span>
+                        <span className="font-semibold text-slate-700 dark:text-slate-300 block">{cls.deliveryMethod === 'Hybrid' ? 'Physical & Online' : cls.deliveryMethod}</span>
                         <span className="text-[10px] text-slate-400 truncate max-w-[150px] block">{cls.locations?.join(', ') || '-'}</span>
                       </td>
                       <td className="py-4 px-3 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
@@ -501,17 +727,121 @@ const ManageClasses = ({ embedded = false }) => {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    Batch Year
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    value={formData.batchYear}
-                    onChange={(e) => setFormData({ ...formData, batchYear: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-[#2d3446] bg-slate-50 dark:bg-[#282d3c] text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#321fdb]"
-                  />
+                {/* Academic Level (A/L, O/L, Other) & Batch Year Selector */}
+                <div className="sm:col-span-2 p-3.5 sm:p-4 rounded-2xl bg-slate-100/70 dark:bg-[#202533]/80 border border-slate-200 dark:border-[#2d3446] space-y-3.5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2 border-b border-slate-200/80 dark:border-white/5">
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                      <GraduationCap size={16} className="text-[#321fdb] dark:text-[#3399ff]" />
+                      <span>Academic Stream & Batch Year (අධ්‍යයන අංශය සහ වසර)</span>
+                    </span>
+                    <span className="text-[11px] font-bold text-indigo-600 dark:text-cyan-400">
+                      Target: {formData.academicLevel === 'Other' ? (formData.customLevel || 'Other Stream') : `${formData.academicLevel} Examination`} • {formData.batchYear || 'Year'}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    {/* A/L | O/L | Other Segmented Selector */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                        Examination / Stream (A/L, O/L, Other)
+                      </label>
+                      <div className="grid grid-cols-3 gap-1.5 p-1 bg-white dark:bg-[#1a1d28] rounded-xl border border-slate-200 dark:border-[#2d3446]">
+                        {[
+                          { id: 'A/L', label: '🎓 A/L' },
+                          { id: 'O/L', label: '📚 O/L' },
+                          { id: 'Other', label: '🌐 Other' },
+                        ].map((lvl) => (
+                          <button
+                            key={lvl.id}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, academicLevel: lvl.id })}
+                            className={`py-2 px-1 rounded-lg text-xs font-extrabold transition text-center cursor-pointer ${
+                              formData.academicLevel === lvl.id
+                                ? 'bg-[#321fdb] text-white shadow-xs'
+                                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                            }`}
+                          >
+                            {lvl.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Batch Year Dropdown */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                        Batch Year
+                      </label>
+                      <select
+                        value={
+                          isCustomBatchYear
+                            ? 'CUSTOM'
+                            : formData.batchYear === 'None' || formData.batchYear === 0 || formData.batchYear === '0'
+                            ? 'None'
+                            : STANDARD_BATCH_YEARS.includes(Number(formData.batchYear))
+                            ? Number(formData.batchYear)
+                            : 'CUSTOM'
+                        }
+                        onChange={(e) => {
+                          if (e.target.value === 'CUSTOM') {
+                            setIsCustomBatchYear(true);
+                            setFormData({ ...formData, batchYear: '' });
+                          } else if (e.target.value === 'None') {
+                            setIsCustomBatchYear(false);
+                            setFormData({ ...formData, batchYear: 'None' });
+                          } else {
+                            setIsCustomBatchYear(false);
+                            setFormData({ ...formData, batchYear: Number(e.target.value) });
+                          }
+                        }}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-[#2d3446] bg-white dark:bg-[#1a1d28] text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#321fdb]"
+                      >
+                        <option value="None">None (No specific year)</option>
+                        <option value={2025}>2025</option>
+                        <option value={2026}>2026</option>
+                        <option value={2027}>2027</option>
+                        <option value={2028}>2028</option>
+                        <option value={2029}>2029</option>
+                        <option value={2030}>2030</option>
+                        <option value="CUSTOM">Custom Year (Type below)...</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Custom Level or Custom Year Inputs */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {formData.academicLevel === 'Other' && (
+                      <div className={isCustomBatchYear ? '' : 'sm:col-span-2'}>
+                        <label className="block text-[11px] font-bold text-indigo-600 dark:text-cyan-400 mb-1">
+                          Specify Stream / Subject (e.g. EDEXCEL IGCSE, GCSE, Grade 10-11, Cambridge)
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. EDEXCEL IGCSE, Cambridge O/L, GCSE Astronomy, Grade 10"
+                          value={formData.customLevel || ''}
+                          onChange={(e) => setFormData({ ...formData, customLevel: e.target.value })}
+                          className="w-full px-3.5 py-2 rounded-xl border border-indigo-400 dark:border-cyan-500/50 bg-white dark:bg-[#1a1d28] text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        />
+                      </div>
+                    )}
+
+                    {isCustomBatchYear && (
+                      <div className={formData.academicLevel === 'Other' ? '' : 'sm:col-span-2'}>
+                        <label className="block text-[11px] font-bold text-indigo-600 dark:text-cyan-400 mb-1">
+                          Type Custom Year (e.g. 2026/2027, 2031)
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. 2026/2027 or 2031"
+                          value={formData.batchYear}
+                          onChange={(e) => setFormData({ ...formData, batchYear: e.target.value })}
+                          className="w-full px-3.5 py-2 rounded-xl border border-indigo-400 dark:border-cyan-500/50 bg-white dark:bg-[#1a1d28] text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div>
@@ -519,14 +849,35 @@ const ManageClasses = ({ embedded = false }) => {
                     Class Type
                   </label>
                   <select
-                    value={formData.type}
-                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                    value={isCustomType ? 'CUSTOM' : formData.type}
+                    onChange={(e) => {
+                      if (e.target.value === 'CUSTOM') {
+                        setIsCustomType(true);
+                        setFormData({ ...formData, type: '' });
+                      } else {
+                        setIsCustomType(false);
+                        setFormData({ ...formData, type: e.target.value });
+                      }
+                    }}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-[#2d3446] bg-slate-50 dark:bg-[#282d3c] text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#321fdb]"
                   >
+                    <option value="None">None (No specific type)</option>
                     <option value="Theory">Theory</option>
                     <option value="Revision">Revision</option>
+                    <option value="Theory + Revision">Theory + Revision</option>
                     <option value="Paper">Paper</option>
+                    <option value="CUSTOM">Custom (Type below)...</option>
                   </select>
+                  {isCustomType && (
+                    <input
+                      type="text"
+                      required
+                      placeholder="Type custom class type..."
+                      value={formData.type}
+                      onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                      className="mt-2 w-full px-3 py-2 rounded-xl border border-indigo-400 dark:border-cyan-500 bg-indigo-50/40 dark:bg-cyan-950/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#321fdb]"
+                    />
+                  )}
                 </div>
 
                 <div>
@@ -534,14 +885,42 @@ const ManageClasses = ({ embedded = false }) => {
                     Delivery Method
                   </label>
                   <select
-                    value={formData.deliveryMethod}
-                    onChange={(e) => setFormData({ ...formData, deliveryMethod: e.target.value })}
+                    value={
+                      isCustomDelivery
+                        ? 'CUSTOM'
+                        : formData.deliveryMethod === 'Hybrid'
+                        ? 'Physical & Online'
+                        : STANDARD_DELIVERY_METHODS.includes(formData.deliveryMethod)
+                        ? formData.deliveryMethod
+                        : 'CUSTOM'
+                    }
+                    onChange={(e) => {
+                      if (e.target.value === 'CUSTOM') {
+                        setIsCustomDelivery(true);
+                        setFormData({ ...formData, deliveryMethod: '' });
+                      } else {
+                        setIsCustomDelivery(false);
+                        setFormData({ ...formData, deliveryMethod: e.target.value });
+                      }
+                    }}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-[#2d3446] bg-slate-50 dark:bg-[#282d3c] text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#321fdb]"
                   >
+                    <option value="None">None (No specific method)</option>
                     <option value="Physical">Physical</option>
                     <option value="Online">Online</option>
-                    <option value="Hybrid">Hybrid</option>
+                    <option value="Physical & Online">Physical & Online</option>
+                    <option value="CUSTOM">Custom Method (Type below)...</option>
                   </select>
+                  {isCustomDelivery && (
+                    <input
+                      type="text"
+                      required
+                      placeholder="Type custom delivery method (e.g. Home Visit, Recording Stream)..."
+                      value={formData.deliveryMethod}
+                      onChange={(e) => setFormData({ ...formData, deliveryMethod: e.target.value })}
+                      className="mt-2 w-full px-3 py-2 rounded-xl border border-indigo-400 dark:border-cyan-500 bg-indigo-50/40 dark:bg-cyan-950/20 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#321fdb]"
+                    />
+                  )}
                 </div>
 
                 <div>
@@ -621,18 +1000,144 @@ const ManageClasses = ({ embedded = false }) => {
                 </div>
               </div>
 
-              {/* Description */}
+              {/* Syllabus Overview / Notes (Live Visual WYSIWYG Editor) */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Syllabus Overview / Notes
-                </label>
-                <textarea
-                  rows="3"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Detailed breakdown of syllabus content and materials..."
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-[#2d3446] bg-slate-50 dark:bg-[#282d3c] text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#321fdb]"
-                />
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    Syllabus Overview / Notes
+                  </label>
+                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Live Visual Formatting (Bold, Italic, Bullets in-place)
+                  </span>
+                </div>
+
+                {/* Toolbar */}
+                <div className="flex flex-wrap items-center gap-1 p-1.5 bg-slate-100 dark:bg-[#202533] border border-b-0 border-slate-200 dark:border-[#2d3446] rounded-t-xl select-none">
+                  <button
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      executeFormat('bold');
+                    }}
+                    title="Bold (Ctrl+B)"
+                    className="px-2.5 py-1 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition flex items-center gap-1 cursor-pointer active:scale-95 shadow-2xs"
+                  >
+                    <Bold size={13} />
+                    <span className="text-[10px] font-black">Bold</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      executeFormat('italic');
+                    }}
+                    title="Italic (Ctrl+I)"
+                    className="px-2.5 py-1 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs italic transition flex items-center gap-1 cursor-pointer active:scale-95 shadow-2xs"
+                  >
+                    <Italic size={13} />
+                    <span className="text-[10px] italic">Italic</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      executeFormat('underline');
+                    }}
+                    title="Underline (Ctrl+U)"
+                    className="px-2.5 py-1 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs underline transition flex items-center gap-1 cursor-pointer active:scale-95 shadow-2xs"
+                  >
+                    <Underline size={13} />
+                    <span className="text-[10px]">Underline</span>
+                  </button>
+
+                  <div className="w-[1px] h-4 bg-slate-300 dark:bg-slate-700 mx-1"></div>
+
+                  <button
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      executeFormat('insertUnorderedList');
+                    }}
+                    title="Bullet List"
+                    className="px-2.5 py-1 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs transition flex items-center gap-1 cursor-pointer active:scale-95 shadow-2xs"
+                  >
+                    <List size={13} />
+                    <span className="text-[10px]">Bullets</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      executeFormat('insertOrderedList');
+                    }}
+                    title="Numbered List"
+                    className="px-2.5 py-1 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs transition flex items-center gap-1 cursor-pointer active:scale-95 shadow-2xs"
+                  >
+                    <ListOrdered size={13} />
+                    <span className="text-[10px]">Numbers</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      insertCallout();
+                    }}
+                    title="Insert Highlight Box"
+                    className="px-2.5 py-1 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs transition flex items-center gap-1 cursor-pointer active:scale-95 shadow-2xs"
+                  >
+                    <span className="text-xs">📌</span>
+                    <span className="text-[10px]">Note Box</span>
+                  </button>
+
+                  <div className="w-[1px] h-4 bg-slate-300 dark:bg-slate-700 mx-1"></div>
+
+                  <button
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      executeFormat('removeFormat');
+                    }}
+                    title="Clear Formatting"
+                    className="px-2 py-1 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 text-xs transition flex items-center gap-1 cursor-pointer active:scale-95"
+                  >
+                    <RemoveFormatting size={13} />
+                    <span className="text-[10px]">Clear</span>
+                  </button>
+                </div>
+
+                {/* Live WYSIWYG Editable Area */}
+                <div className="relative">
+                  {(!formData.description ||
+                    formData.description.trim() === '' ||
+                    formData.description === '<br>' ||
+                    formData.description === '<div><br></div>') && (
+                    <div
+                      onClick={() => editorRef.current?.focus()}
+                      className="absolute top-3 left-3.5 text-xs text-slate-400 dark:text-slate-500 pointer-events-none select-none"
+                    >
+                      Type syllabus notes here... Select text and click Bold, Italic, or Bullets to format live in-place.
+                    </div>
+                  )}
+                  <div
+                    ref={editorRef}
+                    contentEditable
+                    suppressContentEditableWarning
+                    onInput={(e) => {
+                      const html = e.currentTarget.innerHTML;
+                      const clean =
+                        html === '<br>' || html === '<p><br></p>' || html === '<div><br></div>'
+                          ? ''
+                          : html;
+                      setFormData((prev) => ({ ...prev, description: clean }));
+                    }}
+                    className="w-full min-h-[140px] max-h-[300px] overflow-y-auto px-3.5 py-3 rounded-b-xl border border-slate-200 dark:border-[#2d3446] bg-slate-50 dark:bg-[#282d3c] text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#321fdb] leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-1.5 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:my-1.5 [&_li]:my-0.5 [&_strong]:font-black [&_strong]:text-slate-900 dark:[&_strong]:text-white [&_em]:italic [&_em]:text-slate-800 dark:[&_em]:text-slate-200 [&_u]:underline cursor-text"
+                  />
+                </div>
               </div>
 
               {/* Publish Checkbox */}

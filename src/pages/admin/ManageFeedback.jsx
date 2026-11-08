@@ -3,6 +3,9 @@ import API from '../../api/axiosInstance';
 import {
   Plus,
   Trash2,
+  Edit3,
+  X,
+  Save,
   Star,
   MessageSquare,
   Sparkles,
@@ -33,6 +36,19 @@ const ManageFeedback = ({ embedded = false }) => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Edit State
+  const [editingFeedback, setEditingFeedback] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    studentName: '',
+    batch: '2026 A/L',
+    school: '',
+    resultBadge: 'Physics A',
+    rating: 5,
+    comment: '',
+    avatar: '',
+  });
+  const [isUpdating, setIsUpdating] = useState(false);
+
   const fetchFeedbacks = () => {
     API.get('/feedback')
       .then((res) => setFeedbacks(res.data))
@@ -47,7 +63,11 @@ const ManageFeedback = ({ embedded = false }) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await API.post('/feedback', formData);
+      const payload = {
+        ...formData,
+        school: formData.school ? formData.school.trim() : '',
+      };
+      await API.post('/feedback', payload);
       setFormData({
         studentName: '',
         batch: '2026 A/L',
@@ -63,6 +83,40 @@ const ManageFeedback = ({ embedded = false }) => {
       alert('Feedback ඇතුළත් කිරීම අසාර්ථකයි!');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleEdit = (fb) => {
+    setEditingFeedback(fb);
+    setEditFormData({
+      studentName: fb.studentName || '',
+      batch: fb.batch || '',
+      school: fb.school || '',
+      resultBadge: fb.resultBadge || '',
+      rating: fb.rating || 5,
+      comment: fb.comment || '',
+      avatar: fb.avatar || '',
+    });
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    if (!editingFeedback) return;
+    setIsUpdating(true);
+    try {
+      const payload = {
+        ...editFormData,
+        school: editFormData.school ? editFormData.school.trim() : '',
+      };
+      await API.put(`/feedback/${editingFeedback._id}`, payload);
+      setEditingFeedback(null);
+      fetchFeedbacks();
+      alert('Feedback එක සාර්ථකව update කළා!');
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || 'Feedback update කිරීම අසාර්ථකයි!');
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -156,13 +210,13 @@ const ManageFeedback = ({ embedded = false }) => {
 
           <div>
             <label className="text-xs text-slate-700 dark:text-slate-300 block mb-1.5 font-semibold">
-              School (Optional)
+              School (Optional - නැතිනම් හිස්ව තබන්න)
             </label>
             <input
               type="text"
               value={formData.school}
               onChange={(e) => setFormData({ ...formData, school: e.target.value })}
-              placeholder="e.g. Royal College, Colombo"
+              placeholder="e.g. Royal College (නැතිනම් හිස්ව තබන්න)"
               className="admin-input w-full px-3.5 py-2.5 rounded-xl text-xs border"
             />
           </div>
@@ -338,7 +392,7 @@ const ManageFeedback = ({ embedded = false }) => {
                             {fb.studentName}
                           </div>
                           <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                            {fb.batch} • {fb.school || 'Private Candidate'}
+                            {fb.batch}{fb.school && fb.school.trim() ? ` • ${fb.school}` : ''}
                           </div>
                         </div>
                       </div>
@@ -392,13 +446,23 @@ const ManageFeedback = ({ embedded = false }) => {
                     </td>
 
                     <td className="py-4 pl-4 pr-6 text-right">
-                      <button
-                        onClick={() => handleDelete(fb._id)}
-                        className="p-2 rounded-xl bg-rose-50 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400 hover:bg-rose-600 hover:text-white border border-rose-200/80 dark:border-rose-500/30 hover:border-rose-600 transition cursor-pointer"
-                        title="Delete Review"
-                      >
-                        <Trash2 size={15} />
-                      </button>
+                      <div className="inline-flex items-center gap-1.5 p-1 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80">
+                        <button
+                          onClick={() => handleEdit(fb)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-white dark:hover:bg-slate-700 rounded-xl font-semibold text-[11px] transition cursor-pointer"
+                          title="Edit Feedback"
+                        >
+                          <Edit3 size={13} />
+                          <span>Edit</span>
+                        </button>
+                        <button
+                          onClick={() => handleDelete(fb._id)}
+                          className="p-1.5 text-rose-600 dark:text-rose-400 hover:text-white hover:bg-rose-600 rounded-xl transition cursor-pointer"
+                          title="Delete Review"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -415,6 +479,150 @@ const ManageFeedback = ({ embedded = false }) => {
           itemLabel="student testimonials"
         />
       </div>
+
+      {/* Edit Feedback Modal */}
+      {editingFeedback && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-[#0d1326] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto p-6 sm:p-8 my-auto">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200/80 dark:border-slate-800 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-100 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-300 flex items-center justify-center">
+                  <Edit3 size={18} />
+                </div>
+                <div>
+                  <h4 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white">
+                    Edit Student Feedback
+                  </h4>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Update student review, achievement badge and ratings
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingFeedback(null)}
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdate} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs text-slate-700 dark:text-slate-300 block mb-1.5 font-semibold">
+                    Student Full Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editFormData.studentName}
+                    onChange={(e) => setEditFormData({ ...editFormData, studentName: e.target.value })}
+                    placeholder="e.g. Nimna Kavishka"
+                    className="admin-input w-full px-3.5 py-2.5 rounded-xl text-xs border"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs text-slate-700 dark:text-slate-300 block mb-1.5 font-semibold">
+                    Batch
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editFormData.batch}
+                    onChange={(e) => setEditFormData({ ...editFormData, batch: e.target.value })}
+                    placeholder="e.g. 2026 A/L"
+                    className="admin-input w-full px-3.5 py-2.5 rounded-xl text-xs border"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs text-slate-700 dark:text-slate-300 block mb-1.5 font-semibold">
+                    School (Optional - නැතිනම් හිස්ව තබන්න)
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.school}
+                    onChange={(e) => setEditFormData({ ...editFormData, school: e.target.value })}
+                    placeholder="e.g. Royal College (නැතිනම් හිස්ව තබන්න)"
+                    className="admin-input w-full px-3.5 py-2.5 rounded-xl text-xs border"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs text-slate-700 dark:text-slate-300 block mb-1.5 font-semibold">
+                    Result Badge
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.resultBadge}
+                    onChange={(e) => setEditFormData({ ...editFormData, resultBadge: e.target.value })}
+                    placeholder="e.g. Island 4th / Physics A"
+                    className="admin-input w-full px-3.5 py-2.5 rounded-xl text-xs border"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs text-slate-700 dark:text-slate-300 block mb-1.5 font-semibold">
+                    Rating (Stars)
+                  </label>
+                  <select
+                    value={editFormData.rating}
+                    onChange={(e) => setEditFormData({ ...editFormData, rating: Number(e.target.value) })}
+                    className="admin-input w-full px-3.5 py-2.5 rounded-xl text-xs border"
+                  >
+                    <option value={5}>5 Stars (★★★★★)</option>
+                    <option value={4}>4 Stars (★★★★☆)</option>
+                    <option value={3}>3 Stars (★★★☆☆)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <ImageUploadField
+                    label="Avatar Image (Optional)"
+                    value={editFormData.avatar}
+                    onChange={(url) => setEditFormData({ ...editFormData, avatar: url })}
+                    placeholder="Upload photo or paste URL..."
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs text-slate-700 dark:text-slate-300 block mb-1.5 font-semibold">
+                  Testimonial Comment
+                </label>
+                <textarea
+                  required
+                  rows={4}
+                  value={editFormData.comment}
+                  onChange={(e) => setEditFormData({ ...editFormData, comment: e.target.value })}
+                  placeholder="Student testimonial review comment..."
+                  className="admin-input w-full px-3.5 py-2.5 rounded-xl text-xs border"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setEditingFeedback(null)}
+                  className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUpdating}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white font-bold text-xs tracking-wide transition shadow-lg shadow-indigo-500/25 cursor-pointer disabled:opacity-60"
+                >
+                  <Save size={15} />
+                  <span>{isUpdating ? 'Saving...' : 'Update Feedback'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );

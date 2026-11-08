@@ -43,7 +43,7 @@ const AdminSidebar = ({ mobileOpen, setMobileOpen }) => {
     {
       title: 'SYSTEM & SETTINGS',
       items: [
-        { label: 'Lecturer Profile', path: '/admin/profile', icon: UserSquare2 },
+        { label: 'Teacher Profile', path: '/admin/profile', icon: UserSquare2 },
       ],
     },
   ];

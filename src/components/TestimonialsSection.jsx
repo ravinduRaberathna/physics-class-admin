@@ -76,7 +76,7 @@ const TestimonialsSection = () => {
                 Rankers Speak & Experiences
               </h3>
               <p className="text-xs sm:text-sm text-slate-500 mt-2.5 max-w-2xl font-normal leading-relaxed">
-                දිවයිනේ ඉහළම සාමාර්ථ කරා ළඟා වූ අපගේ සිසුන් පන්ති ක්‍රමවේදය සහ විභාග ජයග්‍රහණය කළ අයුරු ගැන දක්වන අදහස්.
+                පළමු දින සිටම අපගේ ක්‍රමවේදය කෙරෙහි විශ්වාසය තැබූ සිසුන්ගේ සැබෑ අත්දැකීම්.
               </p>
             </div>
 
@@ -155,10 +155,12 @@ const TestimonialsSection = () => {
                             </h4>
                             <ShieldCheck size={14} className="text-emerald-500 shrink-0" />
                           </div>
-                          <p className="text-[11px] text-slate-400 font-medium truncate flex items-center gap-1 mt-0.5">
-                            {fb.school && <School size={11} className="text-slate-400 shrink-0" />}
-                            <span className="truncate">{fb.school || fb.batch}</span>
-                          </p>
+                          {fb.school && fb.school.trim() ? (
+                            <p className="text-[11px] text-slate-400 font-medium truncate flex items-center gap-1 mt-0.5">
+                              <School size={11} className="text-slate-400 shrink-0" />
+                              <span className="truncate">{fb.school}</span>
+                            </p>
+                          ) : null}
                         </div>
                       </div>
 

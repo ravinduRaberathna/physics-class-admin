@@ -82,7 +82,7 @@ const AdminHeader = () => {
       case '/admin/blogs':
         return 'Knowledge Hub Articles';
       case '/admin/profile':
-        return 'Lecturer Profile Settings';
+        return 'Teacher Profile Settings';
       default:
         return 'Control Center';
     }

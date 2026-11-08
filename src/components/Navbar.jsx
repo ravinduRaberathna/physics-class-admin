@@ -33,7 +33,7 @@ const Navbar = ({ teacherName = 'A/L PHYSICS' }) => {
   }, []);
 
   const navLinks = [
-    { name: 'Lecturer', href: '/#lecturer', id: 'lecturer', icon: GraduationCap },
+    { name: 'Teacher', href: '/#lecturer', id: 'lecturer', icon: GraduationCap },
     { name: 'Batches', href: '/#classes', id: 'classes', icon: BookOpen },
     { name: 'Blog', href: '/#blogs', id: 'blogs', icon: FileText },
     { name: 'Contact', href: '/#register', id: 'register', icon: PhoneCall },

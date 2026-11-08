@@ -26,6 +26,12 @@ const TeacherProfileSection = ({ teacher, isModalOpen, onCloseModal, onOpenModal
     teacher?.bio ||
     'කටපාඩමෙන් එහා ගිය තාර්කික අවබෝධය — විෂයය හරියටම ග්‍රහණය කරගන්න නව පරපුරේ මඟපෙන්වීම.';
   const profileImage = !imgError && teacher?.profileImage ? teacher.profileImage : '';
+  const coverImage =
+    teacher?.coverImage ||
+    (Array.isArray(teacher?.showcaseImages)
+      ? teacher.showcaseImages.find((img) => img && img.alt === '__COVER_IMAGE__')?.src
+      : '') ||
+    '';
 
   const phone = teacher?.contactInfo?.phone || '+94 77 123 4567';
   const whatsapp = teacher?.contactInfo?.whatsapp || '94771234567';
@@ -218,17 +224,14 @@ const TeacherProfileSection = ({ teacher, isModalOpen, onCloseModal, onOpenModal
                   )}
                 </div>
 
-                {/* Subtle Floating Experience / Rank Badge on Circle Edge */}
-                <div className="absolute bottom-3 right-3 sm:bottom-5 sm:right-5 z-20 bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-lg border border-purple-100 flex items-center gap-2.5">
+                {/* Subtle Floating Name Badge on Circle Edge */}
+                <div className="absolute bottom-3 right-3 sm:bottom-5 sm:right-5 z-20 bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-lg border border-purple-100 flex items-center gap-2.5 max-w-[220px]">
                   <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs">
                     <Check size={16} strokeWidth={3} />
                   </div>
-                  <div className="text-left">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 leading-none">
-                      Verified Mentor
-                    </p>
-                    <p className="text-xs font-extrabold text-slate-900 mt-0.5">
-                      A/L Physics
+                  <div className="text-left truncate">
+                    <p className="text-xs sm:text-sm font-extrabold text-slate-900 leading-tight truncate">
+                      {name}
                     </p>
                   </div>
                 </div>
@@ -240,12 +243,12 @@ const TeacherProfileSection = ({ teacher, isModalOpen, onCloseModal, onOpenModal
               
               {/* Top Accent Kicker */}
               <span className="inline-block text-xs sm:text-sm font-semibold text-[#f95715] tracking-wide">
-                Know About Lecturer
+                Know About Teacher
               </span>
 
               {/* Main Bold Heading */}
               <h2 className="text-3xl sm:text-4xl lg:text-[2.65rem] font-extrabold text-slate-900 tracking-tight leading-[1.22]">
-                {name} — Guiding Students to Island Top Rankings.
+                {name}
               </h2>
 
               {/* Academic Title / Designation (Matching Official Academic Streams Indigo Badge Style) */}
@@ -310,24 +313,35 @@ const TeacherProfileSection = ({ teacher, isModalOpen, onCloseModal, onOpenModal
          ===================================================================== */}
       {isModalOpen && (
         <div
-          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 font-['Poppins']"
+          className="fixed inset-0 z-[100] bg-slate-900/70 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 pt-20 sm:pt-24 pb-8 overflow-y-auto font-['Poppins']"
           onClick={onCloseModal}
         >
           <div
-            className="bg-white border border-slate-200 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative text-slate-800 animate-hero-badge"
+            className="bg-white border border-slate-200 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[82vh] overflow-y-auto relative text-slate-800 animate-hero-badge my-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Top Cover Header */}
             <div className="relative h-36 bg-gradient-to-r from-[#7e22ce] via-[#9333ea] to-indigo-600 p-6 flex justify-between items-start overflow-hidden">
-              <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-[10px] font-bold uppercase tracking-widest">
+              {coverImage && (
+                <img
+                  src={coverImage}
+                  alt="Teacher Cover"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              )}
+              {coverImage && (
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/25 to-black/35" />
+              )}
+
+              <span className="relative z-10 inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-[10px] font-bold uppercase tracking-widest shadow-xs">
                 <ShieldCheck size={13} className="text-emerald-300" />
-                <span>Verified Lecturer Profile</span>
+                <span>Verified Teacher Profile</span>
               </span>
 
               <button
                 type="button"
                 onClick={onCloseModal}
-                className="relative z-10 p-2 rounded-full bg-black/20 hover:bg-black/40 text-white transition cursor-pointer"
+                className="relative z-10 p-2 rounded-full bg-black/30 hover:bg-black/50 text-white transition cursor-pointer"
                 aria-label="Close profile modal"
               >
                 <X size={18} />
@@ -357,7 +371,7 @@ const TeacherProfileSection = ({ teacher, isModalOpen, onCloseModal, onOpenModal
 
                 <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold w-fit">
                   <CheckCircle2 size={14} />
-                  <span>Lead A/L Physics Lecturer</span>
+                  <span>Lead A/L Physics Teacher</span>
                 </span>
               </div>
 
@@ -372,7 +386,7 @@ const TeacherProfileSection = ({ teacher, isModalOpen, onCloseModal, onOpenModal
               {/* Bio Box */}
               <div className="mt-5 p-5 rounded-2xl bg-slate-50 border border-slate-200/80">
                 <h4 className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-2">
-                  About Lecturer
+                  About Teacher
                 </h4>
                 <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">
                   {bio}

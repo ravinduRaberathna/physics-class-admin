@@ -68,7 +68,7 @@ const AdminDashboard = () => {
     { id: 'showcase', label: 'Hero 3D Showcase', icon: Images },
     { id: 'feedbacks', label: 'Student Reviews', icon: MessageSquareQuote, count: stats.totalFeedbacks },
     { id: 'blogs', label: 'Knowledge Hub Articles', icon: FileText, count: stats.totalBlogs },
-    { id: 'profile', label: 'Lecturer Bio & Socials', icon: UserSquare2 },
+    { id: 'profile', label: 'Teacher Bio & Socials', icon: UserSquare2 },
   ];
 
   const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
